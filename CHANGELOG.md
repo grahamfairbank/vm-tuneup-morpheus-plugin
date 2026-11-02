@@ -1,8 +1,8 @@
 # Changelog
 
-## 1.0.0 (unreleased): first public release
+## 0.7.1 (2026-11-02): first public release
 
-The first public release brings together 0.6.0 and 0.7.0 below. In short:
+The first public release. It brings together 0.6.0, 0.7.0 and the 0.7.1 changes below. In short:
 
 - **A tune-up plan for every VM:** fixes grouped into one outage of the VM, one guest restart or no downtime, prerequisites once and in order, and the grade **after the plan**; a plan summary for the cluster; plan columns in the CSV.
 - **Three new Tier 1 checks:** HA and mobility, nested virtualization, and CPU topology (critical for Windows 10 or 11 spread over more than 2 sockets). The VMware source VM check (`SOURCE-TWIN`) is gone.
@@ -14,9 +14,7 @@ The first public release brings together 0.6.0 and 0.7.0 below. In short:
 
 Upgrading from 0.5.0: give the new **VM Tune-Up: Update VM records** permission only to people who may edit VM records; it starts at **None**.
 
-## 0.7.1 (2026-11-02)
-
-**Clearer wording and layout, from the owner's review of 0.7.0.**
+**Also new in 0.7.1: clearer wording and layout.**
 
 - **"Host CPUs" is now "Live migration readiness"**, with a **Check the hosts** button. When the hosts are identical, the result says host passthrough is fine, and that the CPU Model setting will need to change to a named model (it names the best one) before a host with a different CPU or microcode joins.
 - **"Cold window" is now "outage", per VM:** "One outage of this VM (powered off once)", "Outage (2 fixes)", "Before the outage", and "Outages are per VM: the rest of the cluster keeps running." The CSV code stays `cold`.
