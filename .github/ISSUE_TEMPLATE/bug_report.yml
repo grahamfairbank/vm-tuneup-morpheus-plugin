@@ -11,7 +11,7 @@ body:
     id: plugin
     attributes:
       label: Plugin version and jar
-      placeholder: "0.4.0, migration-hygiene-plugin-0.4.0.jar"
+      placeholder: "0.4.0, vm-tuneup-morpheus-plugin-0.4.0.jar"
     validations:
       required: true
   - type: input
@@ -50,7 +50,7 @@ body:
     id: what
     attributes:
       label: What happened, and what did you expect?
-      description: What does the Migration Hygiene tab show? Include the message text if there is one. For a wrong finding, say what the VM really has (for example, "the disk is on VirtIO SCSI in Reconfigure").
+      description: What does the VM Tune-Up tab show? Include the message text if there is one. For a wrong finding, say what the VM really has (for example, "the disk is on VirtIO SCSI in Reconfigure").
     validations:
       required: true
   - type: textarea
@@ -61,7 +61,7 @@ body:
     id: logs
     attributes:
       label: Log lines (redacted)
-      description: "From the Morpheus log (Administration > Health > Morpheus Logs, or /var/log/morpheus/morpheus-ui/current), lines containing `migration-hygiene:`."
+      description: "From the Morpheus log (Administration > Health > Morpheus Logs, or /var/log/morpheus/morpheus-ui/current), lines containing `vm-tuneup:`."
       render: text
   - type: checkboxes
     id: redacted

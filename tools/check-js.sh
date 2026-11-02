@@ -12,7 +12,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 docker run --rm -i -v "$PWD":/src:ro -w /src "${NODE_IMAGE:-node:20-alpine}" node - <<'JS'
 const fs = require('fs');
-const src = fs.readFileSync('src/assets/javascript/migration-hygiene.js', 'utf8');
+const src = fs.readFileSync('src/assets/javascript/vm-tuneup.js', 'utf8');
 function grab(re, what) { const m = src.match(re); if (!m) throw new Error('not found: ' + what); return m[0]; }
 const code = [
   grab(/var MARKER = [^\n]*\n/, 'MARKER'),
@@ -28,13 +28,13 @@ for (const k of csv) {
   if (got !== k.expected) { bad++; console.log('csvCell', JSON.stringify(k.value), 'got', JSON.stringify(got), 'want', JSON.stringify(k.expected)); }
 }
 const O = 'https://manager.example.com';
-const ok = { status: 200, redirected: false, url: O + '/plugin/migrationHygiene/vm?serverId=1', type: 'text/html;charset=utf-8', text: '<div class="migration-hygiene mh-vm">x</div>' };
+const ok = { status: 200, redirected: false, url: O + '/plugin/vmTuneUp/vm?serverId=1', type: 'text/html;charset=utf-8', text: '<div class="vm-tuneup vtu-vm">x</div>' };
 const frag = [
   ['our fragment', ok, true],
-  ['our fragment after a template comment (leading whitespace)', Object.assign({}, ok, { text: ' \n<div class="migration-hygiene mh-cluster" data-mh-poll="1">' }), true],
-  ['our message fragment', Object.assign({}, ok, { text: '<div class="migration-hygiene"><div class="mh-note">x</div></div>' }), true],
+  ['our fragment after a template comment (leading whitespace)', Object.assign({}, ok, { text: ' \n<div class="vm-tuneup vtu-cluster" data-vtu-poll="1">' }), true],
+  ['our message fragment', Object.assign({}, ok, { text: '<div class="vm-tuneup"><div class="vtu-note">x</div></div>' }), true],
   ['type without charset', Object.assign({}, ok, { type: 'text/html' }), true],
-  ['relative url', Object.assign({}, ok, { url: '/plugin/migrationHygiene/vm?serverId=1' }), true],
+  ['relative url', Object.assign({}, ok, { url: '/plugin/vmTuneUp/vm?serverId=1' }), true],
   ['redirected to the sign-in page', Object.assign({}, ok, { redirected: true, url: O + '/login/auth' }), false],
   ['sign-in page served without a redirect flag', Object.assign({}, ok, { text: '<!DOCTYPE html><html><body><form action="/login">' }), false],
   ['other origin', Object.assign({}, ok, { url: 'https://evil.example.net/x' }), false],
@@ -45,7 +45,7 @@ const frag = [
   ['no type', Object.assign({}, ok, { type: '' }), false],
   ['403', Object.assign({}, ok, { status: 403 }), false],
   ['302', Object.assign({}, ok, { status: 302 }), false],
-  ['marker not at the start', Object.assign({}, ok, { text: '<p>hi</p><div class="migration-hygiene">' }), false],
+  ['marker not at the start', Object.assign({}, ok, { text: '<p>hi</p><div class="vm-tuneup">' }), false],
   ['empty body', Object.assign({}, ok, { text: '' }), false],
   ['null answer', null, false],
 ];

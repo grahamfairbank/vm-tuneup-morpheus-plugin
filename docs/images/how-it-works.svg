@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1307" viewBox="0 0 1400 1307" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
-<title>How migration-hygiene-plugin works</title>
-<desc>Architecture and request flows of migration-hygiene-plugin: the browser, the plugin inside the Morpheus appliance, and the HVM VMs it audits.</desc>
+<title>How vm-tuneup-morpheus-plugin works</title>
+<desc>Architecture and request flows of vm-tuneup-morpheus-plugin: the browser, the plugin inside the Morpheus appliance, and the HVM VMs it audits.</desc>
 <defs>
 <marker id="a2a6bb8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2a6bb8"/></marker>
 <marker id="aa35f00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a35f00"/></marker>
 </defs>
 <rect width="1400" height="1307" fill="#ffffff"/>
-<text x="24" y="48" font-size="30" font-weight="bold" fill="#1b1f24">How migration-hygiene-plugin works</text>
+<text x="24" y="48" font-size="30" font-weight="bold" fill="#1b1f24">How vm-tuneup-morpheus-plugin works</text>
 <text x="24" y="76" font-size="15" fill="#57606a">We've migrated to HVM. Now what? A read-only audit of HVM VMs, inside Morpheus: what the migration left behind, and what to tune next.</text>
 <rect x="24" y="108" width="306" height="652" rx="14" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
 <text x="42" y="138" font-size="19" font-weight="bold" fill="#2a6bb8" text-anchor="start">① Your browser</text>
 <text x="42" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus web UI: nothing to install</text>
 <rect x="400" y="108" width="600" height="652" rx="14" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
 <text x="418" y="138" font-size="19" font-weight="bold" fill="#1c7a5c" text-anchor="start">② Morpheus appliance</text>
-<text x="418" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">migration-hygiene-plugin jar, running inside Morpheus</text>
+<text x="418" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">vm-tuneup-morpheus-plugin jar, running inside Morpheus</text>
 <rect x="1070" y="108" width="306" height="652" rx="14" fill="#eef7e6" stroke="#3f7a1d" stroke-width="2"/>
 <text x="1088" y="138" font-size="19" font-weight="bold" fill="#3f7a1d" text-anchor="start">③ Your HVM VMs</text>
 <text x="1088" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">On the HVM hosts of each cluster</text>
 <rect x="38" y="174" width="278" height="176" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
-<text x="52" y="203" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Cluster page › Migration Hygiene</text>
+<text x="52" y="203" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Cluster page › VM Tune-Up</text>
 <text x="52" y="226" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="226" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The fleet view: grades, findings</text>
 <text x="66" y="243" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">by severity, origin groups, worst</text>
@@ -29,7 +29,7 @@
 <text x="52" y="318" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Works on every edition, including</text>
 <text x="52" y="334" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus VM Essentials</text>
 <rect x="38" y="362" width="278" height="161" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
-<text x="52" y="391" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">VM / instance › Migration Hygiene</text>
+<text x="52" y="391" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">VM / instance › VM Tune-Up</text>
 <text x="52" y="414" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="414" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Grade and findings, worst first</text>
 <text x="52" y="435" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
@@ -40,7 +40,7 @@
 <text x="66" y="490" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Refresh · Check guest agent</text>
 <text x="66" y="507" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">(optional)</text>
 <rect x="38" y="535" width="278" height="159" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
-<text x="52" y="564" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Plugin script (migration-hygiene.js)</text>
+<text x="52" y="564" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Plugin script (vm-tuneup.js)</text>
 <text x="52" y="587" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="587" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fills only the tab you open;</text>
 <text x="66" y="604" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">pauses while it&#x27;s hidden</text>
@@ -59,20 +59,19 @@
 <text x="442" y="281" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Render a small shell, or a result</text>
 <text x="442" y="298" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">already in memory: no scans during</text>
 <text x="442" y="315" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">page loads</text>
-<rect x="414" y="343" width="279" height="102" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
+<rect x="414" y="343" width="279" height="85" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
 <text x="428" y="372" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">Script loader</text>
 <text x="428" y="395" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="442" y="395" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Loads migration-hygiene.js with</text>
-<text x="442" y="412" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus&#x27;s CSP nonce, for view</text>
-<text x="442" y="429" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">users only</text>
-<rect x="414" y="457" width="279" height="141" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
-<text x="428" y="486" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">Routes  /plugin/migrationHygiene/…</text>
-<text x="428" y="508" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">vm · cluster · clusterData · clusters ·</text>
-<text x="428" y="524" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">csv · status</text>
-<text x="428" y="544" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">clusterRescan · vmProbe (POST)</text>
-<text x="428" y="565" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="442" y="565" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each checks the permission level</text>
-<text x="442" y="582" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and the tenant itself</text>
+<text x="442" y="395" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Loads vm-tuneup.js with Morpheus&#x27;s</text>
+<text x="442" y="412" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">CSP nonce, for view users only</text>
+<rect x="414" y="440" width="279" height="141" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
+<text x="428" y="469" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">Routes  /plugin/vmTuneUp/…</text>
+<text x="428" y="491" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">vm · cluster · clusterData · clusters ·</text>
+<text x="428" y="507" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">csv · status</text>
+<text x="428" y="527" font-size="12" font-weight="bold" fill="#1c7a5c" text-anchor="start">clusterRescan · vmProbe (POST)</text>
+<text x="428" y="548" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="442" y="548" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each checks the permission level</text>
+<text x="442" y="565" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and the tenant itself</text>
 <rect x="707" y="174" width="279" height="161" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
 <text x="721" y="203" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">ScanService</text>
 <text x="721" y="226" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>

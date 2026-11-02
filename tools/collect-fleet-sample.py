@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Collect an anonymized, read-only sample of VM data from an HPE Morpheus appliance.
 
-Migration Hygiene uses this sample to check its rules against real fleets. The script:
+VM Tune-Up uses this sample to check its rules against real fleets. The script:
 
 - only sends GET requests, using a token you paste in (a read-only user is enough);
 - saves only the fields the checks need, from an allowlist;
@@ -17,7 +17,7 @@ Migration Hygiene uses this sample to check its rules against real fleets. The s
   overwritten), and prints a summary. Review the file before you share it;
 - on an error from the appliance, prints only the HTTP status, never the answer body.
 
-Format "migration-hygiene-fleet-sample/2" (0.4.0): ids are tokens ("srv-...", "cloud-...",
+Format "vm-tuneup-fleet-sample/2" (0.4.0): ids are tokens ("srv-...", "cloud-...",
 "cluster-...", "mig-...") instead of numbers, dateCreated is "YYYY-MM", lastAgentUpdate and
 the oldest snapshot date are "YYYY-MM-DD". Format /1 kept numeric ids and full timestamps.
 
@@ -227,20 +227,20 @@ def vm_record(s: dict, a: Anon, snaps) -> dict:
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("host", help="appliance host name (use the DNS name, not the IP)")
-    ap.add_argument("--out", help="output file (default: mh-fleet-sample-<date>.json)")
+    ap.add_argument("--out", help="output file (default: vtu-fleet-sample-<date>.json)")
     ap.add_argument("--max-vms", type=int, default=None, help="stop after this many VMs per cloud")
     ap.add_argument("--no-snapshots", action="store_true", help="skip the per-VM snapshot lookup")
     args = ap.parse_args()
 
     srv = Server(args.host)
-    srv.token = os.environ.get("MH_TOKEN") or getpass.getpass("API token (read-only user is enough): ").strip()
+    srv.token = os.environ.get("VTU_TOKEN") or getpass.getpass("API token (read-only user is enough): ").strip()
     if not srv.token:
         sys.exit("Stopped: no token.")
     a = Anon()
-    out = args.out or f"mh-fleet-sample-{dt.date.today().isoformat()}.json"
+    out = args.out or f"vtu-fleet-sample-{dt.date.today().isoformat()}.json"
     if os.path.exists(out):
         sys.exit(f"Stopped: {out} already exists; move it away or pass --out.")
-    sample = {"format": "migration-hygiene-fleet-sample/2",
+    sample = {"format": "vm-tuneup-fleet-sample/2",
               "collectedAt": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
 
     who = srv.get("/api/whoami", kind="whoami")

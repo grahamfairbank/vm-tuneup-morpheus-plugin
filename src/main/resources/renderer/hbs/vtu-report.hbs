@@ -1,0 +1,53 @@
+{{!-- Fleet report: summary from the header row, one row per HVM VM from the main rows. Escaped values only. --}}
+<div class="vm-tuneup vtu-report">
+<style>
+.vm-tuneup { font-size: 13px; padding: 6px 0; }
+.vm-tuneup h4 { margin: 14px 0 6px; font-size: 14px; }
+.vm-tuneup .vtu-muted { opacity: .7; }
+.vm-tuneup .vtu-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.vm-tuneup .vtu-grade { display: inline-block; min-width: 34px; text-align: center; font-weight: 700; font-size: 18px; padding: 4px 8px; border-radius: 4px; color: #fff; }
+.vm-tuneup .vtu-grade-small { font-size: 12px; min-width: 22px; padding: 1px 6px; }
+.vm-tuneup .vtu-grade-a { background: #2e7d32; } .vm-tuneup .vtu-grade-b { background: #558b2f; }
+.vm-tuneup .vtu-grade-c { background: #b8860b; } .vm-tuneup .vtu-grade-d { background: #d2691e; }
+.vm-tuneup .vtu-grade-f { background: #c62828; }
+.vm-tuneup .vtu-badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(128,128,128,.5); margin-right: 4px; white-space: nowrap; }
+.vm-tuneup .vtu-sev-critical { background: #c62828; color: #fff; border-color: #c62828; }
+.vm-tuneup .vtu-sev-warning { background: #ef8f00; color: #fff; border-color: #ef8f00; }
+.vm-tuneup .vtu-sev-info { background: #1e6fb8; color: #fff; border-color: #1e6fb8; }
+.vm-tuneup .vtu-cat-rec { border-color: #2e7d32; }
+.vm-tuneup .vtu-cat-con { border-color: #8a8f98; }
+.vm-tuneup .vtu-finding { border: 1px solid rgba(128,128,128,.35); border-radius: 4px; padding: 8px 10px; margin: 8px 0; }
+.vm-tuneup .vtu-finding p { margin: 4px 0; }
+.vm-tuneup .vtu-finding ol, .vm-tuneup .vtu-finding ul { margin: 4px 0 4px 18px; padding: 0; }
+.vm-tuneup .vtu-evidence { font-family: monospace; font-size: 12px; background: rgba(128,128,128,.1); padding: 3px 6px; border-radius: 3px; }
+.vm-tuneup table.vtu-table { border-collapse: collapse; width: 100%; }
+.vm-tuneup table.vtu-table th, .vm-tuneup table.vtu-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
+.vm-tuneup .vtu-num { text-align: right; }
+.vm-tuneup details { margin: 8px 0; }
+.vm-tuneup summary { cursor: pointer; font-weight: 600; }
+.vm-tuneup .vtu-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
+</style>
+{{#if error}}<div class="vtu-note">{{error}}</div>{{/if}}
+{{#with summary}}
+<h4>Summary</h4>
+<div class="vtu-head">
+	<strong>{{vmCount}} HVM VMs</strong>
+	{{#each grades}}<span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}
+	<span class="vtu-badge vtu-sev-critical">{{critical}} critical</span>
+	<span class="vtu-badge vtu-sev-warning">{{warning}} warning</span>
+	<span class="vtu-badge vtu-sev-info">{{info}} info</span>
+	<span class="vtu-badge">{{vmwareOrigin}} VMware origin</span>
+</div>
+<table class="vtu-table">
+	<tr><th>Check</th><th>Category</th><th class="vtu-num">VMs failing</th><th class="vtu-num">Unknown or not evaluated</th></tr>
+	{{#each byCheck}}<tr><td>{{title}} <span class="vtu-muted" title="Check ID {{fullId}}">{{id}}</span></td><td>{{category}}</td><td class="vtu-num">{{failed}}</td><td class="vtu-num">{{unknown}}</td></tr>{{/each}}
+</table>
+<p class="vtu-muted">Scanned {{scannedAt}}. Unknown and not-evaluated results carry no penalty. Snapshot and allocation thresholds are plugin heuristics, not HPE guidance.</p>
+{{/with}}
+<h4>VMs (worst first)</h4>
+<table class="vtu-table">
+	<tr><th>VM</th><th>Cluster</th><th>OS</th><th>Grade</th><th class="vtu-num">Score</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th class="vtu-num">Unknown</th><th>VMware origin</th><th>Top findings</th></tr>
+	{{#each rows}}<tr><td>{{name}}</td><td>{{cluster}}</td><td>{{os}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td class="vtu-num">{{unknown}}</td><td>{{vmwareOrigin}}</td><td>{{topFindings}}</td></tr>{{/each}}
+</table>
+<div class="vtu-muted">Export this report as CSV for the per-VM rows. Open a VM's VM Tune-Up tab for evidence and fix steps. {{disclaimer}}</div>
+</div>

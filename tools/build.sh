@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build the plugin without installing Java: runs the Gradle wrapper in a JDK 17 container.
 #
-#   tools/build.sh             # test + build dist/migration-hygiene-plugin-<version>.jar, then compatibility tests
+#   tools/build.sh             # test + build dist/vm-tuneup-morpheus-plugin-<version>.jar, then compatibility tests
 #   COMPAT_APIS="" tools/build.sh   # skip the compatibility test run
 #   tools/build.sh <tasks...>  # run other Gradle tasks (no compatibility run)
 #
@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
 # Pinned by digest (0.4.0) so every build uses the same JDK image. To move to a newer one: docker pull
 # eclipse-temurin:17-jdk, then put the digest from `docker image inspect --format '{{json .RepoDigests}}' eclipse-temurin:17-jdk` here.
 IMAGE="${BUILD_IMAGE:-eclipse-temurin:17-jdk@sha256:fe947d993c32dd9cf651a4353a6ed723c2370b3a9d034ea4cab4775404ea531a}"
-CACHE="${GRADLE_CACHE_VOLUME:-migration-hygiene-plugin-gradle}"   # own cache: a shared one let parallel builds collide
+CACHE="${GRADLE_CACHE_VOLUME:-vm-tuneup-morpheus-plugin-gradle}"   # own cache: a shared one let parallel builds collide
 DEFAULT_COMPAT=$(grep -E '^mavenLatest=' compat/plugin-core-baseline.properties 2>/dev/null | cut -d= -f2 || true)
 COMPAT_APIS="${COMPAT_APIS-$DEFAULT_COMPAT}"
 tasks=("$@")
@@ -32,7 +32,7 @@ echo "== build (Plugin API 1.4.1)"
 gradle "${tasks[@]}"
 if [ "$custom" -eq 0 ]; then
   mkdir -p dist
-  cp build/libs/migration-hygiene-plugin-*.jar dist/
+  cp build/libs/vm-tuneup-morpheus-plugin-*.jar dist/
   for v in $COMPAT_APIS; do
     [ "$v" = "1.4.1" ] && continue
     echo "== compatibility tests against Plugin API $v"

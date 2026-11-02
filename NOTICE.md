@@ -2,7 +2,7 @@
 
 ## Unofficial project
 
-migration-hygiene-plugin is an **independent, unofficial community project**. It is **not** a product of Hewlett Packard Enterprise (HPE) or Morpheus Data, LLC. It is not developed, reviewed, endorsed, sponsored, certified or supported by HPE or Morpheus Data.
+vm-tuneup-morpheus-plugin is an **independent, unofficial community project**. It is **not** a product of Hewlett Packard Enterprise (HPE) or Morpheus Data, LLC. It is not developed, reviewed, endorsed, sponsored, certified or supported by HPE or Morpheus Data.
 
 The software is provided "as is", without warranty of any kind (see [LICENSE](LICENSE)). Use it at your own risk. Do not contact HPE support about it.
 

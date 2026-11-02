@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a least-privilege, read-only role and user for Migration Hygiene in
+"""Create a least-privilege, read-only role and user for VM Tune-Up in
 HPE Morpheus, then print an API token for that user.
 
 Usage:  python3 create-readonly-user.py <morpheus-ip-or-hostname>
@@ -11,13 +11,13 @@ thing left behind is the new role, the new user and that user's token.
 
 What the role gets, and nothing else (0.4.0; modeled on create-com-user.py in
 com-morpheus-plugin, same author, MIT):
-- "read" on the pages Migration Hygiene's tabs live on and the data it reads:
+- "read" on the pages VM Tune-Up's tabs live on and the data it reads:
     Operations: Dashboard, Infrastructure: Compute, Clusters, Groups, Clouds
 - read access to all groups and clouds (default access), so those pages list
   the VMs, hosts and clusters.
 - the plugin's own permissions:
-    Migration Hygiene: View results    = Read
-    Migration Hygiene: Run guest scans = None  (Full only with --guest-scan; it
+    VM Tune-Up: View results    = Read
+    VM Tune-Up: Run guest scans = None  (Full only with --guest-scan; it
       lets the user run the fixed no-op guest agent check in VMs)
 Every other permission stays at "none". The script reads the role back, prints
 what was granted, and stops before creating a user if anything else is above none.
@@ -38,8 +38,8 @@ from datetime import datetime, timezone
 
 CLIENT_ID = "morph-api"
 
-VIEW_PERMISSION = "migration-hygiene-view"
-GUEST_SCAN_PERMISSION = "migration-hygiene-guest-scan"
+VIEW_PERMISSION = "vm-tuneup-view"
+GUEST_SCAN_PERMISSION = "vm-tuneup-guest-scan"
 
 # The only feature permissions granted (read). Codes as in com-morpheus-plugin's
 # create-com-user.py, checked there on Morpheus 9.0.1 and 9.1.0.
@@ -177,13 +177,13 @@ def message(err: ApiError) -> str:
 
 # -- steps ---------------------------------------------------------------------
 def create_role(srv: Server, admin: str) -> tuple[int, str]:
-    print("\nA new role with the read-only permissions Migration Hygiene needs will be created for this user.")
+    print("\nA new role with the read-only permissions VM Tune-Up needs will be created for this user.")
     while True:
-        name = ask("Name for the read-only role", "migration-hygiene-viewer")
+        name = ask("Name for the read-only role", "vm-tuneup-viewer")
         try:
             res = srv.request("POST", "/api/roles", token=admin, body={"role": {
                 "authority": name, "roleType": "user",
-                "description": "Migration Hygiene, read-only (created by create-readonly-user.py)"}})
+                "description": "VM Tune-Up, read-only (created by create-readonly-user.py)"}})
             return res["role"]["id"], name
         except ApiError as e:
             print(f"  Could not create role '{name}': {message(e)}")
@@ -196,7 +196,7 @@ def grant(srv: Server, admin: str, role_id: int, guest_scan: bool) -> dict:
     path = f"/api/roles/{role_id}/update-permission"
     present = {p.get("code") for p in role.get("featurePermissions", [])}
     if VIEW_PERMISSION not in present:
-        sys.exit("Stopped: the role has no Migration Hygiene permissions. Install the plugin first, "
+        sys.exit("Stopped: the role has no VM Tune-Up permissions. Install the plugin first, "
                  f"then delete the empty role (id {role_id}) in Administration > Roles and run again.")
     counts = {"read": [], "missing": [], "global": []}
     for code, label in ALLOW_READ.items():
@@ -221,11 +221,11 @@ def grant(srv: Server, admin: str, role_id: int, guest_scan: bool) -> dict:
             if e.status not in (400, 422):
                 raise
     srv.request("PUT", path, token=admin, body={"permissionCode": VIEW_PERMISSION, "access": "read"})
-    counts["read"].append("Migration Hygiene: View results = read")
+    counts["read"].append("VM Tune-Up: View results = read")
     if GUEST_SCAN_PERMISSION in present:
         srv.request("PUT", path, token=admin, body={
             "permissionCode": GUEST_SCAN_PERMISSION, "access": "full" if guest_scan else "none"})
-        counts["read"].append("Migration Hygiene: Run guest scans = " + ("full" if guest_scan else "none"))
+        counts["read"].append("VM Tune-Up: Run guest scans = " + ("full" if guest_scan else "none"))
     counts["problems"] = verify_role(srv, admin, role_id, guest_scan)
     return counts
 
@@ -315,7 +315,7 @@ def main() -> None:
     p.add_argument("server", help="Morpheus appliance IP address or hostname")
     p.add_argument("--port", type=int, default=443)
     p.add_argument("--guest-scan", action="store_true",
-                   help='also grant "Migration Hygiene: Run guest scans" at full (runs the no-op guest agent check)')
+                   help='also grant "VM Tune-Up: Run guest scans" at full (runs the no-op guest agent check)')
     args = p.parse_args()
 
     srv = Server(args.server, args.port)

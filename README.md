@@ -1,21 +1,21 @@
-# migration-hygiene-plugin
+# vm-tuneup-morpheus-plugin
 
-**We've migrated to HVM. Now what?** Whatever tool you used to migrate, and whenever you did it, see what it left behind on your HPE Morpheus virtual machines on HVM (HPE Virtual Machine) hosts, and what to tune next: disks on emulated SATA or IDE, e1000 network adapters, the Legacy chipset, a QEMU guest agent that doesn't answer, VMware MAC addresses, old snapshots, attached ISOs and more. Every VM gets a grade, and every finding says what happens **if you leave it** and what it costs **if you fix it**.
+**We've migrated to HVM. Now what?** VM Tune-Up grades every virtual machine on your HPE Morpheus HVM (HPE Virtual Machine) clusters, migrated or not. Whatever tool you used to migrate, and whenever you did it, see what it left behind and what to tune next: disks on emulated SATA or IDE, e1000 network adapters, the Legacy chipset, a QEMU guest agent that doesn't answer, VMware MAC addresses, old snapshots, attached ISOs and more. Every VM gets a grade, and every finding says what happens **if you leave it** and what it costs **if you fix it**.
 
-[![Latest release](https://img.shields.io/github/v/release/grahamfairbank/migration-hygiene-plugin?label=release&include_prereleases)](../../releases)
+[![Latest release](https://img.shields.io/github/v/release/grahamfairbank/vm-tuneup-morpheus-plugin?label=release&include_prereleases)](../../releases)
 [![Morpheus 9.0 | 9.1](https://img.shields.io/badge/Morpheus-9.0%20%7C%209.1-0d7b6a)](#requirements)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
 
 > **Unofficial community project.** Not an HPE or Morpheus Data product. Not developed, endorsed or supported by Hewlett Packard Enterprise. Provided as is, without warranty. HPE and Morpheus are trademarks of Hewlett Packard Enterprise; VMware is a trademark of Broadcom. See [NOTICE.md](NOTICE.md) for trademarks and for every source this project was built from.
 
-![The Migration Hygiene tab on cluster-a: grade counts, findings by severity, a summary per origin group and the worst VMs first](docs/images/tab-cluster.png)
+![The VM Tune-Up tab on cluster-a: grade counts, findings by severity, a summary per origin group and the worst VMs first](docs/images/tab-cluster.png)
 
 <sub>The cluster tab is the fleet view: every HVM VM in the cluster, graded, grouped by origin and sorted worst first. Names and addresses in every screenshot are example values (`cluster-a`, `hvm-host-01`, `app-legacy-01`), the same ones the [install guide](docs/INSTALL.md) uses.</sub>
 
 ## Why you'll want it
 
-- **Migration is the start, not the finish.** A VM that boots on HVM can still run on emulated disks and network adapters, the Legacy chipset and no guest agent, and carry snapshots and ISOs from the move. Migration Hygiene finds all of it in minutes, across the whole cluster.
+- **Migration is the start, not the finish.** A VM that boots on HVM can still run on emulated disks and network adapters, the Legacy chipset and no guest agent, and carry snapshots and ISOs from the move. VM Tune-Up finds all of it in minutes, across the whole cluster.
 - **Works whatever tool you used.** Morpheus's own migration tool, an image upload, a third-party converter or a VM that was simply discovered on the hosts: the checks look at the VM as it is today, not at how it got there. Each VM is also put in an origin group (**Migrated from VMware**, **No VMware signal**, **Unknown origin**), with honest wording about what Morpheus data can and can't show.
 - **Every finding is a plan, not a scare.** "If you leave it" says what the problem costs you. "If you fix it" gives the downtime, the risk, whether it can be undone, and what must happen first, in order (for example: the VirtIO storage driver must be installed and boot-start on Windows before a disk bus switch). HPE documentation is cited first.
 - **Recommendations you can actually do.** A **Recommendation** is something you can do in the Morpheus UI or inside the guest OS. Anything that would need host-level work is a **Consideration**: worth knowing, never recommended.
@@ -26,10 +26,10 @@
 
 ## Get started
 
-1. Download `migration-hygiene-plugin-<version>.jar` and `SHA256SUMS` from the [releases](../../releases), and check the jar.
+1. Download `vm-tuneup-morpheus-plugin-<version>.jar` and `SHA256SUMS` from the [releases](../../releases), and check the jar.
 2. In Morpheus, upload the jar: **Administration → Integrations → Plugins → Add**.
-3. Give the people who'll use it the **Migration Hygiene: View results** permission (a ready-made role script is included).
-4. Open an HVM cluster: **Infrastructure → Clusters → (cluster) → Migration Hygiene**. Wait for the scan, then open any VM's tab or download the CSV.
+3. Give the people who'll use it the **VM Tune-Up: View results** permission (a ready-made role script is included).
+4. Open an HVM cluster: **Infrastructure → Clusters → (cluster) → VM Tune-Up**. Wait for the scan, then open any VM's tab or download the CSV.
 
 Step-by-step instructions, written for someone doing this for the first time: **[docs/INSTALL.md](docs/INSTALL.md)**. How the pieces fit together: **[How it works](#how-it-works)**.
 
@@ -37,7 +37,7 @@ Step-by-step instructions, written for someone doing this for the first time: **
 
 ### The cluster tab: your fleet view
 
-Open an HVM cluster and choose the **Migration Hygiene** tab (Morpheus may put it under the tab row's overflow menu). The first time, the tab scans the cluster in the background and shows its progress ("Scanned 4 of 9 HVM VMs"). Then it shows:
+Open an HVM cluster and choose the **VM Tune-Up** tab (Morpheus may put it under the tab row's overflow menu). The first time, the tab scans the cluster in the background and shows its progress ("Scanned 4 of 9 HVM VMs"). Then it shows:
 
 - **Grade counts** (A to F) and **findings by severity** (critical, warning, info) for the whole cluster;
 - **By origin:** the same counts per origin group, so you can see at once how the migrated VMs compare with the rest;
@@ -49,7 +49,7 @@ Open an HVM cluster and choose the **Migration Hygiene** tab (Morpheus may put i
 
 ### The VM tab: what to fix, and how
 
-Every HVM VM (and every instance on one) gets a **Migration Hygiene** tab with its grade and its findings, worst first. Discovered VMs, which have no instance, get it on the VM page. Each finding shows:
+Every HVM VM (and every instance on one) gets a **VM Tune-Up** tab with its grade and its findings, worst first. Discovered VMs, which have no instance, get it on the VM page. Each finding shows:
 
 - the **evidence** (what the plugin read, for example each disk's bus and controller);
 - **If you leave it:** what the problem costs you;
@@ -57,7 +57,7 @@ Every HVM VM (and every instance on one) gets a **Migration Hygiene** tab with i
 - **How in Morpheus:** where to do it (for example *Actions → Reconfigure → Advanced Options*);
 - whether it's a **Recommendation** or a **Consideration**, anything **not yet verified**, and references.
 
-![The Migration Hygiene tab of app-legacy-01: grade F, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
+![The VM Tune-Up tab of app-legacy-01: grade F, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
 
 Checks the plugin couldn't decide for this VM (for example on Morpheus 9.0.x, which doesn't report the chipset) are listed separately as **Unknown or not evaluated**. They cost no points and never count as a pass.
 
@@ -72,7 +72,7 @@ When Morpheus doesn't report a VM's QEMU guest agent status, users with the **Ru
 **Download CSV (this cluster)** and **Download CSV (all clusters)** save one row per VM, worst first, ready for a spreadsheet and a change plan. See [CSV columns](#csv-columns).
 
 
-## The checks (0.4.0)
+## The checks (0.5.0)
 
 The checks below use Morpheus data only. Nothing runs inside the VM, except the optional [guest agent check](#the-guest-agent-check). They're listed in fix-plan order: what to do first comes first.
 
@@ -135,7 +135,7 @@ Each VM starts at 100. Each failed check costs points: critical 25, warning 8, i
 
 Through the plugin API, Morpheus 9.1.0.1 reports every VM's QEMU guest agent status as "unknown". So for the guest agent check (`GA-STATUS`), when a powered-on HVM VM's status is unknown, the plugin can ask the guest to run one fixed, harmless no-op command: `true` on Linux, `cmd /c exit 0` on Windows. It goes through Morpheus's own guest execution, not SSH or WinRM, with no credentials and no sudo. Only the success flag, the exit code and the first 200 characters of an error message are kept; never any output.
 
-- **Who, and when:** only users whose role has **Migration Hygiene: Run guest scans** at **Full**, and never automatically when a tab opens. On the VM tab, they get **Check guest agent**, with a one-line explanation and the last result and its time ("Answered 2 min ago", "No answer 5 min ago: <short error>"). A cluster scan started by such a user (opening the cluster tab, or **Rescan**) also checks each powered-on VM of their own tenant in the background, and so does the fleet report they run.
+- **Who, and when:** only users whose role has **VM Tune-Up: Run guest scans** at **Full**, and never automatically when a tab opens. On the VM tab, they get **Check guest agent**, with a one-line explanation and the last result and its time ("Answered 2 min ago", "No answer 5 min ago: <short error>"). A cluster scan started by such a user (opening the cluster tab, or **Rescan**) also checks each powered-on VM of their own tenant in the background, and so does the fleet report they run.
 - **Windows:** Morpheus runs the command through the QEMU guest agent. An answer passes the check; no answer fails it.
 - **Linux:** Morpheus runs guest commands through its own Morpheus agent, so the check tests that agent, not the QEMU guest agent. The VM tab says so next to the button. An answer passes; no answer leaves the check **unknown**, not failed.
 - **Never checked:** powered-off VMs, servers that aren't HVM VMs, and VMs whose status Morpheus does report (then no button appears).
@@ -146,10 +146,10 @@ Through the plugin API, Morpheus 9.1.0.1 reports every VM's QEMU guest agent sta
 
 | Where | What | License |
 |---|---|---|
-| **Cluster tab** (Infrastructure → Clusters → an HVM cluster → Migration Hygiene) | The fleet view: every HVM VM in the cluster, grade counts, findings by severity, origin groups, worst VMs, findings per check, Rescan and CSV downloads. | Every license |
+| **Cluster tab** (Infrastructure → Clusters → an HVM cluster → VM Tune-Up) | The fleet view: every HVM VM in the cluster, grade counts, findings by severity, origin groups, worst VMs, findings per check, Rescan and CSV downloads. | Every license |
 | **VM tab** (Infrastructure → Compute → Virtual Machines → a VM) and **instance tab** (Provisioning → Instances → an instance) | One VM's grade and findings, with Refresh and Check guest agent. | Every license |
 | **CSV export** (from the cluster tab) | One row per VM, for this cluster or every HVM cluster you can see. | Every license |
-| **Fleet report** (Operations → Reports → Migration Hygiene) | A summary, then one row per HVM VM; Morpheus can export the rows as CSV. Runs from the master tenant only, for users with the view permission. | Licenses that include Reports |
+| **Fleet report** (Operations → Reports → VM Tune-Up) | A summary, then one row per HVM VM; Morpheus can export the rows as CSV. Runs from the master tenant only, for users with the view permission. | Licenses that include Reports |
 
 The Reports page isn't part of the Morpheus VM Essentials license, so on that edition the cluster tab and the CSV are the fleet view.
 
@@ -157,7 +157,7 @@ The Reports page isn't part of the Morpheus VM Essentials license, so on that ed
 
 `name`, `cluster`, `host`, `os`, `serverType`, `managed`, `power`, `grade`, `score`, `critical`, `warning`, `info`, `unknown`, `vmwareOrigin` (yes/no), `origin` (migrated, not-migrated, unknown), `guestAgentProbe`, `topFindings` (plain titles with severity), `checkIds` (short IDs), `scanStatus`, `scannedAt`.
 
-The browser builds the file from the plugin's own data: it shows progress ("Preparing CSV: scanned 12 of 63…"), waits for the scan to finish (at most 15 minutes per cluster; after that the file has the VMs scanned so far, with a note), and saves `migration-hygiene-<cluster>-<date>.csv` in UTF-8 with a byte order mark, so Excel reads it correctly. **All clusters** goes through your clusters one at a time and saves one file. Cells a spreadsheet could read as a formula get a leading apostrophe.
+The browser builds the file from the plugin's own data: it shows progress ("Preparing CSV: scanned 12 of 63…"), waits for the scan to finish (at most 15 minutes per cluster; after that the file has the VMs scanned so far, with a note), and saves `vm-tuneup-<cluster>-<date>.csv` in UTF-8 with a byte order mark, so Excel reads it correctly. **All clusters** goes through your clusters one at a time and saves one file. Cells a spreadsheet could read as a formula get a leading apostrophe.
 
 Under the buttons, **direct download** links are a fallback for browsers where the buttons don't work. They give the same columns from results already in memory and never start a scan: a cluster that's still scanning, or wasn't scanned in the last 10 minutes, is listed as such.
 
@@ -171,7 +171,7 @@ Tabs never block a page load. Morpheus renders plugin tabs while it builds the p
 - **Caching:** results are kept in memory for 10 minutes, so reopening a tab within that time is instant.
 - **Limits:** at most 2 cluster scans run at once and 8 wait; beyond that, or beyond 3 running scans per user, a new scan is refused with "too many scans in progress, try again shortly".
 
-All plugin threads are named `migration-hygiene-*` and stop when the plugin is disabled or removed.
+All plugin threads are named `vm-tuneup-*` and stop when the plugin is disabled or removed.
 
 ## Permissions
 
@@ -179,10 +179,10 @@ The plugin adds two permissions to every Morpheus role:
 
 | Permission | Levels | Grants |
 |---|---|---|
-| **Migration Hygiene: View results** (`migration-hygiene-view`) | None, Read | The tabs and results, Rescan, the CSV downloads and the fleet report. Users see only the VMs and clusters their tenant owns (the master tenant sees all). |
-| **Migration Hygiene: Run guest scans** (`migration-hygiene-guest-scan`) | None, Full | Optional. The [guest agent check](#the-guest-agent-check), a no-op command. Later versions will use it for the read-only in-guest checks. |
+| **VM Tune-Up: View results** (`vm-tuneup-view`) | None, Read | The tabs and results, Rescan, the CSV downloads and the fleet report. Users see only the VMs and clusters their tenant owns (the master tenant sees all). |
+| **VM Tune-Up: Run guest scans** (`vm-tuneup-guest-scan`) | None, Full | Optional. The [guest agent check](#the-guest-agent-check), a no-op command. Later versions will use it for the read-only in-guest checks. |
 
-Set them in **Administration → Roles → (role)**: search the permissions for "Migration Hygiene". Or run [`tools/create-readonly-user.py`](tools/create-readonly-user.py), which makes a least-privilege role and user for you (see the [install guide](docs/INSTALL.md#4-give-people-access)).
+Set them in **Administration → Roles → (role)**: search the permissions for "VM Tune-Up". Or run [`tools/create-readonly-user.py`](tools/create-readonly-user.py), which makes a least-privilege role and user for you (see the [install guide](docs/INSTALL.md#4-give-people-access)).
 
 Viewing a stored fleet report is governed by Morpheus's own Reports permission, like any other report.
 
@@ -210,7 +210,7 @@ All of them are fixed in 0.4.0, with tests. Every finding needed a signed-in Mor
 
 ## How it works
 
-![How migration-hygiene-plugin works: the browser, the plugin inside the Morpheus appliance, and the HVM VMs, with the VM tab, cluster scan, CSV and guest agent check flows](docs/images/how-it-works.svg)
+![How vm-tuneup-morpheus-plugin works: the browser, the plugin inside the Morpheus appliance, and the HVM VMs, with the VM tab, cluster scan, CSV and guest agent check flows](docs/images/how-it-works.svg)
 
 In short:
 
@@ -231,7 +231,7 @@ The infographic is generated by [`tools/draw-how-it-works.py`](tools/draw-how-it
 
 Use the prebuilt jar from the [Releases](../../releases) page. There's no need to build anything.
 
-**One jar, `migration-hygiene-plugin-<version>.jar`, works on HPE Morpheus 9.0.x and 9.1.x.** It's compiled against the oldest supported Plugin API (1.4.1, Morpheus 9.0), and its whole test suite also runs against Plugin API 1.5.0 (Morpheus 9.1). Before each release, `tools/check-plugin-core.sh` checks HPE's published plugin sources and docs for any compatibility change.
+**One jar, `vm-tuneup-morpheus-plugin-<version>.jar`, works on HPE Morpheus 9.0.x and 9.1.x.** It's compiled against the oldest supported Plugin API (1.4.1, Morpheus 9.0), and its whole test suite also runs against Plugin API 1.5.0 (Morpheus 9.1). Before each release, `tools/check-plugin-core.sh` checks HPE's published plugin sources and docs for any compatibility change.
 
 Each release includes `SHA256SUMS`. Check the download with `sha256sum -c SHA256SUMS`.
 
@@ -242,12 +242,12 @@ Then follow **[docs/INSTALL.md](docs/INSTALL.md)**.
 You need only Docker; the build runs in a pinned JDK 17 container.
 
 ```bash
-git clone https://github.com/grahamfairbank/migration-hygiene-plugin.git
-cd migration-hygiene-plugin
+git clone https://github.com/grahamfairbank/vm-tuneup-morpheus-plugin.git
+cd vm-tuneup-morpheus-plugin
 tools/build.sh
 ```
 
-This runs the tests, builds `dist/migration-hygiene-plugin-<version>.jar` against Plugin API 1.4.1, and repeats the tests against Plugin API 1.5.0.
+This runs the tests, builds `dist/vm-tuneup-morpheus-plugin-<version>.jar` against Plugin API 1.4.1, and repeats the tests against Plugin API 1.5.0.
 
 ## Limits
 

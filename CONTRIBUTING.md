@@ -1,4 +1,4 @@
-# Contributing to migration-hygiene-plugin
+# Contributing to vm-tuneup-morpheus-plugin
 
 **Pull requests are welcome.** This is a community project, and it gets better with outside help: new checks, better fix guidance, results from Morpheus versions and guest operating systems we haven't seen, documentation and translations.
 
@@ -20,7 +20,7 @@ tools/build.sh
 
 This builds and tests one jar into `dist/`. It's compiled against Plugin API 1.4.1 (Morpheus 9.0), and the whole test suite is repeated against 1.5.0 (Morpheus 9.1). Every change must keep both test runs green, and must not use anything that's missing from 1.4.1.
 
-- `tools/check-js.sh` checks the browser script (`src/assets/javascript/migration-hygiene.js`).
+- `tools/check-js.sh` checks the browser script (`src/assets/javascript/vm-tuneup.js`).
 - Maintainers: before a release, run `tools/check-plugin-core.sh`. It reports any change in HPE's published morpheus-plugin-core or morpheus-docs that could affect compatibility.
 - Opt-in: `LOAD_JARS=<jar>` with `--tests '*PluginLoadSpec*'` loads a jar through the plugin API's own PluginManager. Use a build with a renamed package, because the loader is parent-first.
 - The "How it works" infographic is generated: edit `tools/draw-how-it-works.py` and run `python3 tools/draw-how-it-works.py`.
@@ -31,7 +31,7 @@ This builds and tests one jar into `dist/`. It's compiled against Plugin API 1.4
 - `core/Tier1Rules.groovy`: how each check decides pass, fail or unknown, from plain maps (no Morpheus types).
 - `ServerFacts.groovy`: turns a Morpheus server into those maps.
 - `ScanService.groovy`, `Workers.groovy`: scans, budgets, caching and thread pools.
-- `MigrationHygieneController.groovy`: the routes and their permission, tenant and request checks.
+- `VmTuneUpController.groovy`: the routes and their permission, tenant and request checks.
 
 ## Guidelines
 

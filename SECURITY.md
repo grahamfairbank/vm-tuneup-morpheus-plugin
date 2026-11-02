@@ -1,12 +1,12 @@
 # Security policy
 
-migration-hygiene-plugin is a community project, not an HPE product. Please don't contact HPE support about it.
+vm-tuneup-morpheus-plugin is a community project, not an HPE product. Please don't contact HPE support about it.
 
 ## Reporting a vulnerability
 
 **Please report security problems privately, not as a public issue.**
 
-Use GitHub's private vulnerability reporting: on this repository, open **Security → Report a vulnerability** ([direct link](https://github.com/grahamfairbank/migration-hygiene-plugin/security/advisories/new)). Only the maintainer sees the report.
+Use GitHub's private vulnerability reporting: on this repository, open **Security → Report a vulnerability** ([direct link](https://github.com/grahamfairbank/vm-tuneup-morpheus-plugin/security/advisories/new)). Only the maintainer sees the report.
 
 Please include:
 
@@ -30,13 +30,13 @@ Only the latest release gets security fixes. Upgrade to it before reporting, if 
 ## What runs where
 
 - **On the appliance only.** The plugin runs inside the Morpheus appliance and uses the plugin API. It makes no network calls of its own and sends nothing off the appliance.
-- **In the browser.** A small script, loaded with Morpheus's CSP nonce for users with "Migration Hygiene: View results", fills the plugin's tabs from the plugin's own routes on the same appliance. It runs no dynamic code and acts only inside the plugin's tabs.
-- **Inside VMs, only on request.** The guest agent check runs one fixed no-op command (`true` on Linux, `cmd /c exit 0` on Windows) through Morpheus's guest execution: no user input, no credentials, no sudo, no output kept. Only users with "Migration Hygiene: Run guest scans" at full can trigger it, never automatically when a tab opens, at most once a minute per VM, and each run is logged with the Morpheus user id.
+- **In the browser.** A small script, loaded with Morpheus's CSP nonce for users with "VM Tune-Up: View results", fills the plugin's tabs from the plugin's own routes on the same appliance. It runs no dynamic code and acts only inside the plugin's tabs.
+- **Inside VMs, only on request.** The guest agent check runs one fixed no-op command (`true` on Linux, `cmd /c exit 0` on Windows) through Morpheus's guest execution: no user input, no credentials, no sudo, no output kept. Only users with "VM Tune-Up: Run guest scans" at full can trigger it, never automatically when a tab opens, at most once a minute per VM, and each run is logged with the Morpheus user id.
 
 ## Permissions model
 
-- **Migration Hygiene: View results** (`migration-hygiene-view`, read): the tabs, the cluster fleet view, CSV downloads and the fleet report.
-- **Migration Hygiene: Run guest scans** (`migration-hygiene-guest-scan`, full): the guest agent check.
+- **VM Tune-Up: View results** (`vm-tuneup-view`, read): the tabs, the cluster fleet view, CSV downloads and the fleet report.
+- **VM Tune-Up: Run guest scans** (`vm-tuneup-guest-scan`, full): the guest agent check.
 - Every route checks the level and the tenant itself, before it reads, scans or checks anything; the Morpheus dispatcher only checks that the role has the code. Outside the master tenant, users see only their own tenant's VMs and clusters.
 - A GET starts work only for the plugin's own script (`X-Requested-With` and a same-origin `Origin`, `Referer` or `Sec-Fetch-Site`); POSTs also need the same origin and Morpheus's CSRF token.
 

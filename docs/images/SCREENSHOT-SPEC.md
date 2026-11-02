@@ -8,11 +8,11 @@ The screenshots in this folder come from a real Morpheus appliance running the p
 
 | File | Used in | What it shows |
 |---|---|---|
-| `tab-cluster.png` | README (top), INSTALL step 5 | `cluster-a`'s Migration Hygiene tab after a finished scan, top of the tab: the Rescan and Download CSV buttons, grade counts, findings by severity and the start of **By origin**. |
+| `tab-cluster.png` | README (top), INSTALL step 5 | `cluster-a`'s VM Tune-Up tab after a finished scan, top of the tab: the Rescan and Download CSV buttons, grade counts, findings by severity and the start of **By origin**. |
 | `tab-cluster-origin.png` | README tour, INSTALL step 5 | The **By origin** table (three groups plus All) and **Worst VMs** with the **Show** filter set to **Migrated**, listing `app-legacy-01`, `web-rocky-01`, `web-rocky-02` and `db-win-01` with grade, score, origin and top findings. **How origin is decided** may be open. |
-| `tab-vm.png` | README tour, INSTALL step 6 | `app-legacy-01`'s Migration Hygiene tab: grade F, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it (downtime, risk, can be undone), Do first, in this order, How in Morpheus and references. |
+| `tab-vm.png` | README tour, INSTALL step 6 | `app-legacy-01`'s VM Tune-Up tab: grade F, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it (downtime, risk, can be undone), Do first, in this order, How in Morpheus and references. |
 | `tab-vm-guest-agent.png` | README tour, INSTALL step 6 | The **Check guest agent** area on `db-win-01` (Windows): the button, its one-line explanation and "Answered 2 min ago". Crop to the area plus the grade line above it. |
-| `install-plugins.png` | INSTALL step 2 | **Administration → Integrations → Plugins** with **Migration Hygiene** 0.4.0 in the list, enabled. Other plugins in the list may stay if their names reveal nothing; otherwise crop or paint them out. |
+| `install-plugins.png` | INSTALL step 2 | **Administration → Integrations → Plugins** with **VM Tune-Up** 0.4.0 in the list, enabled. Other plugins in the list may stay if their names reveal nothing; otherwise crop or paint them out. |
 
 ## Example values
 
@@ -24,7 +24,7 @@ Use these and nothing else, so a reader sees the same name for the same thing in
 | HVM cluster | `cluster-a` |
 | HVM hosts | `hvm-host-01`, `hvm-host-02`, `hvm-host-03` |
 | The manager's own VM, if it appears | `manager-vm` |
-| Role created by the script | `migration-hygiene-viewer` |
+| Role created by the script | `vm-tuneup-viewer` |
 | IP addresses | `192.0.2.x` (the documentation range), for example `192.0.2.21` |
 | MAC addresses | keep only the real vendor prefix, with a fake suffix: VMware `00:0c:29:00:00:01`, `00:0c:29:00:00:02`…; KVM `52:54:00:00:00:01`… |
 | UUIDs | `00000000-0000-0000-0000-000000000000` or a made-up value |

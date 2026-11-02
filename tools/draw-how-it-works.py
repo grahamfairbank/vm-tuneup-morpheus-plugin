@@ -121,17 +121,17 @@ COL2_X, COL2_W = 400, 600
 COL3_X, COL3_W = 1070, 306
 
 col1 = [
-    ("Cluster page › Migration Hygiene", [
+    ("Cluster page › VM Tune-Up", [
         "The fleet view: grades, findings by severity, origin groups, worst VMs, findings per check",
         "Rescan · Download CSV (this cluster / all clusters)",
         ("Works on every edition, including Morpheus VM Essentials", "note"),
     ], BLUE),
-    ("VM / instance › Migration Hygiene", [
+    ("VM / instance › VM Tune-Up", [
         "Grade and findings, worst first",
         "Evidence · If you leave it · If you fix it · How in Morpheus · references",
         "Refresh · Check guest agent (optional)",
     ], BLUE),
-    ("Plugin script (migration-hygiene.js)", [
+    ("Plugin script (vm-tuneup.js)", [
         "Fills only the tab you open; pauses while it's hidden",
         "Builds the CSV in the browser, with progress",
         ("Talks only to the plugin's own routes on the same appliance.", "note"),
@@ -143,9 +143,9 @@ col2_left = [
         "Render a small shell, or a result already in memory: no scans during page loads",
     ], TEAL),
     ("Script loader", [
-        "Loads migration-hygiene.js with Morpheus's CSP nonce, for view users only",
+        "Loads vm-tuneup.js with Morpheus's CSP nonce, for view users only",
     ], TEAL),
-    ("Routes  /plugin/migrationHygiene/…", [
+    ("Routes  /plugin/vmTuneUp/…", [
         ("vm · cluster · clusterData · clusters · csv · status", "code"),
         ("clusterRescan · vmProbe  (POST)", "code"),
         "Each checks the permission level and the tenant itself",
@@ -193,7 +193,7 @@ DATA_H = 112
 ZONE_H = 66 + max(h1 + 54, h2 + DATA_H + 18, h3 + 54)
 
 zone(COL1_X, TOP, COL1_W, ZONE_H, "① Your browser", "Morpheus web UI: nothing to install", BLUE)
-zone(COL2_X, TOP, COL2_W, ZONE_H, "② Morpheus appliance", "migration-hygiene-plugin jar, running inside Morpheus", TEAL)
+zone(COL2_X, TOP, COL2_W, ZONE_H, "② Morpheus appliance", "vm-tuneup-morpheus-plugin jar, running inside Morpheus", TEAL)
 zone(COL3_X, TOP, COL3_W, ZONE_H, "③ Your HVM VMs", "On the HVM hosts of each cluster", GREEN)
 
 stack(COL1_X + 14, TOP + 66, COL1_W - inner, col1)
@@ -296,13 +296,13 @@ H = FOOT + 22
 
 markers = "\n".join(f'<marker id="a{c.lstrip("#")}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="{c}"/></marker>' for c in sorted(MARKERS))
 head = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="{FONT}">
-<title>How migration-hygiene-plugin works</title>
-<desc>Architecture and request flows of migration-hygiene-plugin: the browser, the plugin inside the Morpheus appliance, and the HVM VMs it audits.</desc>
+<title>How vm-tuneup-morpheus-plugin works</title>
+<desc>Architecture and request flows of vm-tuneup-morpheus-plugin: the browser, the plugin inside the Morpheus appliance, and the HVM VMs it audits.</desc>
 <defs>
 {markers}
 </defs>
 <rect width="{W}" height="{H}" fill="#ffffff"/>
-<text x="24" y="48" font-size="30" font-weight="bold" fill="{INK}">How migration-hygiene-plugin works</text>
+<text x="24" y="48" font-size="30" font-weight="bold" fill="{INK}">How vm-tuneup-morpheus-plugin works</text>
 <text x="24" y="76" font-size="15" fill="{MUTED}">We've migrated to HVM. Now what? A read-only audit of HVM VMs, inside Morpheus: what the migration left behind, and what to tune next.</text>
 '''
 out_path = Path(__file__).resolve().parent.parent / "docs/images/how-it-works.svg"

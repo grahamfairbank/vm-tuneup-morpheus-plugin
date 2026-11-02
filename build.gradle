@@ -1,4 +1,4 @@
-// migration-hygiene-plugin: read-only audit of HVM VMs for leftovers from VMware migrations, in HPE Morpheus (HVM clusters).
+// vm-tuneup-morpheus-plugin (VM Tune-Up): read-only audit of VMs on HPE Morpheus HVM clusters: migration leftovers and HVM best practices.
 // Layout follows the Morpheus plugin generator: Gradle + shadow "fat jar" + asset pipeline +
 // morpheus-plugin-gradle. Build with ./gradlew shadowJar (or tools/build.sh, which needs only Docker).
 
@@ -79,16 +79,16 @@ assets {
 jar {
 	manifest {
 		attributes(
-			'Plugin-Class': 'io.github.grahamfairbank.migrationhygiene.MigrationHygienePlugin',
+			'Plugin-Class': 'io.github.grahamfairbank.vmtuneup.VmTuneUpPlugin',
 			'Plugin-Version': project.version,
-			'Morpheus-Name': 'Migration Hygiene',
-			'Morpheus-Organization': 'migration-hygiene community project',
-			'Morpheus-Code': 'migration-hygiene',
-			'Morpheus-Description': 'Unofficial community plugin, not an HPE product and not supported by HPE. Read-only health audit of HVM virtual machines for leftovers from VMware migrations, with a fleet report and per-VM and cluster tabs.',
-			'Morpheus-Logo': 'assets/migration-hygiene.svg',
-			'Morpheus-Logo-Dark': 'assets/migration-hygiene.svg',
+			'Morpheus-Name': 'VM Tune-Up',
+			'Morpheus-Organization': 'vm-tuneup community project',
+			'Morpheus-Code': 'vm-tuneup',
+			'Morpheus-Description': 'Unofficial community plugin, not an HPE product and not supported by HPE. Read-only audit of HVM virtual machines: what a VMware migration left behind and what to tune next, with a fleet report and per-VM and cluster tabs.',
+			'Morpheus-Logo': 'assets/vm-tuneup.svg',
+			'Morpheus-Logo-Dark': 'assets/vm-tuneup.svg',
 			'Morpheus-Labels': 'Plugin, Report, Migration, HVM, Tab',
-			'Morpheus-Repo': 'https://github.com/grahamfairbank/migration-hygiene-plugin',
+			'Morpheus-Repo': 'https://github.com/grahamfairbank/vm-tuneup-morpheus-plugin',
 			'Morpheus-Min-Appliance-Version': '9.0.0'
 		)
 	}
@@ -97,7 +97,7 @@ jar {
 tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
 	// Nothing needs bundling today; keep the plugin jar small and the name predictable.
 	archiveClassifier.set('')
-	archiveBaseName.set('migration-hygiene-plugin')
+	archiveBaseName.set('vm-tuneup-morpheus-plugin')
 }
 
 test {
