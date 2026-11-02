@@ -1,0 +1,146 @@
+{
+  "server": {
+    "id": 2005,
+    "name": "vm-legacy-dirty",
+    "computeServerType": {
+      "code": "morpheusWindowsVm",
+      "name": "KVM Windows Instance",
+      "managed": true
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "code": "windows.11.64",
+      "name": "windows 11 64-bit",
+      "osFamily": "windows",
+      "platform": "windows"
+    },
+    "osType": "windows",
+    "platform": "windows",
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": true,
+    "agentVersion": "2.6.1.0",
+    "lastAgentUpdate": "2026-09-01T00:00:00.000Z",
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": true,
+    "config": {
+      "machineType": "pc",
+      "disableQgaChannel": true,
+      "uefi": false,
+      "tpm": true
+    },
+    "volumes": [
+      {
+        "name": "root",
+        "controller": {
+          "id": 1,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 64424509440,
+        "usedStorage": 64424509440,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "data-1",
+        "controller": {
+          "id": 2,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 10737418240,
+        "usedStorage": 1073741824,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "CD ROM",
+        "controller": {
+          "id": 2,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "code": "standardcdrom"
+        },
+        "category": "cd",
+        "maxStorage": 289406976,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": "iso",
+        "volumePath": "/mnt/datastore-1/vm-legacy-dirty/disk-2"
+      }
+    ],
+    "controllers": [
+      {
+        "id": 1,
+        "name": "VIRTIO 0",
+        "type": {
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 2,
+        "name": "SATA 0",
+        "type": {
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 3,
+        "name": "SCSI 0",
+        "type": {
+          "code": "kvm-virtio-scsi",
+          "name": "VirtIO SCSI"
+        },
+        "category": "scsi"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "net0",
+        "type": {
+          "code": "e1000-kvm",
+          "name": "e1000-kvm"
+        },
+        "macAddress": "00:50:56:00:00:25",
+        "ipAddress": "198.51.100.20",
+        "primaryInterface": true
+      }
+    ],
+    "snapshots": [
+      {
+        "name": "pre-change",
+        "snapshotCreated": "2026-10-20T00:00:00.000Z"
+      }
+    ]
+  }
+}

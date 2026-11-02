@@ -1,0 +1,100 @@
+{
+  "server": {
+    "id": 1005,
+    "name": "vm-sata-import-windows",
+    "computeServerType": {
+      "id": 21,
+      "code": "kvmUnmanaged",
+      "name": "KVM Instance",
+      "managed": false,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 5,
+      "name": "host-b"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": null,
+    "osType": null,
+    "platform": null,
+    "platformVersion": null,
+    "guestAgentStatus": "unknown",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 2,
+    "maxMemory": 4294967296,
+    "config": {
+      "netBoot": false,
+      "bootToBios": false
+    },
+    "volumes": [
+      {
+        "id": 89,
+        "name": "vm-sata-import-windows/vm-src.qcow2",
+        "controller": {
+          "id": 113,
+          "name": "SATA 0"
+        },
+        "rootVolume": true,
+        "diskMode": "sata",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 53687091200,
+        "usedStorage": 33826353152,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": "/mnt/datastore-1/vm-sata-import-windows/disk-0",
+        "storageProfile": "kvm-cache-none",
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      }
+    ],
+    "controllers": [
+      {
+        "id": 113,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 90,
+        "name": "net0",
+        "type": null,
+        "macAddress": "00:0c:29:00:00:06",
+        "ipAddress": null,
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-11-01T17:47:00.899Z"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "server": {
+    "id": 2003,
+    "name": "vm-901-windows-agent",
+    "computeServerType": {
+      "code": "morpheusWindowsVm",
+      "name": "KVM Windows Instance",
+      "managed": true
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "code": "windows.server.2022.std.desktop",
+      "name": "windows server 2022 standard desktop",
+      "osFamily": "windows",
+      "platform": "windows"
+    },
+    "osType": "windows",
+    "platform": "windows",
+    "guestAgentStatus": "connected",
+    "agentInstalled": true,
+    "agentVersion": "2.6.1.0",
+    "lastAgentUpdate": "2026-10-31T23:00:00.000Z",
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": true,
+    "config": {
+      "noAgent": false,
+      "uefi": true,
+      "tpm": true,
+      "secureBoot": false
+    },
+    "volumes": [
+      {
+        "name": "root",
+        "controller": {
+          "id": 1,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 96636764160,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "CD ROM",
+        "controller": {
+          "id": 2,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "code": "standardcdrom"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": "virtio-win.iso",
+        "imageType": "iso",
+        "volumePath": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 1,
+        "name": "VIRTIO 0",
+        "type": {
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 2,
+        "name": "SATA 0",
+        "type": {
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 3,
+        "name": "SCSI 0",
+        "type": {
+          "code": "kvm-virtio-scsi",
+          "name": "VirtIO SCSI"
+        },
+        "category": "scsi"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": {
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:23",
+        "ipAddress": "198.51.100.20",
+        "primaryInterface": true
+      }
+    ],
+    "snapshots": []
+  }
+}

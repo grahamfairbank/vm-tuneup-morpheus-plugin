@@ -1,0 +1,155 @@
+{
+  "server": {
+    "id": 1012,
+    "name": "vm-iso-ejected",
+    "computeServerType": {
+      "id": 65,
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "id": 97,
+      "code": "linux.64",
+      "name": "linux 64-bit",
+      "description": null,
+      "vendor": "linux",
+      "category": "linux",
+      "osFamily": null,
+      "osVersion": "all",
+      "bitCount": 64,
+      "platform": "linux",
+      "owner": "System"
+    },
+    "osType": "linux",
+    "platform": "linux",
+    "platformVersion": null,
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 1,
+    "maxMemory": 536870912,
+    "config": {
+      "poolProviderType": "mvm",
+      "imageId": 194,
+      "resourcePoolId": "pool-2",
+      "kvmHostId": 4,
+      "noAgent": true,
+      "nestedVirtualization": false,
+      "numaMode": "off",
+      "bootToBios": true,
+      "bootToBiosMenuTimeout": 0,
+      "machineType": "q35",
+      "disableQgaChannel": false
+    },
+    "volumes": [
+      {
+        "id": 96,
+        "name": "root",
+        "controller": {
+          "id": 119,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 1073741824,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": "/mnt/datastore-1/vm-iso-ejected/disk-0",
+        "storageProfile": null,
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      },
+      {
+        "id": 97,
+        "name": "CD Drive",
+        "controller": {
+          "id": 120,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "id": 2,
+          "code": "standardcdrom",
+          "name": "CD ROM"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": "iso",
+        "volumePath": null,
+        "storageProfile": null,
+        "datastore": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 119,
+        "name": "VIRTIO 0",
+        "type": {
+          "id": 9,
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 120,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 98,
+        "name": "eth0",
+        "type": null,
+        "macAddress": "52:54:00:00:00:0c",
+        "ipAddress": null,
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-11-01T22:12:03.879Z",
+    "snapshots": []
+  }
+}

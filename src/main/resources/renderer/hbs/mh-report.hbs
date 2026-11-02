@@ -1,0 +1,53 @@
+{{!-- Fleet report: summary from the header row, one row per HVM VM from the main rows. Escaped values only. --}}
+<div class="migration-hygiene mh-report">
+<style>
+.migration-hygiene { font-size: 13px; padding: 6px 0; }
+.migration-hygiene h4 { margin: 14px 0 6px; font-size: 14px; }
+.migration-hygiene .mh-muted { opacity: .7; }
+.migration-hygiene .mh-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.migration-hygiene .mh-grade { display: inline-block; min-width: 34px; text-align: center; font-weight: 700; font-size: 18px; padding: 4px 8px; border-radius: 4px; color: #fff; }
+.migration-hygiene .mh-grade-small { font-size: 12px; min-width: 22px; padding: 1px 6px; }
+.migration-hygiene .mh-grade-a { background: #2e7d32; } .migration-hygiene .mh-grade-b { background: #558b2f; }
+.migration-hygiene .mh-grade-c { background: #b8860b; } .migration-hygiene .mh-grade-d { background: #d2691e; }
+.migration-hygiene .mh-grade-f { background: #c62828; }
+.migration-hygiene .mh-badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(128,128,128,.5); margin-right: 4px; white-space: nowrap; }
+.migration-hygiene .mh-sev-critical { background: #c62828; color: #fff; border-color: #c62828; }
+.migration-hygiene .mh-sev-warning { background: #ef8f00; color: #fff; border-color: #ef8f00; }
+.migration-hygiene .mh-sev-info { background: #1e6fb8; color: #fff; border-color: #1e6fb8; }
+.migration-hygiene .mh-cat-rec { border-color: #2e7d32; }
+.migration-hygiene .mh-cat-con { border-color: #8a8f98; }
+.migration-hygiene .mh-finding { border: 1px solid rgba(128,128,128,.35); border-radius: 4px; padding: 8px 10px; margin: 8px 0; }
+.migration-hygiene .mh-finding p { margin: 4px 0; }
+.migration-hygiene .mh-finding ol, .migration-hygiene .mh-finding ul { margin: 4px 0 4px 18px; padding: 0; }
+.migration-hygiene .mh-evidence { font-family: monospace; font-size: 12px; background: rgba(128,128,128,.1); padding: 3px 6px; border-radius: 3px; }
+.migration-hygiene table.mh-table { border-collapse: collapse; width: 100%; }
+.migration-hygiene table.mh-table th, .migration-hygiene table.mh-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
+.migration-hygiene .mh-num { text-align: right; }
+.migration-hygiene details { margin: 8px 0; }
+.migration-hygiene summary { cursor: pointer; font-weight: 600; }
+.migration-hygiene .mh-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
+</style>
+{{#if error}}<div class="mh-note">{{error}}</div>{{/if}}
+{{#with summary}}
+<h4>Summary</h4>
+<div class="mh-head">
+	<strong>{{vmCount}} HVM VMs</strong>
+	{{#each grades}}<span class="mh-grade mh-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}
+	<span class="mh-badge mh-sev-critical">{{critical}} critical</span>
+	<span class="mh-badge mh-sev-warning">{{warning}} warning</span>
+	<span class="mh-badge mh-sev-info">{{info}} info</span>
+	<span class="mh-badge">{{vmwareOrigin}} VMware origin</span>
+</div>
+<table class="mh-table">
+	<tr><th>Check</th><th>Category</th><th class="mh-num">VMs failing</th><th class="mh-num">Unknown or not evaluated</th></tr>
+	{{#each byCheck}}<tr><td>{{title}} <span class="mh-muted" title="Check ID {{fullId}}">{{id}}</span></td><td>{{category}}</td><td class="mh-num">{{failed}}</td><td class="mh-num">{{unknown}}</td></tr>{{/each}}
+</table>
+<p class="mh-muted">Scanned {{scannedAt}}. Unknown and not-evaluated results carry no penalty. Snapshot and allocation thresholds are plugin heuristics, not HPE guidance.</p>
+{{/with}}
+<h4>VMs (worst first)</h4>
+<table class="mh-table">
+	<tr><th>VM</th><th>Cluster</th><th>OS</th><th>Grade</th><th class="mh-num">Score</th><th class="mh-num">Critical</th><th class="mh-num">Warning</th><th class="mh-num">Info</th><th class="mh-num">Unknown</th><th>VMware origin</th><th>Top findings</th></tr>
+	{{#each rows}}<tr><td>{{name}}</td><td>{{cluster}}</td><td>{{os}}</td><td><span class="mh-grade mh-grade-small {{gradeClass}}">{{grade}}</span></td><td class="mh-num">{{score}}</td><td class="mh-num">{{critical}}</td><td class="mh-num">{{warning}}</td><td class="mh-num">{{info}}</td><td class="mh-num">{{unknown}}</td><td>{{vmwareOrigin}}</td><td>{{topFindings}}</td></tr>{{/each}}
+</table>
+<div class="mh-muted">Export this report as CSV for the per-VM rows. Open a VM's Migration Hygiene tab for evidence and fix steps. {{disclaimer}}</div>
+</div>

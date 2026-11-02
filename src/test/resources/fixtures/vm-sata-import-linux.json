@@ -1,0 +1,105 @@
+{
+  "server": {
+    "id": 1006,
+    "name": "vm-sata-import-linux",
+    "computeServerType": {
+      "id": 21,
+      "code": "kvmUnmanaged",
+      "name": "KVM Instance",
+      "managed": false,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 6,
+      "name": "host-c"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": null,
+    "osType": null,
+    "platform": null,
+    "platformVersion": null,
+    "guestAgentStatus": "unknown",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 2,
+    "maxMemory": 2147483648,
+    "config": {
+      "netBoot": false,
+      "bootToBios": false
+    },
+    "volumes": [
+      {
+        "id": 90,
+        "name": "vm-sata-import-linux/vm-src.qcow2",
+        "controller": {
+          "id": 114,
+          "name": "SATA 0"
+        },
+        "rootVolume": true,
+        "diskMode": "sata",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 17179869184,
+        "usedStorage": 2047877120,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": "/mnt/datastore-1/vm-sata-import-linux/disk-0",
+        "storageProfile": "kvm-cache-none",
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      }
+    ],
+    "controllers": [
+      {
+        "id": 114,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 91,
+        "name": "net0",
+        "type": {
+          "id": 11,
+          "code": "e1000-kvm",
+          "name": "E1000"
+        },
+        "macAddress": "00:0c:29:00:00:07",
+        "ipAddress": null,
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-11-01T17:47:01.682Z",
+    "snapshots": []
+  }
+}

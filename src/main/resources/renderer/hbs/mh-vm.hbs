@@ -1,0 +1,113 @@
+{{!-- VM fragment (server and instance tabs, VM route): one block per VM. Every value is escaped ({{ }} only). No scripts:
+     the buttons are handled by migration-hygiene.js (delegated, scoped to .migration-hygiene-tab). --}}
+<div class="migration-hygiene mh-vm">
+<style>
+.migration-hygiene { font-size: 13px; padding: 6px 0; }
+.migration-hygiene h4 { margin: 14px 0 6px; font-size: 14px; }
+.migration-hygiene .mh-muted { opacity: .7; }
+.migration-hygiene .mh-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.migration-hygiene .mh-grade { display: inline-block; min-width: 34px; text-align: center; font-weight: 700; font-size: 18px; padding: 4px 8px; border-radius: 4px; color: #fff; }
+.migration-hygiene .mh-grade-small { font-size: 12px; min-width: 22px; padding: 1px 6px; }
+.migration-hygiene .mh-grade-a { background: #2e7d32; } .migration-hygiene .mh-grade-b { background: #558b2f; }
+.migration-hygiene .mh-grade-c { background: #b8860b; } .migration-hygiene .mh-grade-d { background: #d2691e; }
+.migration-hygiene .mh-grade-f { background: #c62828; }
+.migration-hygiene .mh-badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(128,128,128,.5); margin-right: 4px; white-space: nowrap; }
+.migration-hygiene .mh-sev-critical { background: #c62828; color: #fff; border-color: #c62828; }
+.migration-hygiene .mh-sev-warning { background: #ef8f00; color: #fff; border-color: #ef8f00; }
+.migration-hygiene .mh-sev-info { background: #1e6fb8; color: #fff; border-color: #1e6fb8; }
+.migration-hygiene .mh-cat-rec { border-color: #2e7d32; }
+.migration-hygiene .mh-cat-con { border-color: #8a8f98; }
+.migration-hygiene .mh-finding { border: 1px solid rgba(128,128,128,.35); border-radius: 4px; padding: 8px 10px; margin: 8px 0; }
+.migration-hygiene .mh-finding p { margin: 4px 0; }
+.migration-hygiene .mh-finding ol, .migration-hygiene .mh-finding ul { margin: 4px 0 4px 18px; padding: 0; }
+.migration-hygiene .mh-evidence { font-family: monospace; font-size: 12px; background: rgba(128,128,128,.1); padding: 3px 6px; border-radius: 3px; }
+.migration-hygiene table.mh-table { border-collapse: collapse; width: 100%; }
+.migration-hygiene table.mh-table th, .migration-hygiene table.mh-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
+.migration-hygiene .mh-num { text-align: right; }
+.migration-hygiene details { margin: 8px 0; }
+.migration-hygiene summary { cursor: pointer; font-weight: 600; }
+.migration-hygiene .mh-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 12px; }
+.migration-hygiene .mh-id { font-size: 11px; font-weight: normal; }
+.migration-hygiene .mh-probe-hint { font-size: 12px; opacity: .8; flex-basis: 100%; }
+.migration-hygiene .mh-probe-off { opacity: .55; }
+.migration-hygiene .mh-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
+</style>
+{{#if error}}<div class="mh-note">{{error}}</div>{{/if}}
+{{#each vms}}
+<div class="mh-vm-block">
+	<div class="mh-bar">
+		<span class="mh-muted">Scanned {{scannedAgo}}.</span>
+		<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="vm-refresh">Refresh</button>
+		<span class="mh-act-status mh-muted"></span>
+	</div>
+	{{#if probeShown}}
+	<div class="mh-bar mh-probe">
+		{{#if probeReported}}<span class="mh-muted">{{probeReported}}</span>{{else}}
+		{{#if canProbe}}<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="vm-probe" title="20-second timeout">Check guest agent</button>
+		{{#if probeLast}}<span class="mh-probe-last">{{probeLast}}</span>{{/if}}{{#if probeNote}} <span class="mh-probe-note mh-muted">{{probeNote}}</span>{{/if}}{{/if}}
+		<span class="mh-probe-hint{{#unless canProbe}} mh-probe-off{{/unless}}">{{probeHint}}{{#if probeLinuxNote}} {{probeLinuxNote}}{{/if}}{{#if probeDenied}} <strong>{{probeDenied}}</strong>{{/if}}</span>
+		{{/if}}
+	</div>
+	{{/if}}
+	{{#if problem}}
+	<div class="mh-note"><strong>{{name}}</strong>: {{problem}}</div>
+	{{else}}
+	{{#if skippedText}}<div class="mh-note">Unknown: time budget. Not finished in time: {{skippedText}}. The checks that need them show unknown; use Refresh to try again.</div>{{/if}}
+	<div class="mh-head">
+		<span class="mh-grade {{gradeClass}}">{{grade}}</span>
+		<div>
+			<strong>{{name}}</strong> <span class="mh-muted">score {{score}} / 100</span><br>
+			<span class="mh-muted">{{os}} &middot; {{managed}} &middot; power {{power}}{{#if cluster}} &middot; cluster {{cluster}}{{/if}}{{#if host}} &middot; host {{host}}{{/if}}</span>
+		</div>
+		<div>
+			<span class="mh-badge mh-sev-critical">{{critical}} critical</span>
+			<span class="mh-badge mh-sev-warning">{{warning}} warning</span>
+			<span class="mh-badge mh-sev-info">{{info}} info</span>
+			<span class="mh-badge" title="{{originWhy}}">{{originLabel}}</span>
+		</div>
+	</div>
+	{{#if hasFindings}}
+	<h4>Findings</h4>
+	{{#each findings}}
+	<div class="mh-finding">
+		<div>
+			<span class="mh-badge {{sevClass}}">{{severity}}</span>
+			<span class="mh-badge {{catClass}}">{{category}}</span>
+			<strong>{{title}}</strong> <span class="mh-muted mh-id" title="Check ID {{fullId}}">{{id}}</span>
+		</div>
+		<p><span class="mh-evidence">{{detail}}</span></p>
+		{{#each notes}}<p class="mh-muted">{{this}}</p>{{/each}}
+		<p class="mh-muted">Evidence: {{evidence}}</p>
+		<p><strong>If you leave it:</strong> {{leave}}</p>
+		<p><strong>If you fix it:</strong> {{fixSummary}}<br>
+			Downtime: {{downtime}} &middot; Risk: {{risk}} &middot; Reversible: {{reversible}}</p>
+		{{#if hasPrerequisites}}<div>Do first, in this order:<ol>{{#each prerequisites}}<li>{{this}}</li>{{/each}}</ol></div>{{/if}}
+		{{#if isRecommendation}}<p><strong>How in VME:</strong> {{howInVme}}</p>{{else}}<p><strong>Why it's a consideration:</strong> {{whyConsideration}}</p>{{/if}}
+		{{#if hasUnverified}}<div class="mh-muted">Not yet verified:<ul>{{#each unverified}}<li>{{this}}</li>{{/each}}</ul></div>{{/if}}
+		<div class="mh-muted">References: {{#each references}}<a href="{{url}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{#unless @last}}; {{/unless}}{{/each}}</div>
+	</div>
+	{{/each}}
+	{{else}}
+	<div class="mh-note">No findings from the checks that could run.</div>
+	{{/if}}
+	{{#if hasUndecided}}
+	<details>
+		<summary>Unknown or not evaluated ({{undecidedCount}})</summary>
+		<p class="mh-muted">These carry no penalty: the plugin couldn't decide them for this VM or Morpheus version.</p>
+		<table class="mh-table">
+		{{#each undecided}}<tr><td>{{title}} <span class="mh-muted mh-id" title="Check ID {{fullId}}">{{id}}</span></td><td>{{status}}</td><td>{{detail}}{{#each notes}}<br><span class="mh-muted">{{this}}</span>{{/each}}</td></tr>{{/each}}
+		</table>
+	</details>
+	{{/if}}
+	<details>
+		<summary>Passed or not applicable ({{passedCount}})</summary>
+		<table class="mh-table">
+		{{#each passed}}<tr><td>{{title}} <span class="mh-muted mh-id" title="Check ID {{fullId}}">{{id}}</span></td><td>{{status}}</td><td>{{detail}}</td></tr>{{/each}}
+		</table>
+	</details>
+	{{/if}}
+</div>
+{{/each}}
+<div class="mh-muted">{{aboutChecks}}</div>
+<div class="mh-muted">{{disclaimer}} Read-only: this tab changes nothing.</div>
+</div>

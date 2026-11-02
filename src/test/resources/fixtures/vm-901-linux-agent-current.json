@@ -1,0 +1,102 @@
+{
+  "server": {
+    "id": 2004,
+    "name": "vm-901-linux-agent-current",
+    "computeServerType": {
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "code": "rhel.9.64",
+      "name": "rhel 9 64-bit",
+      "osFamily": "rhel",
+      "platform": "linux"
+    },
+    "osType": "linux",
+    "platform": "linux",
+    "guestAgentStatus": "connected",
+    "agentInstalled": true,
+    "agentVersion": "3.2.7",
+    "lastAgentUpdate": "2026-11-01T08:00:00.000Z",
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": false,
+    "config": {
+      "noAgent": false
+    },
+    "volumes": [
+      {
+        "name": "root",
+        "controller": {
+          "id": 1,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 96636764160,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 1,
+        "name": "VIRTIO 0",
+        "type": {
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 2,
+        "name": "SATA 0",
+        "type": {
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 3,
+        "name": "SCSI 0",
+        "type": {
+          "code": "kvm-virtio-scsi",
+          "name": "VirtIO SCSI"
+        },
+        "category": "scsi"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": {
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:24",
+        "ipAddress": "198.51.100.20",
+        "primaryInterface": true
+      }
+    ],
+    "snapshots": []
+  }
+}

@@ -1,0 +1,140 @@
+{
+  "server": {
+    "id": 1009,
+    "name": "vm-virtio-skipped-prep-windows",
+    "computeServerType": {
+      "id": 66,
+      "code": "morpheusWindowsVm",
+      "name": "KVM Windows Instance",
+      "managed": true,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 5,
+      "name": "host-b"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "id": 31,
+      "code": "windows.server.2022.std.desktop",
+      "name": "windows server 2022 standard desktop",
+      "description": null,
+      "vendor": "microsoft",
+      "category": "windows",
+      "osFamily": "windows",
+      "osVersion": "2022",
+      "bitCount": 64,
+      "platform": "windows",
+      "owner": "System"
+    },
+    "osType": "windows",
+    "platform": "windows",
+    "platformVersion": null,
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 1,
+    "maxMemory": 4294967296,
+    "config": {
+      "poolProviderType": "mvm",
+      "imageId": 203,
+      "uefi": true,
+      "resourcePoolId": "pool-2",
+      "secureBoot": false,
+      "kvmHostId": 5,
+      "noAgent": true,
+      "nestedVirtualization": false,
+      "numaMode": "off",
+      "bootToBios": true,
+      "bootToBiosMenuTimeout": 0,
+      "machineType": "q35",
+      "disableQgaChannel": false,
+      "serverOsSource": null,
+      "serverOsSourceImageId": "203"
+    },
+    "volumes": [
+      {
+        "id": 85,
+        "name": "root",
+        "controller": {
+          "id": 111,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 53687091200,
+        "usedStorage": 33826451456,
+        "sourceImage": "vm-virtio-skipped-prep-windows.qcow2",
+        "imageType": "qcow2",
+        "volumePath": "/mnt/datastore-1/vm-virtio-skipped-prep-windows/disk-0",
+        "storageProfile": "kvm-cache-none",
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      }
+    ],
+    "controllers": [
+      {
+        "id": 111,
+        "name": "VIRTIO 0",
+        "type": {
+          "id": 9,
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 112,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 83,
+        "name": "eth0",
+        "type": {
+          "id": 10,
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:0a",
+        "ipAddress": null,
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-11-01T16:24:59.989Z",
+    "snapshots": []
+  }
+}

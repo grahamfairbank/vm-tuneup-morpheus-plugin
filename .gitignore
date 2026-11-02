@@ -1,0 +1,35 @@
+build/
+.gradle/
+.idea/
+*.iml
+out/
+plugins/
+.DS_Store
+dist/
+# Jars copied in during install testing
+upload/
+
+# Local spike output and raw lab captures (may hold real identifiers; fixtures must be anonymized first)
+spike/
+fixtures/raw/
+src/test/resources/fixtures/raw/
+
+# Local working notes (not published)
+CLAUDE.md
+
+# Credentials and tokens never belong in the repo
+*.env
+.env*
+
+__pycache__/
+*.pyc
+
+# Docs: only the install guide and docs/images/ are published. Everything else in docs/ is local only (lab
+# notes, reviews, task lists, one-pager; they may hold real addresses), including any new file added there.
+# To publish another file, add a "!docs/<file>" line below after checking it for lab data.
+docs/*
+!docs/INSTALL.md
+!docs/images/
+
+# Draft release notes (pasted into the GitHub release, not tracked)
+release-notes-*.md

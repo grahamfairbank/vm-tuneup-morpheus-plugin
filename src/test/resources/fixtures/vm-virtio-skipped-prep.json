@@ -1,0 +1,140 @@
+{
+  "server": {
+    "id": 1007,
+    "name": "vm-virtio-skipped-prep",
+    "computeServerType": {
+      "id": 65,
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 6,
+      "name": "host-c"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "id": 58,
+      "code": "rocky.9.64",
+      "name": "Rocky Linux 9 64-bit",
+      "description": null,
+      "vendor": "rocky",
+      "category": "rocky",
+      "osFamily": "rocky",
+      "osVersion": "9",
+      "bitCount": 64,
+      "platform": "linux",
+      "owner": "System"
+    },
+    "osType": "linux",
+    "platform": "linux",
+    "platformVersion": null,
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 1,
+    "maxMemory": 2147483648,
+    "config": {
+      "poolProviderType": "mvm",
+      "imageId": 204,
+      "uefi": true,
+      "resourcePoolId": "pool-2",
+      "secureBoot": false,
+      "kvmHostId": 6,
+      "noAgent": true,
+      "nestedVirtualization": false,
+      "numaMode": "off",
+      "bootToBios": true,
+      "bootToBiosMenuTimeout": 0,
+      "machineType": "q35",
+      "disableQgaChannel": false,
+      "serverOsSource": null,
+      "serverOsSourceImageId": "204"
+    },
+    "volumes": [
+      {
+        "id": 86,
+        "name": "root",
+        "controller": {
+          "id": 109,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 17179869184,
+        "usedStorage": 2009206784,
+        "sourceImage": "vm-virtio-skipped-prep.qcow2",
+        "imageType": "qcow2",
+        "volumePath": "/mnt/datastore-1/vm-virtio-skipped-prep/disk-0",
+        "storageProfile": "kvm-cache-none",
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      }
+    ],
+    "controllers": [
+      {
+        "id": 109,
+        "name": "VIRTIO 0",
+        "type": {
+          "id": 9,
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 110,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 84,
+        "name": "eth0",
+        "type": {
+          "id": 10,
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:08",
+        "ipAddress": null,
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-11-01T16:44:07.592Z",
+    "snapshots": []
+  }
+}

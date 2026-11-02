@@ -1,0 +1,118 @@
+[
+ {
+  "value": null,
+  "expected": ""
+ },
+ {
+  "value": "plain",
+  "expected": "plain"
+ },
+ {
+  "value": "",
+  "expected": ""
+ },
+ {
+  "value": "=1+1",
+  "expected": "'=1+1"
+ },
+ {
+  "value": "+1",
+  "expected": "'+1"
+ },
+ {
+  "value": "-1",
+  "expected": "'-1"
+ },
+ {
+  "value": "@x",
+  "expected": "'@x"
+ },
+ {
+  "value": "|cmd",
+  "expected": "'|cmd"
+ },
+ {
+  "value": "\tx",
+  "expected": "'\tx"
+ },
+ {
+  "value": " =1+1",
+  "expected": "' =1+1"
+ },
+ {
+  "value": "   @SUM(A1)",
+  "expected": "'   @SUM(A1)"
+ },
+ {
+  "value": " \t-2",
+  "expected": "' \t-2"
+ },
+ {
+  "value": "\u00a0=1",
+  "expected": "'\u00a0=1"
+ },
+ {
+  "value": " |x",
+  "expected": "' |x"
+ },
+ {
+  "value": "a=b",
+  "expected": "a=b"
+ },
+ {
+  "value": "vm-1",
+  "expected": "vm-1"
+ },
+ {
+  "value": "a|b",
+  "expected": "a|b"
+ },
+ {
+  "value": " plain",
+  "expected": " plain"
+ },
+ {
+  "value": "x-1",
+  "expected": "x-1"
+ },
+ {
+  "value": "a,b",
+  "expected": "\"a,b\""
+ },
+ {
+  "value": "say \"hi\"",
+  "expected": "\"say \"\"hi\"\"\""
+ },
+ {
+  "value": "two\nline",
+  "expected": "\"two\nline\""
+ },
+ {
+  "value": "=a,b",
+  "expected": "\"'=a,b\""
+ },
+ {
+  "value": -5,
+  "expected": "-5"
+ },
+ {
+  "value": 42,
+  "expected": "42"
+ },
+ {
+  "value": 1.5,
+  "expected": "1.5"
+ },
+ {
+  "value": "-5",
+  "expected": "'-5"
+ },
+ {
+  "value": "\n=1",
+  "expected": "\"'\n=1\""
+ },
+ {
+  "value": "\rx",
+  "expected": "\"'\rx\""
+ }
+]

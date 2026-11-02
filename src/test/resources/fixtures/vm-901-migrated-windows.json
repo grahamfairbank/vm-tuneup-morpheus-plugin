@@ -1,0 +1,180 @@
+{
+  "server": {
+    "id": 2001,
+    "name": "vm-901-migrated-windows",
+    "computeServerType": {
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "off",
+    "status": "provisioned",
+    "serverOs": {
+      "code": "windows.server.2022.std.desktop",
+      "name": "windows server 2022 standard desktop",
+      "osFamily": "windows",
+      "platform": "windows"
+    },
+    "osType": null,
+    "platform": null,
+    "guestAgentStatus": "configured",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": true,
+    "secureBoot": false,
+    "tpm": false,
+    "config": {
+      "noAgent": true,
+      "uefi": true
+    },
+    "volumes": [
+      {
+        "name": "root",
+        "controller": {
+          "id": 3,
+          "name": "SCSI 0"
+        },
+        "rootVolume": true,
+        "diskMode": "scsi",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 96636764160,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "data-1",
+        "controller": {
+          "id": 3,
+          "name": "SCSI 0"
+        },
+        "rootVolume": false,
+        "diskMode": "scsi",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 5368709120,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "CD ROM",
+        "controller": {
+          "id": 2,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "code": "standardcdrom"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": "iso",
+        "volumePath": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 1,
+        "name": "VIRTIO 0",
+        "type": {
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 2,
+        "name": "SATA 0",
+        "type": {
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 3,
+        "name": "SCSI 0",
+        "type": {
+          "code": "kvm-virtio-scsi",
+          "name": "VirtIO SCSI"
+        },
+        "category": "scsi"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": {
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "00:50:56:00:00:21",
+        "ipAddress": "198.51.100.20",
+        "primaryInterface": true
+      }
+    ],
+    "snapshots": [
+      {
+        "name": "snap-0",
+        "snapshotCreated": "2026-03-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-1",
+        "snapshotCreated": "2026-03-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-2",
+        "snapshotCreated": "2026-03-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-3",
+        "snapshotCreated": "2026-04-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-4",
+        "snapshotCreated": "2026-04-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-5",
+        "snapshotCreated": "2026-04-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-6",
+        "snapshotCreated": "2026-05-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-7",
+        "snapshotCreated": "2026-05-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-8",
+        "snapshotCreated": "2026-05-15T10:00:00.000Z"
+      },
+      {
+        "name": "snap-9",
+        "snapshotCreated": "2026-06-15T10:00:00.000Z"
+      }
+    ]
+  }
+}

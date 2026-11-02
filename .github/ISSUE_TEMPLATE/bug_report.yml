@@ -1,0 +1,72 @@
+name: Bug report
+description: Something doesn't work as documented, or a check is wrong
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **Please replace real data** before posting: VM, host, cluster and tenant names, IP addresses, MAC addresses, UUIDs, ids and tokens. Use example values (`app-legacy-01`, `hvm-host-01`, `cluster-a`, `192.0.2.21`, `00:0c:29:00:00:01`). On screenshots, paint over real values; don't blur.
+        This is an unofficial community project. Please don't contact HPE support about it.
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin version and jar
+      placeholder: "0.4.0, migration-hygiene-plugin-0.4.0.jar"
+    validations:
+      required: true
+  - type: input
+    id: morpheus
+    attributes:
+      label: Morpheus / VM Essentials version and license
+      placeholder: "9.1.0, VM Essentials"
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where
+      options:
+        - Cluster tab
+        - VM or instance tab
+        - Check guest agent
+        - CSV download
+        - Fleet report
+        - create-readonly-user.py
+        - Install or upgrade
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: check
+    attributes:
+      label: Check involved (if any)
+      placeholder: "DISK-BUS"
+  - type: input
+    id: guest
+    attributes:
+      label: Guest OS of the VM (if it's about one VM)
+      placeholder: "Windows Server 2022 / Rocky Linux 9"
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: What does the Migration Hygiene tab show? Include the message text if there is one. For a wrong finding, say what the VM really has (for example, "the disk is on VirtIO SCSI in Reconfigure").
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log lines (redacted)
+      description: "From the Morpheus log (Administration > Health > Morpheus Logs, or /var/log/morpheus/morpheus-ui/current), lines containing `migration-hygiene:`."
+      render: text
+  - type: checkboxes
+    id: redacted
+    attributes:
+      label: Redaction
+      options:
+        - label: I have replaced names, addresses, MAC addresses, UUIDs, ids and tokens in everything above.
+          required: true

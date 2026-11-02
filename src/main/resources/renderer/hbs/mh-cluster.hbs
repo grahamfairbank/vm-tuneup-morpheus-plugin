@@ -1,0 +1,102 @@
+{{!-- Cluster tab fragment: the fleet view (0.3.0). Escaped values only ({{ }}). No scripts: the buttons, the origin
+     filter, the CSV downloads (built in the browser from the clusterData route) and the 5-second polling
+     (data-mh-poll) are handled by migration-hygiene.js, scoped to .migration-hygiene-tab. --}}
+<div class="migration-hygiene mh-cluster"{{#if running}} data-mh-poll="1"{{/if}}>
+<style>
+.migration-hygiene { font-size: 13px; padding: 6px 0; }
+.migration-hygiene h4 { margin: 14px 0 6px; font-size: 14px; }
+.migration-hygiene .mh-muted { opacity: .7; }
+.migration-hygiene .mh-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.migration-hygiene .mh-grade { display: inline-block; min-width: 34px; text-align: center; font-weight: 700; font-size: 18px; padding: 4px 8px; border-radius: 4px; color: #fff; }
+.migration-hygiene .mh-grade-small { font-size: 12px; min-width: 22px; padding: 1px 6px; }
+.migration-hygiene .mh-grade-a { background: #2e7d32; } .migration-hygiene .mh-grade-b { background: #558b2f; }
+.migration-hygiene .mh-grade-c { background: #b8860b; } .migration-hygiene .mh-grade-d { background: #d2691e; }
+.migration-hygiene .mh-grade-f { background: #c62828; }
+.migration-hygiene .mh-badge { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(128,128,128,.5); margin-right: 4px; white-space: nowrap; }
+.migration-hygiene .mh-sev-critical { background: #c62828; color: #fff; border-color: #c62828; }
+.migration-hygiene .mh-sev-warning { background: #ef8f00; color: #fff; border-color: #ef8f00; }
+.migration-hygiene .mh-sev-info { background: #1e6fb8; color: #fff; border-color: #1e6fb8; }
+.migration-hygiene .mh-cat-rec { border-color: #2e7d32; }
+.migration-hygiene .mh-cat-con { border-color: #8a8f98; }
+.migration-hygiene .mh-finding { border: 1px solid rgba(128,128,128,.35); border-radius: 4px; padding: 8px 10px; margin: 8px 0; }
+.migration-hygiene .mh-finding p { margin: 4px 0; }
+.migration-hygiene .mh-finding ol, .migration-hygiene .mh-finding ul { margin: 4px 0 4px 18px; padding: 0; }
+.migration-hygiene .mh-evidence { font-family: monospace; font-size: 12px; background: rgba(128,128,128,.1); padding: 3px 6px; border-radius: 3px; }
+.migration-hygiene table.mh-table { border-collapse: collapse; width: 100%; }
+.migration-hygiene table.mh-table th, .migration-hygiene table.mh-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
+.migration-hygiene .mh-num { text-align: right; }
+.migration-hygiene details { margin: 8px 0; }
+.migration-hygiene summary { cursor: pointer; font-weight: 600; }
+.migration-hygiene .mh-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 12px; }
+.migration-hygiene .mh-id { font-size: 11px; font-weight: normal; }
+.migration-hygiene tr.mh-all td { font-weight: 600; }
+.migration-hygiene .mh-csv-status:empty, .migration-hygiene .mh-filter-count:empty { display: none; }
+.migration-hygiene .mh-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
+</style>
+{{#if error}}<div class="mh-note">{{error}}</div>{{/if}}
+<div class="mh-bar">
+	<span>{{progress}}</span>
+	<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="cluster-rescan"{{#if running}} disabled{{/if}}>Rescan</button>
+	<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="csv-cluster" data-mh-name="{{clusterName}}">Download CSV (this cluster)</button>
+	<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="csv-all">Download CSV (all clusters)</button>
+	<span class="mh-act-status mh-muted"></span>
+</div>
+<div class="mh-bar"><span class="mh-csv-status" role="status" aria-live="polite"></span></div>
+<div class="mh-bar mh-muted"><span>Fallback, only if the buttons don't work in your browser: direct download of the results already scanned, <a href="{{csvClusterUrl}}" target="_blank" rel="noopener noreferrer">this cluster</a> &middot; <a href="{{csvAllUrl}}" target="_blank" rel="noopener noreferrer">all clusters</a>. It never starts a scan; clusters not scanned yet are listed as such.</span></div>
+{{#if noHvm}}<div class="mh-note">This cluster has no HVM hosts, so there is nothing to check.</div>{{/if}}
+{{#with summary}}
+<div class="mh-head">
+	<strong>{{vmCount}} HVM VMs scanned</strong>
+	{{#each grades}}<span class="mh-grade mh-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}
+	<span class="mh-badge mh-sev-critical">{{critical}} critical</span>
+	<span class="mh-badge mh-sev-warning">{{warning}} warning</span>
+	<span class="mh-badge mh-sev-info">{{info}} info</span>
+	<span class="mh-badge">{{vmwareOrigin}} migrated from VMware</span>
+</div>
+{{/with}}
+{{#if hasResults}}
+<h4>By origin</h4>
+<table class="mh-table mh-origin-groups">
+	<tr><th>Origin</th><th class="mh-num">VMs</th><th>Grades</th><th class="mh-num">Critical</th><th class="mh-num">Warning</th><th class="mh-num">Info</th></tr>
+	{{#each groups}}<tr{{#if isAll}} class="mh-all"{{/if}} data-mh-group="{{origin}}"><td>{{label}}</td><td class="mh-num">{{vmCount}}</td><td>{{#each grades}}<span class="mh-grade mh-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}</td><td class="mh-num">{{critical}}</td><td class="mh-num">{{warning}}</td><td class="mh-num">{{info}}</td></tr>{{/each}}
+</table>
+<details>
+	<summary>How origin is decided</summary>
+	<p>{{originNote}}</p>
+</details>
+<h4>Worst VMs</h4>
+<div class="mh-bar">
+	<label>Show <select class="mh-origin-filter" aria-label="Filter the VMs by origin">
+		<option value="all">All</option>
+		<option value="migrated">Migrated</option>
+		<option value="not-migrated">No VMware signal</option>
+		<option value="unknown">Unknown origin</option>
+	</select></label>
+	<span class="mh-filter-count mh-muted"></span>
+	<button type="button" class="btn btn-default btn-xs mh-act" data-mh-action="show-all" hidden>Show all</button>
+</div>
+<table class="mh-table mh-vm-table">
+	<tr><th>VM</th><th>Origin</th><th>Grade</th><th class="mh-num">Score</th><th class="mh-num">Critical</th><th class="mh-num">Warning</th><th class="mh-num">Info</th><th>Top findings</th></tr>
+	{{#each vmRows}}<tr class="mh-vmrow" data-mh-origin="{{origin}}"><td><a href="/infrastructure/servers/{{serverId}}">{{name}}</a><br><span class="mh-muted">{{os}}{{#if host}} &middot; host {{host}}{{/if}}</span></td><td title="{{originWhy}}">{{originLabel}}</td><td><span class="mh-grade mh-grade-small {{gradeClass}}">{{grade}}</span></td><td class="mh-num">{{score}}</td><td class="mh-num">{{critical}}</td><td class="mh-num">{{warning}}</td><td class="mh-num">{{info}}</td><td>{{topFindings}}</td></tr>{{/each}}
+	<tr class="mh-vmrow-none" hidden><td colspan="8" class="mh-muted">No VMs in this group.</td></tr>
+</table>
+{{#with summary}}
+<h4>Findings per check</h4>
+<table class="mh-table">
+	<tr><th>Check</th><th>Category</th><th class="mh-num">VMs failing</th><th class="mh-num">Unknown or not evaluated</th></tr>
+	{{#each byCheck}}<tr><td>{{title}} <span class="mh-muted mh-id" title="Check ID {{fullId}}">{{id}}</span></td><td>{{category}}</td><td class="mh-num">{{failed}}</td><td class="mh-num">{{unknown}}</td></tr>{{/each}}
+</table>
+{{/with}}
+{{/if}}
+{{#if partialCount}}<p class="mh-muted">{{partialCount}} VMs were only partly read within the time budget; their affected checks show unknown.</p>{{/if}}
+{{#if hasNotScanned}}
+<details>
+	<summary>Not scanned ({{notScannedCount}})</summary>
+	<table class="mh-table">
+	{{#each notScanned}}<tr><td><a href="/infrastructure/servers/{{serverId}}">{{name}}</a></td><td>{{status}}</td></tr>{{/each}}
+	</table>
+</details>
+{{/if}}
+<div class="mh-muted">{{aboutChecks}}</div>
+<div class="mh-muted">{{#if probed}}This scan included the guest agent probe. {{else}}This scan didn't run the guest agent probe (it needs "Migration Hygiene: Run guest scans" at full). {{/if}}Results are kept 10 minutes. Open a VM's Migration Hygiene tab for evidence and fix steps. {{disclaimer}}</div>
+</div>

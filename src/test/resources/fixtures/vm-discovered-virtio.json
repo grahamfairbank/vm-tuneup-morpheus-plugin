@@ -1,0 +1,151 @@
+{
+  "server": {
+    "id": 1003,
+    "name": "vm-discovered-virtio",
+    "computeServerType": {
+      "id": 21,
+      "code": "kvmUnmanaged",
+      "name": "KVM Instance",
+      "managed": false,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "id": 18,
+      "code": "ubuntu.24.04.64",
+      "name": "ubuntu 24.04 64-bit",
+      "description": null,
+      "vendor": "canonical",
+      "category": "ubuntu",
+      "osFamily": "debian",
+      "osVersion": "24.04",
+      "bitCount": 64,
+      "platform": "linux",
+      "owner": "System"
+    },
+    "osType": "linux",
+    "platform": "ubuntu",
+    "platformVersion": "24.04",
+    "guestAgentStatus": "connected",
+    "agentInstalled": false,
+    "agentVersion": null,
+    "lastAgentUpdate": null,
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 2,
+    "maxMemory": 12884901888,
+    "config": {
+      "netBoot": false,
+      "bootToBios": false,
+      "serverOsSource": "agent"
+    },
+    "volumes": [
+      {
+        "id": 79,
+        "name": "appliance-image.qcow2",
+        "controller": {
+          "id": 107,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 107374182400,
+        "usedStorage": 20989390848,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": "/mnt/datastore-1/vm-discovered-virtio/disk-0",
+        "storageProfile": "kvm-cache-directsync",
+        "datastore": {
+          "id": 1,
+          "name": "datastore-1"
+        }
+      },
+      {
+        "id": 80,
+        "name": "CD ROM",
+        "controller": {
+          "id": 106,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "id": 2,
+          "code": "standardcdrom",
+          "name": "CD ROM"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null,
+        "storageProfile": "kvm-cache-none",
+        "datastore": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 106,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 107,
+        "name": "VIRTIO 0",
+        "type": {
+          "id": 9,
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 79,
+        "name": "net0",
+        "type": {
+          "id": 10,
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:04",
+        "ipAddress": "192.0.2.13",
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-10-25T12:41:44.780Z",
+    "snapshots": []
+  }
+}

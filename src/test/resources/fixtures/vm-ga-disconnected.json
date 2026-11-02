@@ -1,0 +1,175 @@
+{
+  "server": {
+    "id": 1002,
+    "name": "vm-ga-disconnected",
+    "computeServerType": {
+      "id": 65,
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true,
+      "externalDelete": true,
+      "provisionTypeId": 22,
+      "provisionTypeCode": "kvm",
+      "format": "guestVm"
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 5,
+      "name": "host-b"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "id": 18,
+      "code": "ubuntu.24.04.64",
+      "name": "ubuntu 24.04 64-bit",
+      "description": null,
+      "vendor": "canonical",
+      "category": "ubuntu",
+      "osFamily": "debian",
+      "osVersion": "24.04",
+      "bitCount": 64,
+      "platform": "linux",
+      "owner": "System"
+    },
+    "osType": "linux",
+    "platform": "ubuntu",
+    "platformVersion": "24.04",
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": true,
+    "agentVersion": "4.0.1",
+    "lastAgentUpdate": "2026-11-01T14:19:57.000Z",
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": false,
+    "maxCores": 1,
+    "maxMemory": 536870912,
+    "config": {
+      "machineTypeInfo": null,
+      "secureBoot": false,
+      "provisionPoweredOff": false,
+      "isEC2": false,
+      "bootToBiosMenuTimeout": 0,
+      "machineType": "q35",
+      "noAgent": false,
+      "attachVirtIODrivers": false,
+      "imageId": 201,
+      "isVpcSelectable": true,
+      "uefi": false,
+      "netBoot": false,
+      "biosHostMode": false,
+      "disableGraphics": false,
+      "numaMode": "off",
+      "affinityGroup": "",
+      "tpm": false,
+      "hugepages": false,
+      "poolProviderType": "mvm",
+      "qemuArgs": null,
+      "resourcePoolId": "pool-2",
+      "disableQgaChannel": false,
+      "nestedVirtualization": false,
+      "kvmHostId": null,
+      "bootToBios": true,
+      "serverOsSource": null,
+      "serverOsSourceImageId": "201"
+    },
+    "volumes": [
+      {
+        "id": 65,
+        "name": "root",
+        "controller": {
+          "id": 92,
+          "name": "VIRTIO 0"
+        },
+        "rootVolume": true,
+        "diskMode": "virtio",
+        "type": {
+          "id": 1,
+          "code": "standard",
+          "name": "Disk"
+        },
+        "category": "disk",
+        "maxStorage": 10737418240,
+        "usedStorage": 1281503232,
+        "sourceImage": "noble-server-cloudimg-amd64.qcow2",
+        "imageType": "qcow2",
+        "volumePath": "/mnt/datastore-1/vm-ga-disconnected/disk-0",
+        "storageProfile": "kvm-cache-none",
+        "datastore": {
+          "id": 6,
+          "name": "datastore-1"
+        }
+      },
+      {
+        "id": 66,
+        "name": "CD ROM",
+        "controller": {
+          "id": 93,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "id": 2,
+          "code": "standardcdrom",
+          "name": "CD ROM"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": "iso",
+        "volumePath": null,
+        "storageProfile": "kvm-cache-none",
+        "datastore": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 92,
+        "name": "VIRTIO 0",
+        "type": {
+          "id": 9,
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 93,
+        "name": "SATA 0",
+        "type": {
+          "id": 8,
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      }
+    ],
+    "interfaces": [
+      {
+        "id": 62,
+        "name": "eth0",
+        "type": {
+          "id": 10,
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "52:54:00:00:00:03",
+        "ipAddress": "192.0.2.12",
+        "primaryInterface": true,
+        "dhcp": true,
+        "network": {
+          "id": 1,
+          "name": "network-1"
+        }
+      }
+    ],
+    "dateCreated": "2026-10-21T23:16:02.674Z",
+    "snapshots": []
+  }
+}

@@ -1,0 +1,110 @@
+// migration-hygiene-plugin: read-only audit of HVM VMs for leftovers from VMware migrations, in HPE VM Essentials.
+// Layout follows the Morpheus plugin generator: Gradle + shadow "fat jar" + asset pipeline +
+// morpheus-plugin-gradle. Build with ./gradlew shadowJar (or tools/build.sh, which needs only Docker).
+
+buildscript {
+	repositories {
+		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
+	}
+	dependencies {
+		classpath "com.github.johnrengelman:shadow:$shadowVersion"
+		classpath "com.bertramlabs.plugins:asset-pipeline-gradle:$assetPipelineVersion"
+		classpath "com.morpheusdata:morpheus-plugin-gradle:$morphPluginGradleVersion"
+	}
+}
+
+// One jar for Morpheus 9.0 and 9.1. It is compiled against the OLDEST supported Plugin API (1.4.1, Morpheus 9.0),
+// so it can't use anything newer. Morpheus 9.1 ships Plugin API 1.5.0, which is compatible for every class this
+// plugin uses: the test suite runs against it too (-PtestApiVersion=1.5.0, see tools/build.sh), and a jar built
+// against 1.5.0 was confirmed running on a 9.0 appliance for com-morpheus-plugin (2026-10-25). Before each release,
+// tools/check-plugin-core.sh reports any change in HPE's published plugin-core and docs that could affect this.
+ext.morphPluginApiVersion = '1.4.1'
+ext.testApiVersion = (project.findProperty('testApiVersion') ?: morphPluginApiVersion).toString()
+if (testApiVersion != morphPluginApiVersion) {
+	// A compatibility test run: keep its output apart from the real build.
+	layout.buildDirectory = layout.projectDirectory.dir("build/api-${testApiVersion}")
+}
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'asset-pipeline'
+apply plugin: 'com.morpheusdata.morpheus-plugin-gradle'
+
+group = 'io.github.grahamfairbank'
+
+java {
+	// Morpheus runs plugins on a newer JVM; the Plugin API targets Java 11.
+	sourceCompatibility = JavaVersion.VERSION_11
+	targetCompatibility = JavaVersion.VERSION_11
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	provided
+}
+
+dependencies {
+	// Supplied by Morpheus at runtime: never bundled into the plugin jar.
+	provided "com.morpheusdata:morpheus-plugin-api:$morphPluginApiVersion"
+	provided "org.codehaus.groovy:groovy:$groovyVersion"
+	provided "org.codehaus.groovy:groovy-json:$groovyVersion"
+	provided "io.reactivex.rxjava3:rxjava:3.1.7"
+	provided "org.slf4j:slf4j-api:$slf4jVersion"
+
+	testImplementation "com.morpheusdata:morpheus-plugin-api:$testApiVersion"
+	testImplementation "org.codehaus.groovy:groovy:$groovyVersion"
+	testImplementation "org.codehaus.groovy:groovy-json:$groovyVersion"
+	testImplementation "io.reactivex.rxjava3:rxjava:3.1.7"
+	testImplementation "org.spockframework:spock-core:$spockVersion"
+	// Request and response stubs for the route tests (Morpheus supplies the servlet API at runtime).
+	testImplementation "jakarta.servlet:jakarta.servlet-api:6.0.0"
+	testRuntimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
+}
+
+sourceSets {
+	main {
+		compileClasspath += configurations.provided
+	}
+}
+
+assets {
+	packagePlugin = false
+}
+
+jar {
+	manifest {
+		attributes(
+			'Plugin-Class': 'io.github.grahamfairbank.migrationhygiene.MigrationHygienePlugin',
+			'Plugin-Version': project.version,
+			'Morpheus-Name': 'Migration Hygiene',
+			'Morpheus-Organization': 'migration-hygiene community project',
+			'Morpheus-Code': 'migration-hygiene',
+			'Morpheus-Description': 'Unofficial community plugin, not an HPE product and not supported by HPE. Read-only health audit of HVM virtual machines for leftovers from VMware migrations, with a fleet report and per-VM and cluster tabs.',
+			'Morpheus-Logo': 'assets/migration-hygiene.svg',
+			'Morpheus-Logo-Dark': 'assets/migration-hygiene.svg',
+			'Morpheus-Labels': 'Plugin, Report, Migration, HVM, Tab',
+			'Morpheus-Repo': 'https://github.com/grahamfairbank/migration-hygiene-plugin',
+			'Morpheus-Min-Appliance-Version': '9.0.0'
+		)
+	}
+}
+
+tasks.withType(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+	// Nothing needs bundling today; keep the plugin jar small and the name predictable.
+	archiveClassifier.set('')
+	archiveBaseName.set('migration-hygiene-plugin')
+}
+
+test {
+	useJUnitPlatform()
+	// Opt-in checks are driven by env vars; make them part of the task inputs so changing them re-runs tests.
+	['PREVIEW_OUT', 'LOAD_JARS'].each { inputs.property(it, System.getenv(it) ?: '') }
+	testLogging { exceptionFormat = 'full' }
+}
+
+tasks.assemble.dependsOn tasks.shadowJar

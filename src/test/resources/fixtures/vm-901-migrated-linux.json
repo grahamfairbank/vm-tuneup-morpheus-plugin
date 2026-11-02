@@ -1,0 +1,121 @@
+{
+  "server": {
+    "id": 2002,
+    "name": "vm-901-migrated-linux",
+    "computeServerType": {
+      "code": "morpheusVm",
+      "name": "KVM Instance",
+      "managed": true
+    },
+    "zone": {
+      "id": 1,
+      "name": "hvm-cloud",
+      "type": "standard"
+    },
+    "parentServer": {
+      "id": 4,
+      "name": "host-a"
+    },
+    "powerState": "on",
+    "status": "provisioned",
+    "serverOs": {
+      "code": "ubuntu.22.04.64",
+      "name": "ubuntu 22.04 64-bit",
+      "osFamily": "debian",
+      "platform": "linux"
+    },
+    "osType": null,
+    "platform": "linux",
+    "guestAgentStatus": "disconnected",
+    "agentInstalled": true,
+    "agentVersion": "3.1.3",
+    "lastAgentUpdate": "2026-10-31T22:00:00.000Z",
+    "uefi": false,
+    "secureBoot": false,
+    "tpm": false,
+    "config": {
+      "noAgent": false,
+      "uefi": false
+    },
+    "volumes": [
+      {
+        "name": "root",
+        "controller": {
+          "id": 3,
+          "name": "SCSI 0"
+        },
+        "rootVolume": true,
+        "diskMode": "scsi",
+        "type": {
+          "code": "standard"
+        },
+        "category": "disk",
+        "maxStorage": 96636764160,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": null,
+        "volumePath": null
+      },
+      {
+        "name": "CD ROM",
+        "controller": {
+          "id": 2,
+          "name": "SATA 0"
+        },
+        "rootVolume": false,
+        "diskMode": "sata",
+        "type": {
+          "code": "standardcdrom"
+        },
+        "category": "cd",
+        "maxStorage": 0,
+        "usedStorage": 0,
+        "sourceImage": null,
+        "imageType": "iso",
+        "volumePath": null
+      }
+    ],
+    "controllers": [
+      {
+        "id": 1,
+        "name": "VIRTIO 0",
+        "type": {
+          "code": "kvm-virtio-blk",
+          "name": "VirtIO Block"
+        },
+        "category": "virtio"
+      },
+      {
+        "id": 2,
+        "name": "SATA 0",
+        "type": {
+          "code": "kvm-sata",
+          "name": "SATA"
+        },
+        "category": "sata"
+      },
+      {
+        "id": 3,
+        "name": "SCSI 0",
+        "type": {
+          "code": "kvm-virtio-scsi",
+          "name": "VirtIO SCSI"
+        },
+        "category": "scsi"
+      }
+    ],
+    "interfaces": [
+      {
+        "name": "eth0",
+        "type": {
+          "code": "virtio",
+          "name": "Virt IO"
+        },
+        "macAddress": "00:0c:29:00:00:22",
+        "ipAddress": "198.51.100.20",
+        "primaryInterface": true
+      }
+    ],
+    "snapshots": []
+  }
+}
