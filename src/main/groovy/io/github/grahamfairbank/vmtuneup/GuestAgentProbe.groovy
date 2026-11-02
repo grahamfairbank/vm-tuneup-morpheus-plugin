@@ -21,7 +21,7 @@ import java.util.concurrent.TimeoutException
  * powered-on HVM VM, the plugin asks the QEMU guest agent to run a fixed no-op command (Linux {@code true},
  * Windows {@code cmd /c exit 0}) through Morpheus's guest execution. An answer means the agent works.
  *
- * Rules: only for users granted "VM Tune-Up: Run guest scans" at full (the caller decides and passes
+ * Rules: only for users granted "VM Tune-Up: Run guest and host checks" at full (the caller decides and passes
  * {@code permitted}; null means the user couldn't be determined, which never probes); never on powered-off or
  * non-HVM servers; a hard timeout per VM; results cached per server id for 10 minutes. No command output is kept:
  * only the success flag, the exit code, the first 200 characters of the error message and when it ran ({@code at}).

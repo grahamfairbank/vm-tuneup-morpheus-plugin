@@ -2,14 +2,17 @@ package io.github.grahamfairbank.vmtuneup.core
 
 import groovy.transform.CompileStatic
 
-/** Every check the plugin knows: the Tier 1 checks (M1). Tier 2 guest checks come later. */
+/** Every check the plugin knows: Tier 1 (Morpheus data), then Tier 2 (read-only, inside the guest). */
 @CompileStatic
 final class CheckCatalog {
 
 	private CheckCatalog() {}
 
+	/** Tier 1 then Tier 2: the fix order across both tiers. */
+	static final List<Check> ORDER = Collections.unmodifiableList(new ArrayList<Check>(Tier1Catalog.ALL + Tier2Catalog.ALL))
+
 	static List<Check> all() {
-		return validated(Tier1Catalog.ALL)
+		return validated(ORDER)
 	}
 
 	/** Refuses a catalog with duplicate ids, so results and waivers can be keyed by id. */

@@ -46,6 +46,12 @@ class Workers {
 	final ExecutorService scan
 	final ExecutorService baseline
 	final ExecutorService probe
+	/** Host CPU checks (0.6): one at a time, a few waiting. */
+	final ExecutorService hostCpu
+	/** Tier 2 guest scans (0.7). */
+	final ExecutorService guest
+	/** Cluster guest batches (0.7): one at a time, separate from single VM scans. */
+	final ExecutorService guestBatch
 
 	Workers() {
 		io = bounded('io', 6, 24)
@@ -55,6 +61,9 @@ class Workers {
 		scan = fixed('scan', SCAN_WORKERS)
 		baseline = fixed('baseline', 1)
 		probe = bounded('probe', PROBE_THREADS, PROBE_QUEUE)
+		hostCpu = bounded('host-cpu', 1, 4)
+		guest = bounded('guest', 2, 8)
+		guestBatch = bounded('guest-batch', 1, 2)
 	}
 
 	static ThreadFactory factory(String name) {
@@ -78,7 +87,7 @@ class Workers {
 		return p
 	}
 
-	List<ExecutorService> all() { [io, vm, bgIo, jobs, scan, baseline, probe] }
+	List<ExecutorService> all() { [io, vm, bgIo, jobs, scan, baseline, probe, hostCpu, guest, guestBatch] }
 
 	void shutdown() {
 		all().each { ExecutorService e ->

@@ -1,5 +1,50 @@
 # Changelog
 
+## 1.0.0 (unreleased): first public release
+
+The first public release brings together 0.6.0 and 0.7.0 below. In short:
+
+- **A tune-up plan for every VM:** fixes grouped into one cold window, one guest restart or no downtime, prerequisites once and in order, and the grade **after the plan**; a plan summary for the cluster; plan columns in the CSV.
+- **Three new Tier 1 checks:** HA and mobility, nested virtualization, and CPU topology (critical for Windows 10 or 11 spread over more than 2 sockets). The VMware source VM check (`SOURCE-TWIN`) is gone.
+- **Host CPU check** on the cluster tab: reconciles the cluster's CPU model setting with every HVM host's CPU and microcode, and recommends the best named model all hosts can run.
+- **Tier 2 guest checks:** one fixed, read-only script per OS, through Morpheus's guest execution, with six new checks.
+- **Fill in OS fields:** the plugin's one write, opt-in, behind a new permission, empty fields only, confirmed and logged.
+- **Printable report** (print to PDF), links to Morpheus pages, an activity indicator, and grade tables in columns.
+- **No credentials anywhere:** every command goes through channels Morpheus already has.
+
+Upgrading from 0.5.0: give the new **VM Tune-Up: Update VM records** permission only to people who may edit VM records; it starts at **None**.
+
+## 0.7.0 (2026-11-02)
+
+**Tier 2: checks inside the guest.**
+
+- **Run guest checks** on the VM tab, and **Run guest checks on all powered-on VMs** on the cluster tab (one VM at a time, with progress), for users with **VM Tune-Up: Run guest and host checks** at **Full**. Only when someone clicks.
+- **One fixed, read-only script per OS:** PowerShell through the QEMU guest agent on Windows (as SYSTEM), `sh` through the Morpheus agent on Linux (as root). Nothing from the request or the VM goes into it; it writes nothing, installs nothing and opens no network connection. Its output is capped and parsed into a versioned `key=value` list. The README lists every command each script runs.
+- **Six Tier 2 checks:** guest not ready for the switch to VirtIO (`T2-VIRTIO-READY`), VMware Tools still installed (`T2-VMWARE-TOOLS`), guest agent can't freeze the file systems (`T2-GA-FEATURES`), guest time not synchronized (`T2-TIME-SYNC`), VirtIO driver version (`T2-VIRTIO-VERSION`, Windows), and domain controller without VM-Generation ID (`T2-DC-VMGENID`, a Consideration). They cite HPE first, then Microsoft, QEMU, libvirt, virtio-win and Linux documentation.
+- **Results are kept 1 hour** and added to the VM's grade and plan while they last. A failed scan or a value the script couldn't read is unknown, never a pass.
+- **The guest scan runs in the background** and the VM tab polls until it's done: a long scan took longer than Morpheus lets a plugin request run. Each scan has a 2-minute limit, one per VM at a time, at most once a minute.
+- **Logged:** each scan with the user id, the server id and the script's SHA-256. The output is never logged.
+- **Fill in OS fields** (the plugin's one write): when Morpheus has empty guest OS fields and a guest scan identified the OS, **Fill in OS fields** on the VM tab, or **Fill in all N** with a preview list on the cluster tab, fills **only the empty fields** (OS type, OS family, platform, version) after a confirm. A field Morpheus already has is never changed. Each write is logged with the user id, server id and OS code.
+- **New permission: VM Tune-Up: Update VM records** (`vm-tuneup-update-records`, None or Full), for Fill in OS fields only. `tools/create-readonly-user.py` never grants it.
+- Lab-verified on Morpheus 9.1.0.1: the Windows guest scan through the QEMU guest agent, and Fill in OS fields. The Linux script was verified over SSH on Rocky Linux 9 and Ubuntu; the Linux path through the Morpheus agent isn't verified end to end yet.
+
+## 0.6.0 (2026-11-02)
+
+**The tune-up plan, three new checks and the host CPU check.**
+
+- **Tune-up plan per VM:** the failed Recommendations grouped by the downtime they need, so every fix that powers the VM off happens in **one cold window**. The plan lists the prerequisites once, in order and for the VM's OS (**Before the window**), then **Any time, no downtime**, **With one guest restart** and **In one cold window**. Considerations are left out and counted. The plan shows the grade now and **after the plan** (every Recommendation done).
+- **Cluster plan summary:** grade counts and average score **Now** and **After the plan**, and how many VMs need a cold window, a guest restart, no downtime or nothing. **Worst VMs** shows each VM's grade after the plan and its window.
+- **New CSV columns:** `gradeAfter`, `scoreAfter`, `planWindow` (`cold`, `guest-reboot`, `live`, `none`) and `planSteps` (short IDs in order).
+- **New Tier 1 checks:**
+  - **VM can't fail over or live-migrate** (`T1-HA-MOBILITY`): disks on host-local storage (warning), pinned placement or host devices passed through (info).
+  - **Nested virtualization turned on** (`T1-NESTED-VIRT`, warning): HVM marks such a VM as not migratable.
+  - **vCPUs spread over too many sockets** (`T1-CPU-TOPOLOGY`, Windows): **critical** for Windows 10 or 11 with more than 2 sockets (the extra vCPUs sit idle); info for other Windows VMs with more than one socket.
+- **Removed: `T1-SOURCE-TWIN`** (VMware source VM still running). It was never evaluated, and what happens on the VMware side is out of scope.
+- **Host CPU check** on the cluster tab (**Check host CPUs**): runs `virsh capabilities` and `virsh domcapabilities --virttype kvm` on each HVM host of the cluster, through Morpheus, as root or with `sudo -n`. It reconciles the cluster's CPU model setting with every host's CPU, features and microcode (vendor or architecture mix, host passthrough on hosts that differ, a named model some host can't run, for example after microcode removed TSX), and recommends the newest named model every host can run. For master-tenant users with **Run guest scans** at **Full**; one run per cluster at a time; kept 1 hour; logged. Host XML is size-capped and parsed with DTDs and external entities off. Not part of the VM grades.
+- **Printable report:** **Print report** on the cluster tab opens a page for the browser's Save as PDF: summary, all VMs worst first with their grade now and after, the plan per VM, and the host CPU result. It uses results already scanned only.
+- **Links to Morpheus:** VM names on the cluster tab, and **Open the instance in Morpheus** on the plan, go to the instance or VM page where the actions are.
+- **Activity indicator** while a scan, a guest check or a host check runs, and **grade tables in columns** (grades A to F side by side).
+
 ## 0.5.0 (2026-11-02)
 
 **New name: VM Tune-Up** (was Migration Hygiene, never released under that name). The plugin checks every VM on an HVM cluster, not only migrated ones, so the name now says what it does. The tagline stays: "We've migrated to HVM. Now what?"
@@ -68,5 +113,5 @@ Tested on Morpheus 9.1.0.1. Security hardening after an independent review of th
 - Fourteen Tier 1 checks from Morpheus data: disk bus, network adapter model, chipset, VMware MAC address, OS type after migration, firmware and TPM, guest agent channel and status, Morpheus agent, snapshots, disk allocation, discovered VMs, attached ISOs, and the VMware source VM (defined, not evaluated yet).
 - Every check explains **If you leave it** and **If you fix it** (downtime, risk, whether it can be undone, prerequisites in order), is a **Recommendation** or a **Consideration**, and cites HPE documentation first. Unknown results are listed, never scored.
 - VM Tune-Up tabs on HVM VM, instance and cluster pages, and a fleet report. Scores from 100 (critical 25, warning 8, info 0 to 2), grades A to F.
-- Two permissions: **VM Tune-Up: View results** and **VM Tune-Up: Run guest scans**.
+- Two permissions: **VM Tune-Up: View results** and **VM Tune-Up: Run guest and host checks**.
 - One jar for Morpheus 9.0 and 9.1 (Plugin API 1.4.1, tested on 1.5.0).

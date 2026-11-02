@@ -234,9 +234,13 @@ class NonBlockingSpec extends Specification {
 		c.status(new ViewModel<Map>(user: user('none'))).status == 403
 		c.vm(request(user(), [serverId: 'abc'])).status == 400
 		c.routes*.url as Set == ['/vmTuneUp/status', '/vmTuneUp/vm', '/vmTuneUp/vmProbe', '/vmTuneUp/cluster',
-			'/vmTuneUp/clusterRescan', '/vmTuneUp/csv', '/vmTuneUp/clusterData', '/vmTuneUp/clusters'] as Set
-		c.routes.findAll { it.url != '/vmTuneUp/vmProbe' }.every { it.permissions*.code == ['vm-tuneup-view'] }
+			'/vmTuneUp/clusterRescan', '/vmTuneUp/csv', '/vmTuneUp/clusterData', '/vmTuneUp/clusters', '/vmTuneUp/hostCpu', '/vmTuneUp/print',
+			'/vmTuneUp/guestScan', '/vmTuneUp/guestScanCluster', '/vmTuneUp/setOs', '/vmTuneUp/setOsCluster'] as Set
+		c.routes.findAll { !(it.url in ['/vmTuneUp/vmProbe', '/vmTuneUp/hostCpu', '/vmTuneUp/guestScan', '/vmTuneUp/guestScanCluster', '/vmTuneUp/setOs', '/vmTuneUp/setOsCluster']) }.every { it.permissions*.code == ['vm-tuneup-view'] }
+		['/vmTuneUp/guestScan', '/vmTuneUp/guestScanCluster'].every { u -> c.routes.find { it.url == u }.permissions*.code == ['vm-tuneup-guest-scan'] }
+		['/vmTuneUp/setOs', '/vmTuneUp/setOsCluster'].every { u -> c.routes.find { it.url == u }.permissions*.code == ['vm-tuneup-update-records'] }
 		c.routes.find { it.url == '/vmTuneUp/vmProbe' }.permissions*.code == ['vm-tuneup-guest-scan']
+		c.routes.find { it.url == '/vmTuneUp/hostCpu' }.permissions*.code == ['vm-tuneup-guest-scan']
 	}
 
 	def "routes check the tenant: another tenant's VM or cluster is not found, the master tenant sees all"() {
@@ -266,6 +270,81 @@ class NonBlockingSpec extends Specification {
 		c.vmProbe(request(u, [serverId: '1'], 'POST', xhr([Origin: 'https://evil.example.net']))).status == 403
 		c.clusterRescan(request(u, [clusterId: '7'], 'POST', xhr([Origin: 'https://manager.example.com:443']))).status == 200
 		c.vmProbe(request(u, [serverId: '1'], 'POST', xhr([Referer: 'https://manager.example.com/infrastructure/servers/1']))).status == 200
+	}
+
+	// ---- 0.7: guest checks, host CPU check, OS fill-in, print (VT-15) --------------------------------------
+
+	static User userWith(Map perms, Long account = 1L, boolean master = false) {
+		return new User(username: 'vm-user', permissions: perms, account: withId(new Account(masterAccount: master), account))
+	}
+
+	def "0.7 POST routes need POST, X-Requested-With and the same origin"() {
+		given:
+		MorpheusContext ctx = context([1L: vm(1L), 6L: host(6L)])
+		VmTuneUpController c = new VmTuneUpController(plugin, ctx)
+		User u = userWith([(VmTuneUpPlugin.VIEW_PERMISSION): 'read', (VmTuneUpPlugin.GUEST_SCAN_PERMISSION): 'full', (VmTuneUpPlugin.UPDATE_PERMISSION): 'full'], 1L, true)
+
+		expect:
+		c.guestScan(request(u, [serverId: '1'], 'GET', xhr())).status == 403
+		c.guestScanCluster(request(u, [clusterId: '7'], 'POST', [Host: 'manager.example.com'])).status == 403
+		c.setOs(request(u, [serverId: '1'], 'POST', xhr([Origin: 'https://evil.example.net']))).status == 403
+		c.setOsCluster(request(u, [clusterId: '7'], 'GET', xhr())).status == 403
+		c.hostCpu(request(u, [clusterId: '7'], 'POST', xhr([Origin: 'null']))).status == 403
+	}
+
+	def "0.7 routes check their permission level themselves"() {
+		given:
+		MorpheusContext ctx = context([1L: vm(1L), 6L: host(6L)])
+		VmTuneUpController c = new VmTuneUpController(plugin, ctx)
+		Map same = xhr([Origin: 'https://manager.example.com'])
+		User viewOnly = userWith([(VmTuneUpPlugin.VIEW_PERMISSION): 'read'], 1L, true)
+		User guestRead = userWith([(VmTuneUpPlugin.VIEW_PERMISSION): 'read', (VmTuneUpPlugin.GUEST_SCAN_PERMISSION): 'read'], 1L, true)
+		User updateNone = userWith([(VmTuneUpPlugin.VIEW_PERMISSION): 'read', (VmTuneUpPlugin.GUEST_SCAN_PERMISSION): 'full', (VmTuneUpPlugin.UPDATE_PERMISSION): 'none'], 1L, true)
+
+		expect:
+		c.guestScan(request(viewOnly, [serverId: '1'], 'POST', same)).status == 403
+		c.guestScan(request(guestRead, [serverId: '1'], 'POST', same)).status == 403
+		c.guestScanCluster(request(viewOnly, [clusterId: '7'], 'POST', same)).status == 403
+		c.hostCpu(request(viewOnly, [clusterId: '7'], 'POST', same)).status == 403
+		c.setOs(request(updateNone, [serverId: '1'], 'POST', same)).status == 403
+		c.setOsCluster(request(updateNone, [clusterId: '7'], 'POST', same)).status == 403
+	}
+
+	def "the host CPU check is for the master tenant only; guest and fill-in routes check the tenant first"() {
+		given:
+		MorpheusContext ctx = context([1L: vm(1L), 6L: host(6L)])
+		VmTuneUpController c = new VmTuneUpController(plugin, ctx)
+		Map same = xhr([Origin: 'https://manager.example.com'])
+		Map all = [(VmTuneUpPlugin.VIEW_PERMISSION): 'read', (VmTuneUpPlugin.GUEST_SCAN_PERMISSION): 'full', (VmTuneUpPlugin.UPDATE_PERMISSION): 'full']
+
+		expect:
+		c.hostCpu(request(userWith(all, 1L, false), [clusterId: '7'], 'POST', same)).status == 403
+		c.guestScan(request(userWith(all, 2L, false), [serverId: '1'], 'POST', same)).status == 404
+		c.setOs(request(userWith(all, 2L, false), [serverId: '1'], 'POST', same)).status == 404
+		c.guestScan(request(userWith(all, 1L, true), [serverId: 'x1'], 'POST', same)).status == 400
+	}
+
+	def "the print page never starts a scan and only shows results already scanned"() {
+		given:
+		MorpheusContext ctx = context([1L: vm(1L), 6L: host(6L)])
+		VmTuneUpController c = new VmTuneUpController(plugin, ctx)
+
+		when:
+		def r = c.print(request(user('read', null, 9L, true), [clusterId: '7'], 'GET', xhr()))
+
+		then:
+		r.status == 200
+		r.html.contains('Not ready yet')
+		plugin.scans(ctx).cachedCluster(7L) == null
+	}
+
+	def "the fill-in proposal needs an exact catalog match and an empty field"() {
+		expect:
+		OsFill.proposal(null) == null
+		OsFill.VERSION.matcher('22.04').matches()
+		OsFill.VERSION.matcher('2022').matches()
+		!OsFill.VERSION.matcher('9; rm -rf /').matches()
+		!OsFill.VERSION.matcher('<script>').matches()
 	}
 
 	// ---- budgets -----------------------------------------------------------------------------------------
@@ -792,7 +871,7 @@ class NonBlockingSpec extends Specification {
 		inline.contains('data-vtu-loaded="1"')
 		inline.contains('>Check guest agent</button>')
 		inline.contains('Answered just now')
-		inline.contains('About the checks: they use Morpheus data only')
+		inline.contains('About the checks: Tier 1 uses Morpheus data only')
 		clusterShell.contains('data-vtu-kind="cluster" data-vtu-id="7"')
 	}
 
@@ -823,7 +902,7 @@ class NonBlockingSpec extends Specification {
 		html.contains('class="vtu-csv-status"')
 		html.contains('direct download of the results already scanned')
 		html.contains('href="/plugin/vmTuneUp/csv?clusterId=7"')
-		html.contains('About the checks: they use Morpheus data only')
+		html.contains('About the checks: Tier 1 uses Morpheus data only')
 		!html.contains('>T1-')
 	}
 

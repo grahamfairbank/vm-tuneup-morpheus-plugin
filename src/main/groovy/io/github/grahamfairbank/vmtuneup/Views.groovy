@@ -6,6 +6,7 @@ import io.github.grahamfairbank.vmtuneup.core.CheckResult
 import io.github.grahamfairbank.vmtuneup.core.Downtime
 import io.github.grahamfairbank.vmtuneup.core.Severity
 import io.github.grahamfairbank.vmtuneup.core.Status
+import io.github.grahamfairbank.vmtuneup.core.TuneUpPlan
 import io.github.grahamfairbank.vmtuneup.core.VmReport
 
 /**
@@ -33,8 +34,10 @@ class Views {
 	/** The check ID as shown to users: without the tier prefix (T1-DISK-BUS shows as DISK-BUS). */
 	static String shortId(String id) { id ? id.replaceFirst(/^T\d-/, '') : '' }
 
-	static final String ABOUT_CHECKS = 'About the checks: they use Morpheus data only (nothing runs inside the VM, except the optional ' +
-		'guest agent check). Later versions add read-only checks inside the guest.'
+	static final String ABOUT_CHECKS = 'About the checks: Tier 1 uses Morpheus data only. Tier 2 runs one fixed, read-only script inside ' +
+		'the VM, and the host CPU check runs read-only virsh commands on the hosts, both only when someone with ' +
+		'"VM Tune-Up: Run guest and host checks" asks. The only change the plugin can make is filling in empty OS fields, after a ' +
+		'confirmation, for users with "VM Tune-Up: Update VM records".'
 
 	static String gradeClass(String grade) { "vtu-grade-${(grade ?: 'f').toLowerCase()}" }
 
@@ -49,6 +52,43 @@ class Views {
 		        isRecommendation: c.category == Category.RECOMMENDATION, howInVme: c.howInVme ?: '', whyConsideration: c.whyConsideration ?: '',
 		        unverified: c.unverified, hasUnverified: !c.unverified.isEmpty(),
 		        references: c.references.collect { [label: it.label, url: it.url] }]
+	}
+
+	// ---- 0.6: the tune-up plan and links to Morpheus pages ----
+
+	/** Where to act on the VM: its instance page for a managed VM, else the VM (server) page. */
+	static Map link(def f) {
+		if (f.instanceId != null) return [linkUrl: "/provisioning/instances/${f.instanceId}".toString(),
+			linkLabel: 'Open the instance in Morpheus (Actions: Reconfigure, Eject Disk, Move)']
+		if (f.id != null) return [linkUrl: "/infrastructure/servers/${f.id}".toString(), linkLabel: 'Open the VM in Morpheus (Actions: Convert To Managed)']
+		return [linkUrl: null, linkLabel: null]
+	}
+
+	static Map step(CheckResult r) {
+		List<String> pre = r.check.ifYouFixIt.prerequisites
+		return [id: shortId(r.checkId), title: r.check.title, howInVme: r.check.howInVme ?: '', stepPrereqs: pre, hasStepPrereqs: !pre.isEmpty()]
+	}
+
+	/** Short plan label for tables: "Cold window (2 fixes)", "Guest restart", "No downtime", "Nothing to do". */
+	static String shortWindow(TuneUpPlan p) {
+		switch (p.window) {
+			case TuneUpPlan.Window.COLD: return "Cold window (${p.cold.size()} fix${p.cold.size() == 1 ? '' : 'es'})".toString()
+			case TuneUpPlan.Window.GUEST_REBOOT: return 'Guest restart'
+			case TuneUpPlan.Window.LIVE: return 'No downtime'
+			default: return 'Nothing to do'
+		}
+	}
+
+	/** The plan as template data and CSV cells. */
+	static Map plan(VmReport r) {
+		TuneUpPlan p = TuneUpPlan.of(r)
+		return [planWindow: p.windowLabel, planCode: p.windowCode, hasPlan: !p.steps.isEmpty(),
+		        scoreAfter: p.after.value, gradeAfter: p.after.grade, gradeAfterClass: gradeClass(p.after.grade), gain: p.gain,
+		        planPrepare: p.prepare, hasPlanPrepare: !p.prepare.isEmpty() && !(p.cold.isEmpty() && p.guestReboot.isEmpty()),
+		        planLive: p.live.collect { step(it) }, hasPlanLive: !p.live.isEmpty(),
+		        planReboot: p.guestReboot.collect { step(it) }, hasPlanReboot: !p.guestReboot.isEmpty(),
+		        planCold: p.cold.collect { step(it) }, hasPlanCold: !p.cold.isEmpty(),
+		        planConsiderations: p.considerations.size(), planSteps: p.steps.collect { shortId(it.checkId) }.join(' > ')]
 	}
 
 	static Map vm(VmReport r) {
@@ -67,7 +107,7 @@ class Views {
 		        vmwareOrigin: r.vmwareOrigin, origin: r.origin, originLabel: originLabel(r.origin), originWhy: originWhy(r), critical: r.count(Severity.CRITICAL), warning: r.count(Severity.WARNING),
 		        info: r.count(Severity.INFO), findings: findings, hasFindings: !findings.isEmpty(),
 		        undecided: undecided, undecidedCount: undecided.size(), hasUndecided: !undecided.isEmpty(),
-		        passed: passed, passedCount: passed.size()]
+		        passed: passed, passedCount: passed.size()] + plan(r) + link(f)
 	}
 
 	/** The worst findings as plain titles with their severity, e.g. "Disk on an emulated SATA or IDE bus (critical)". */
@@ -118,7 +158,7 @@ class Views {
 		Map<String, Integer> grades = ['A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0]
 		rs.each { grades[it.score.grade] = (grades[it.score.grade] ?: 0) + 1 }
 		return [label: label, origin: key, isAll: key == 'all', vmCount: rs.size(),
-		        grades: grades.collect { k, v -> [grade: k, count: v, gradeClass: gradeClass(k)] },
+		        grades: grades.collect { k, v -> [grade: k, count: v, gradeClass: gradeClass(k), zero: v == 0] },
 		        critical: rs.sum(0) { it.count(Severity.CRITICAL) }, warning: rs.sum(0) { it.count(Severity.WARNING) },
 		        info: rs.sum(0) { it.count(Severity.INFO) }]
 	}
@@ -127,7 +167,8 @@ class Views {
 	static List<Map> vmRows(List<VmReport> reports, int max = 500) {
 		List<VmReport> sorted = (reports ?: []).sort(false) { VmReport a, VmReport b -> a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '') }
 		return sorted.take(max).collect { VmReport r ->
-			reportRow(r) + [gradeClass: gradeClass(r.score.grade), serverId: r.facts.id, originLabel: originLabel(r.origin), originWhy: originWhy(r)]
+			reportRow(r) + [gradeClass: gradeClass(r.score.grade), serverId: r.facts.id, originLabel: originLabel(r.origin), originWhy: originWhy(r),
+			                gradeAfterClass: gradeClass(TuneUpPlan.of(r).after.grade), planLabel: shortWindow(TuneUpPlan.of(r))] + link(r.facts)
 		}
 	}
 
@@ -149,7 +190,8 @@ class Views {
 		        serverType: f.serverType ?: '', managed: f.managed ? 'yes' : 'no', power: f.powerState ?: '',
 		        grade: r.score.grade, score: r.score.value, critical: r.count(Severity.CRITICAL), warning: r.count(Severity.WARNING),
 		        info: r.count(Severity.INFO), unknown: r.undecided.size(), vmwareOrigin: r.vmwareOrigin ? 'yes' : 'no', origin: r.origin,
-		        guestAgentProbe: probeLabel(f), topFindings: topFindings(r), checkIds: checkIds(r)]
+		        guestAgentProbe: probeLabel(f), topFindings: topFindings(r), checkIds: checkIds(r)] +
+		       plan(r).subMap(['gradeAfter', 'scoreAfter', 'planCode', 'planSteps']).collectEntries { k, v -> [(k == 'planCode' ? 'planWindow' : k): v] }
 	}
 
 	/** Fleet or cluster rollup: grade and severity counts, findings per check, and the worst VMs. */
@@ -171,11 +213,70 @@ class Views {
 		}
 		List<VmReport> sorted = all.sort(false) { VmReport a, VmReport b -> a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '') }
 		return [vmCount: all.size(),
-		        grades: grades.collect { k, v -> [grade: k, count: v, gradeClass: gradeClass(k)] },
+		        grades: grades.collect { k, v -> [grade: k, count: v, gradeClass: gradeClass(k), zero: v == 0] },
 		        critical: all.sum(0) { it.count(Severity.CRITICAL) }, warning: all.sum(0) { it.count(Severity.WARNING) },
 		        info: all.sum(0) { it.count(Severity.INFO) }, vmwareOrigin: all.count { it.vmwareOrigin },
-		        byCheck: byCheck.values().toList(),
+		        byCheck: byCheck.values().toList()] + planSummary(all) + [
 		        worst: sorted.take(worst).collect { reportRow(it) + [gradeClass: gradeClass(it.score.grade), serverId: it.facts.id] }]
+	}
+
+	/** Cluster rollup of the plans: how many VMs need which window, grades and average score now and after. */
+	static Map planSummary(List<VmReport> all) {
+		List<TuneUpPlan> plans = all.collect { TuneUpPlan.of(it) }
+		Map<String, Integer> after = ['A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0]
+		plans.each { after[it.after.grade] = (after[it.after.grade] ?: 0) + 1 }
+		int n = plans.size()
+		return [planCold: plans.count { it.window == TuneUpPlan.Window.COLD }, planReboot: plans.count { it.window == TuneUpPlan.Window.GUEST_REBOOT },
+		        planLive: plans.count { it.window == TuneUpPlan.Window.LIVE }, planNone: plans.count { it.window == TuneUpPlan.Window.NONE },
+		        planPrep: plans.count { !it.cold.isEmpty() && it.prepare.size() > 1 },
+		        avgNow: n ? Math.round(plans.sum(0) { it.now.value } / (double) n) : 0,
+		        avgAfter: n ? Math.round(plans.sum(0) { it.after.value } / (double) n) : 0,
+		        gradesAfter: after.collect { k, v -> [grade: k, count: v, gradeClass: gradeClass(k), zero: v == 0] }]
+	}
+
+	/** The guest checks line of a VM block (0.7) and the OS fill-in offer. */
+	static Map guest(GuestScan.Entry ge, VmReport r, boolean canScan, boolean canUpdate, long now) {
+		Map m = [guestCanRun: canScan, guestRunning: ge?.running == true, guestError: (ge != null && !ge.running) ? ge.error : null]
+		if (ge != null && !ge.running && ge.at != null) m.guestAgo = ago(ge.at, now)
+		def g = r?.guest
+		if (g != null) m.guestOs = g.caption ?: g.prettyName ?: g.osName ?: g.os
+		m.guestHint = 'Runs one fixed, read-only script inside the VM (Windows through the QEMU guest agent, Linux through the ' +
+			'Morpheus agent): VirtIO readiness, VMware Tools leftovers, guest agent features, time sync, driver version and the OS. ' +
+			'Changes nothing. Needs the VM Tune-Up guest-scan permission.'
+		Map p = r != null ? OsFill.proposal(r) : null
+		if (p != null) {
+			m.osFillShown = true
+			m.osFillName = p.name
+			m.osFillFields = (p.fields as List).join(', ')
+			m.osFillCanUpdate = canUpdate
+		}
+		return m
+	}
+
+	/** The host CPU section of the cluster tab (0.6). */
+	static Map hostCpu(HostCpuCheck.Entry e, boolean canRun, long now) {
+		Map m = [hostCpuCanRun: canRun, hostCpuRunning: e?.running == true, hostCpuDone: e != null && !e.running]
+		if (e == null || e.running) return m
+		m.hostCpuAgo = ago(e.at ?: now, now)
+		if (e.error || e.result == null) {
+			m.hostCpuError = e.error ?: 'no result'
+			return m
+		}
+		def r = e.result
+		String st = r.status.name()
+		m.hostCpuStatus = st.toLowerCase().capitalize()
+		m.hostCpuStatusClass = st == 'PASS' ? 'vtu-sev-pass' : st == 'CRITICAL' ? 'vtu-sev-critical' : st == 'WARNING' ? 'vtu-sev-warning' : 'vtu-sev-info'
+		m.hostCpuSetting = r.clusterCpuModel ?: 'not set (HVM default: host passthrough)'
+		m.hostCpuBest = r.bestModel?.name
+		m.hostCpuBestWhy = r.bestModel?.explanation
+		m.hostCpuFindings = r.findings.collect { f ->
+			String fs = f.status.name()
+			[title: f.title, text: f.text, recommendation: f.recommendation, status: fs.toLowerCase().capitalize(),
+			 statusClass: fs == 'PASS' ? 'vtu-sev-pass' : fs == 'CRITICAL' ? 'vtu-sev-critical' : fs == 'WARNING' ? 'vtu-sev-warning' : 'vtu-sev-info',
+			 evidence: (f.evidence ?: [:]).collect { k, v -> [host: k, text: v] }, hasEvidence: f.evidence as boolean]
+		}
+		m.hostCpuHosts = (r.hosts ?: [:]).collect { k, v -> [host: k, summary: v] }
+		return m
 	}
 
 	// ---- 0.2.0: fragments served by the routes, and the CSV export ----
@@ -254,7 +355,7 @@ class Views {
 	}
 
 	static final List<String> CSV_COLUMNS = Collections.unmodifiableList(['name', 'cluster', 'host', 'os', 'serverType', 'managed', 'power',
-		'grade', 'score', 'critical', 'warning', 'info', 'unknown', 'vmwareOrigin', 'origin', 'guestAgentProbe', 'topFindings', 'checkIds', 'scanStatus', 'scannedAt'])
+		'grade', 'score', 'gradeAfter', 'scoreAfter', 'planWindow', 'planSteps', 'critical', 'warning', 'info', 'unknown', 'vmwareOrigin', 'origin', 'guestAgentProbe', 'topFindings', 'checkIds', 'scanStatus', 'scannedAt'])
 
 	/** One CSV row: the report's main-section columns, plus the scan status and time. */
 	static Map csvRow(ScanService.VmEntry e, VmReport r, String clusterName) {

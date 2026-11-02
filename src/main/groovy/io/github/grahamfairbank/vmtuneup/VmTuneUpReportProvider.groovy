@@ -77,7 +77,7 @@ class VmTuneUpReportProvider extends AbstractReportProvider {
 	}
 
 	/**
-	 * Whether the user who ran the report has "VM Tune-Up: Run guest scans" at full: from the report's
+	 * Whether the user who ran the report has "VM Tune-Up: Run guest and host checks" at full: from the report's
 	 * createdBy, reading the user by id when createdBy carries no permissions. Null when that can't be determined
 	 * (then nothing is probed).
 	 */

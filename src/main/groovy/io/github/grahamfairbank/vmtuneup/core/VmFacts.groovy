@@ -56,6 +56,16 @@ final class VmFacts {
 	Boolean secureBoot
 	Boolean tpm
 
+	/** vCPUs and cores per socket (Morpheus creates VMs with 1 core per socket; discovered VMs have null). */
+	Long maxCores
+	Long coresPerSocket
+	/** Instance id of a managed VM (for links to its instance page), null for discovered VMs. */
+	Long instanceId
+	/** Placement strategy: auto, failover or pinned; null when Morpheus doesn't say. */
+	String placementStrategy
+	/** Host devices passed through to the VM (GPUs, PCI devices); null when they couldn't be read. */
+	Integer passthroughDevices
+
 	/** The server config map; empty when there is none. */
 	Map<String, Object> config = [:]
 
@@ -80,6 +90,10 @@ final class VmFacts {
 		String sourceImage
 		String volumePath
 		String imageType
+		String datastoreName
+		String datastoreTypeCode
+		/** True for host-local storage (a directory datastore), false for shared; null when unknown. */
+		Boolean datastoreLocal
 	}
 
 	static final class Nic {
@@ -95,11 +109,23 @@ final class VmFacts {
 		Date created
 	}
 
+	/** Sockets the guest sees: vCPUs / cores per socket; null when either is unknown. */
+	Long getSockets() {
+		if (maxCores == null || coresPerSocket == null || coresPerSocket < 1) return null
+		return (long) Math.ceil(maxCores / (double) coresPerSocket)
+	}
+
+	/** Nested virtualization as set on the VM (config.nestedVirtualization); null when not set. */
+	Boolean getNestedVirtualization() { bool(config?.get('nestedVirtualization')) }
+
 	boolean isPoweredOn() { powerState == 'on' }
 
 	boolean isPoweredOff() { powerState == 'off' }
 
-	/** OS family from serverOs first (never from serverType), then the stored osType: 'windows', 'linux' or null. */
+	/** OS family seen inside the guest by a Tier 2 scan ('windows' or 'linux'); used only when Morpheus has no OS. */
+	String guestOsFamily
+
+	/** OS family from serverOs first (never from serverType), then the stored osType, then the guest scan. */
 	String getOsFamilyKey() {
 		String p = (osPlatform ?: '').toLowerCase()
 		String f = (osFamily ?: '').toLowerCase()
@@ -111,7 +137,7 @@ final class VmFacts {
 		String t = (osType ?: '').toLowerCase()
 		if (t == 'windows') return 'windows'
 		if (t == 'linux') return 'linux'
-		return null
+		return guestOsFamily
 	}
 
 	boolean isWindows() { osFamilyKey == 'windows' }
@@ -174,6 +200,12 @@ final class VmFacts {
 		f.uefi = bool(m.uefi)
 		f.secureBoot = bool(m.secureBoot)
 		f.tpm = bool(m.tpm)
+		f.maxCores = asLong(m.maxCores)
+		f.coresPerSocket = asLong(m.coresPerSocket)
+		f.instanceId = asLong(map(m.instance).id) ?: asLong(m.instanceId)
+		f.placementStrategy = str(m.placementStrategy) ?: str(map(m.config).placementStrategy)
+		if (m.containsKey('devices') && m.devices instanceof List) f.passthroughDevices = ((List) m.devices).size()
+		else if (m.passthroughDevices != null) f.passthroughDevices = asLong(m.passthroughDevices)?.intValue()
 		Map cfg = map(m.config)
 		f.config = new LinkedHashMap<String, Object>()
 		cfg.each { Object k, Object v -> f.config.put(String.valueOf(k), v) }
@@ -202,6 +234,11 @@ final class VmFacts {
 			vol.sourceImage = str(v.sourceImage)
 			vol.volumePath = str(v.volumePath)
 			vol.imageType = str(v.imageType)
+			Map ds = map(v.datastore)
+			vol.datastoreName = str(ds.name)
+			vol.datastoreTypeCode = str(map(ds.datastoreType).code) ?: str(ds.typeCode)
+			Object local = map(ds.datastoreType).localStorage != null ? map(ds.datastoreType).localStorage : ds.local
+			vol.datastoreLocal = local != null ? bool(local) : (vol.datastoreTypeCode ? vol.datastoreTypeCode == 'libvirt-dir' : null)
 			f.volumes.add(vol)
 		}
 		for (Object o : list(m.interfaces)) {

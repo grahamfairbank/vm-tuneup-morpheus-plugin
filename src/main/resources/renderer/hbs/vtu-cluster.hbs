@@ -1,7 +1,7 @@
 {{!-- Cluster tab fragment: the fleet view (0.3.0). Escaped values only ({{ }}). No scripts: the buttons, the origin
      filter, the CSV downloads (built in the browser from the clusterData route) and the 5-second polling
      (data-vtu-poll) are handled by vm-tuneup.js, scoped to .vm-tuneup-tab. --}}
-<div class="vm-tuneup vtu-cluster"{{#if running}} data-vtu-poll="1"{{/if}}>
+<div class="vm-tuneup vtu-cluster"{{#if poll}} data-vtu-poll="1"{{/if}}>
 <style>
 .vm-tuneup { font-size: 13px; padding: 6px 0; }
 .vm-tuneup h4 { margin: 14px 0 6px; font-size: 14px; }
@@ -31,23 +31,31 @@
 .vm-tuneup .vtu-id { font-size: 11px; font-weight: normal; }
 .vm-tuneup tr.vtu-all td { font-weight: 600; }
 .vm-tuneup .vtu-csv-status:empty, .vm-tuneup .vtu-filter-count:empty { display: none; }
+.vm-tuneup th.vtu-g, .vm-tuneup td.vtu-g { text-align: center; width: 44px; }
+.vm-tuneup td.vtu-zero { opacity: .35; }
+.vm-tuneup table.vtu-grade-table { width: auto; min-width: 420px; margin: 2px 0 6px; }
+.vm-tuneup .vtu-sev-pass { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+.vm-tuneup .vtu-plan-box { border: 1px solid rgba(1,169,130,.45); border-radius: 4px; padding: 8px 12px; margin: 6px 0 10px; }
+.vm-tuneup .vtu-plan-grades { margin: 3px 0; }
+.vm-tuneup .vtu-plan-counts { margin: 6px 0 4px 18px; padding: 0; }
 .vm-tuneup .vtu-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
 </style>
 {{#if error}}<div class="vtu-note">{{error}}</div>{{/if}}
 <div class="vtu-bar">
-	<span>{{progress}}</span>
+	{{#if running}}<span class="vtu-busy vtu-working" role="status" aria-live="polite">{{progress}}</span>{{else}}<span>{{progress}}</span>{{/if}}
 	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-rescan"{{#if running}} disabled{{/if}}>Rescan</button>
 	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="csv-cluster" data-vtu-name="{{clusterName}}">Download CSV (this cluster)</button>
 	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="csv-all">Download CSV (all clusters)</button>
+	{{#unless running}}{{#if hasResults}}<a class="btn btn-default btn-xs" href="{{printUrl}}" target="_blank" rel="noopener noreferrer">Print report</a>{{/if}}{{/unless}}
 	<span class="vtu-act-status vtu-muted"></span>
 </div>
+{{#if running}}{{#if hasProgressPct}}<div class="vtu-progress" aria-hidden="true"><i style="width:{{progressPct}}%"></i></div>{{else}}<div class="vtu-progress vtu-indeterminate" aria-hidden="true"><i></i></div>{{/if}}{{/if}}
 <div class="vtu-bar"><span class="vtu-csv-status" role="status" aria-live="polite"></span></div>
 <div class="vtu-bar vtu-muted"><span>Fallback, only if the buttons don't work in your browser: direct download of the results already scanned, <a href="{{csvClusterUrl}}" target="_blank" rel="noopener noreferrer">this cluster</a> &middot; <a href="{{csvAllUrl}}" target="_blank" rel="noopener noreferrer">all clusters</a>. It never starts a scan; clusters not scanned yet are listed as such.</span></div>
 {{#if noHvm}}<div class="vtu-note">This cluster has no HVM hosts, so there is nothing to check.</div>{{/if}}
 {{#with summary}}
 <div class="vtu-head">
 	<strong>{{vmCount}} HVM VMs scanned</strong>
-	{{#each grades}}<span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}
 	<span class="vtu-badge vtu-sev-critical">{{critical}} critical</span>
 	<span class="vtu-badge vtu-sev-warning">{{warning}} warning</span>
 	<span class="vtu-badge vtu-sev-info">{{info}} info</span>
@@ -55,10 +63,67 @@
 </div>
 {{/with}}
 {{#if hasResults}}
+{{#with summary}}
+<h4>Tune-up plan</h4>
+<div class="vtu-plan-box">
+	<table class="vtu-table vtu-grade-table">
+		<tr><th></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-a">A</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-b">B</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-c">C</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-d">D</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-f">F</span></th><th class="vtu-num">Average score</th></tr>
+		<tr><td>Now</td>{{#each grades}}<td class="vtu-g{{#if zero}} vtu-zero{{/if}}">{{count}}</td>{{/each}}<td class="vtu-num">{{avgNow}}</td></tr>
+		<tr class="vtu-all"><td>After the plan</td>{{#each gradesAfter}}<td class="vtu-g{{#if zero}} vtu-zero{{/if}}">{{count}}</td>{{/each}}<td class="vtu-num">{{avgAfter}}</td></tr>
+	</table>
+	<ul class="vtu-plan-counts">
+		<li><strong>{{planCold}}</strong> VMs need one cold window (powered off once){{#if planPrep}}; {{planPrep}} of them need steps in the guest first{{/if}}</li>
+		<li><strong>{{planReboot}}</strong> need a guest restart</li>
+		<li><strong>{{planLive}}</strong> can be fixed with no downtime</li>
+		<li><strong>{{planNone}}</strong> have nothing to do</li>
+	</ul>
+	<div class="vtu-muted">Each VM's tab lists its plan in order. "After the plan" counts every Recommendation as done; Considerations stay.</div>
+</div>
+{{/with}}
+<h4>Guest checks</h4>
+<div class="vtu-plan-box">
+	<div class="vtu-bar">
+		{{#if guestBatchRunning}}<span class="vtu-busy vtu-working" role="status" aria-live="polite">Running guest checks: {{guestBatchDone}} of {{guestBatchTotal}} VMs…</span>{{else}}
+		{{#if guestCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-guest">Run guest checks on all powered-on VMs</button>{{/if}}
+		<span class="vtu-muted">{{guestScanned}} VMs have guest results.</span>{{/if}}
+		{{#if guestBatchError}}<span class="vtu-muted">{{guestBatchError}}</span>{{/if}}
+	</div>
+	<p class="vtu-muted">Runs one fixed, read-only script inside each VM, one VM at a time: VirtIO readiness ("ready to switch"), VMware Tools leftovers, guest agent features, time sync, driver version and the guest OS. Results are kept one hour and added to the grades and plans. {{#unless guestCanRun}}Needs "VM Tune-Up: Run guest and host checks" at full.{{/unless}}</p>
+	{{#if hasOsFill}}
+	<details open><summary>Missing OS fields ({{osFillCount}} VMs)</summary>
+		<table class="vtu-table">{{#each osFill}}<tr><td>{{name}}</td><td>{{os}}</td><td class="vtu-muted">fills: {{fields}}</td></tr>{{/each}}</table>
+		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-setos" data-vtu-confirm="Fill in the empty OS fields of these {{osFillCount}} VMs from their guest scans? Fields Morpheus already has are not changed.">Fill in all {{osFillCount}}</button>
+		{{else}}<span class="vtu-muted">A user with "VM Tune-Up: Update VM records" can fill these in from here.</span>{{/if}}
+	</details>
+	{{/if}}
+</div>
+{{#if hostCpuShown}}
+<h4>Host CPUs</h4>
+<div class="vtu-plan-box">
+	<div class="vtu-bar">
+		{{#if hostCpuRunning}}<span class="vtu-busy vtu-working" role="status" aria-live="polite">Reading each host's CPU with virsh…</span>{{else}}
+		{{#if hostCpuCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="host-cpu">{{#if hostCpuDone}}Check again{{else}}Check host CPUs{{/if}}</button>{{/if}}
+		{{#if hostCpuStatus}}<span class="vtu-badge {{hostCpuStatusClass}}">{{hostCpuStatus}}</span> <span class="vtu-muted">checked {{hostCpuAgo}}</span>{{/if}}{{/if}}
+		<span class="vtu-act-status vtu-muted"></span>
+	</div>
+	{{#unless hostCpuDone}}{{#unless hostCpuRunning}}<p class="vtu-muted">Runs <code>virsh capabilities</code> and <code>virsh domcapabilities</code> (read-only, as root or through sudo) on every host of the cluster through Morpheus, and checks the cluster's CPU model setting against what each host's CPU and microcode can really offer, so VMs can live-migrate between hosts. {{#unless hostCpuCanRun}}Needs "VM Tune-Up: Run guest and host checks" at full.{{/unless}}</p>{{/unless}}{{/unless}}
+	{{#if hostCpuError}}<div class="vtu-note">The check didn't finish: {{hostCpuError}}</div>{{/if}}
+	{{#if hostCpuStatus}}
+	<p>Cluster CPU model setting: <strong>{{hostCpuSetting}}</strong>{{#if hostCpuBest}} &middot; best model usable on every host: <strong>{{hostCpuBest}}</strong>{{/if}}</p>
+	{{#each hostCpuFindings}}
+	<div class="vtu-finding"><span class="vtu-badge {{statusClass}}">{{status}}</span> <strong>{{title}}</strong>
+		<p>{{text}}</p>{{#if recommendation}}<p><strong>What to do:</strong> {{recommendation}}</p>{{/if}}
+		{{#if hasEvidence}}<details><summary>Per host</summary><table class="vtu-table">{{#each evidence}}<tr><td>{{host}}</td><td>{{text}}</td></tr>{{/each}}</table></details>{{/if}}
+	</div>
+	{{/each}}
+	<details><summary>Hosts read</summary><table class="vtu-table">{{#each hostCpuHosts}}<tr><td>{{host}}</td><td>{{summary}}</td></tr>{{/each}}</table></details>
+	{{/if}}
+</div>
+{{/if}}
 <h4>By origin</h4>
 <table class="vtu-table vtu-origin-groups">
-	<tr><th>Origin</th><th class="vtu-num">VMs</th><th>Grades</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th></tr>
-	{{#each groups}}<tr{{#if isAll}} class="vtu-all"{{/if}} data-vtu-group="{{origin}}"><td>{{label}}</td><td class="vtu-num">{{vmCount}}</td><td>{{#each grades}}<span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span> {{count}} {{/each}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td></tr>{{/each}}
+	<tr><th>Origin</th><th class="vtu-num">VMs</th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-a">A</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-b">B</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-c">C</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-d">D</span></th><th class="vtu-g"><span class="vtu-grade vtu-grade-small vtu-grade-f">F</span></th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th></tr>
+	{{#each groups}}<tr{{#if isAll}} class="vtu-all"{{/if}} data-vtu-group="{{origin}}"><td>{{label}}</td><td class="vtu-num">{{vmCount}}</td>{{#each grades}}<td class="vtu-g{{#if zero}} vtu-zero{{/if}}">{{count}}</td>{{/each}}<td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td></tr>{{/each}}
 </table>
 <details>
 	<summary>How origin is decided</summary>
@@ -76,9 +141,9 @@
 	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="show-all" hidden>Show all</button>
 </div>
 <table class="vtu-table vtu-vm-table">
-	<tr><th>VM</th><th>Origin</th><th>Grade</th><th class="vtu-num">Score</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th>Top findings</th></tr>
-	{{#each vmRows}}<tr class="vtu-vmrow" data-vtu-origin="{{origin}}"><td><a href="/infrastructure/servers/{{serverId}}">{{name}}</a><br><span class="vtu-muted">{{os}}{{#if host}} &middot; host {{host}}{{/if}}</span></td><td title="{{originWhy}}">{{originLabel}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td>{{topFindings}}</td></tr>{{/each}}
-	<tr class="vtu-vmrow-none" hidden><td colspan="8" class="vtu-muted">No VMs in this group.</td></tr>
+	<tr><th>VM</th><th>Origin</th><th>Grade</th><th class="vtu-num">Score</th><th>After</th><th>Plan</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th>Top findings</th></tr>
+	{{#each vmRows}}<tr class="vtu-vmrow" data-vtu-origin="{{origin}}"><td><a href="{{linkUrl}}">{{name}}</a><br><span class="vtu-muted">{{os}}{{#if host}} &middot; host {{host}}{{/if}}</span></td><td title="{{originWhy}}">{{originLabel}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td><span class="vtu-grade vtu-grade-small {{gradeAfterClass}}">{{gradeAfter}}</span> <span class="vtu-muted">{{scoreAfter}}</span></td><td>{{planLabel}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td>{{topFindings}}</td></tr>{{/each}}
+	<tr class="vtu-vmrow-none" hidden><td colspan="10" class="vtu-muted">No VMs in this group.</td></tr>
 </table>
 {{#with summary}}
 <h4>Findings per check</h4>
@@ -98,5 +163,5 @@
 </details>
 {{/if}}
 <div class="vtu-muted">{{aboutChecks}}</div>
-<div class="vtu-muted">{{#if probed}}This scan included the guest agent probe. {{else}}This scan didn't run the guest agent probe (it needs "VM Tune-Up: Run guest scans" at full). {{/if}}Results are kept 10 minutes. Open a VM's VM Tune-Up tab for evidence and fix steps. {{disclaimer}}</div>
+<div class="vtu-muted">{{#if probed}}This scan included the guest agent probe. {{else}}This scan didn't run the guest agent probe (it needs "VM Tune-Up: Run guest and host checks" at full). {{/if}}Results are kept 10 minutes. Open a VM's VM Tune-Up tab for evidence and fix steps. {{disclaimer}}</div>
 </div>

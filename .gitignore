@@ -33,3 +33,4 @@ docs/*
 
 # Draft release notes (pasted into the GitHub release, not tracked)
 release-notes-*.md
+.claude/

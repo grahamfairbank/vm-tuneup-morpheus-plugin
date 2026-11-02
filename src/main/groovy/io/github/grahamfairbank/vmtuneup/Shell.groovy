@@ -20,7 +20,22 @@ class Shell {
 	static final String API = '/plugin/vmTuneUp'
 
 	static final String STYLE = '<style>' +
-		'.vm-tuneup-tab .vtu-loading{padding:8px 0;opacity:.8;font-size:13px}' +
+		'.vm-tuneup-tab .vtu-loading{padding:8px 0;font-size:13px}' +
+		// Activity indicator (0.6): a spinning ring before any status that is still working, and a progress bar.
+		'.vm-tuneup-tab .vtu-working::before{content:"";display:inline-block;width:12px;height:12px;margin-right:7px;' +
+		'vertical-align:-2px;border:2px solid rgba(1,169,130,.25);border-top-color:#01a982;border-radius:50%;' +
+		'animation:vtu-rot .8s linear infinite}' +
+		'.vm-tuneup-tab .vtu-busy{display:inline-block;padding:3px 10px;border-radius:3px;font-weight:600;' +
+		'background:rgba(1,169,130,.12);border-left:3px solid #01a982;animation:vtu-glow 1.6s ease-in-out infinite}' +
+		'.vm-tuneup-tab .vtu-progress{height:4px;max-width:420px;margin:2px 0 8px;border-radius:2px;overflow:hidden;' +
+		'background:rgba(128,128,128,.2)}' +
+		'.vm-tuneup-tab .vtu-progress>i{display:block;height:100%;background:#01a982;transition:width .5s}' +
+		'.vm-tuneup-tab .vtu-progress.vtu-indeterminate>i{width:30%;animation:vtu-slide 1.2s ease-in-out infinite}' +
+		'@keyframes vtu-rot{to{transform:rotate(360deg)}}' +
+		'@keyframes vtu-glow{50%{background:rgba(1,169,130,.28)}}' +
+		'@keyframes vtu-slide{0%{margin-left:-30%}100%{margin-left:100%}}' +
+		'@media (prefers-reduced-motion:reduce){.vm-tuneup-tab .vtu-working::before{animation-duration:3s}' +
+		'.vm-tuneup-tab .vtu-busy,.vm-tuneup-tab .vtu-progress>i{animation:none}}' +
 		'.vm-tuneup-tab .vtu-fallback{visibility:hidden;animation:vtu-reveal 0s linear 15s forwards;opacity:.75;font-size:12px}' +
 		'@keyframes vtu-reveal{to{visibility:visible}}' +
 		'</style>'
@@ -29,7 +44,7 @@ class Shell {
 	static String clusterUrl(Long id) { "${API}/cluster?clusterId=${id}".toString() }
 
 	static String loading(String what, String url) {
-		return '<div class="vtu-loading">Loading VM Tune-Up results for this ' + Views.esc(what) + '\u2026</div>' +
+		return '<div class="vtu-loading vtu-working" role="status">Loading VM Tune-Up results for this ' + Views.esc(what) + '\u2026</div>' +
 			'<div class="vtu-fallback">Still loading? Reload the page, or <a href="' + Views.esc(url) +
 			'" target="_blank" rel="noopener noreferrer">open the results on their own</a>.</div>'
 	}

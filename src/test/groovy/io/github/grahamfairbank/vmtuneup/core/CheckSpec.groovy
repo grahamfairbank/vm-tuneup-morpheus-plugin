@@ -81,15 +81,16 @@ class CheckSpec extends Specification {
 		thrown(IllegalStateException)
 	}
 
-	def "the M1 catalog holds the Tier 1 checks, each fully described"() {
+	def "the catalog holds the Tier 1 and Tier 2 checks, each fully described"() {
 		when:
 		List<Check> all = CheckCatalog.all()
 
 		then:
 		all*.id as Set == ['T1-DISK-BUS', 'T1-NIC-MODEL', 'T1-CHIPSET', 'T1-VMWARE-MAC', 'T1-OS-TYPE-MISMATCH', 'T1-FIRMWARE',
 			'T1-GA-CHANNEL', 'T1-GA-STATUS', 'T1-MORPHEUS-AGENT', 'T1-SNAPSHOTS', 'T1-DISK-ALLOCATION', 'T1-DISCOVERED',
-			'T1-ISO-ATTACHED', 'T1-SOURCE-TWIN'] as Set
-		all.every { it.tier == Tier.ONE && it.references && it.ifYouFixIt.summary && it.ifYouLeaveIt }
+			'T1-ISO-ATTACHED', 'T1-HA-MOBILITY', 'T1-NESTED-VIRT', 'T1-CPU-TOPOLOGY',
+			'T2-VIRTIO-READY', 'T2-VMWARE-TOOLS', 'T2-GA-FEATURES', 'T2-TIME-SYNC', 'T2-VIRTIO-VERSION', 'T2-DC-VMGENID'] as Set
+		all.every { (it.tier == Tier.ONE) == it.id.startsWith('T1-') && it.references && it.ifYouFixIt.summary && it.ifYouLeaveIt }
 		all.every { it.category == Category.RECOMMENDATION ? it.howInVme : it.whyConsideration }
 		and: 'HPE public docs come first'
 		all.every { Check c -> c.references.findIndexOf { !it.hpe } < 0 || c.references.findLastIndexOf { it.hpe } < c.references.findIndexOf { !it.hpe } }

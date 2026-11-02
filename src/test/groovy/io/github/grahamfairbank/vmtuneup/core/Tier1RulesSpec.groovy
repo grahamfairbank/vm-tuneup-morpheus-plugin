@@ -379,10 +379,58 @@ class Tier1RulesSpec extends Specification {
 		'vm-legacy-dirty'      | Status.FAIL | 'volumePath set, 0.3 GB'
 	}
 
-	def "T1-SOURCE-TWIN is defined but not evaluated yet"() {
+	private static VmFacts facts(Map m) { VmFacts.fromMap([id: 1, name: 'app-01', computeServerType: [code: 'mvmVm', managed: true]] + m) }
+
+	def "T1-HA-MOBILITY: local disks warn, shared disks pass, unknown storage is unknown"() {
 		expect:
-		result('vm-901-migrated-windows', SOURCE_TWIN).status == Status.NOT_EVALUATED
-		SOURCE_TWIN.severity == Severity.CRITICAL
+		Tier1Rules.haMobility(facts(volumes: [[name: 'root', rootVolume: true, datastore: [name: 'local', datastoreType: [code: 'libvirt-dir', localStorage: true]]]])).with {
+			status == Status.FAIL && severity == Severity.WARNING && detail.contains("'root' on local")
+		}
+		Tier1Rules.haMobility(facts(volumes: [[name: 'root', rootVolume: true, datastore: [name: 'nfs-a', datastoreType: [code: 'libvirt-netfs-nfs', localStorage: false]]]])).status == Status.PASS
+		Tier1Rules.haMobility(facts(volumes: [[name: 'root', rootVolume: true]])).status == Status.UNKNOWN
+	}
+
+	def "T1-HA-MOBILITY: the datastore type code decides when the local flag is missing"() {
+		expect:
+		Tier1Rules.haMobility(facts(volumes: [[name: 'root', datastore: [name: 'local', typeCode: 'libvirt-dir']]])).status == Status.FAIL
+		Tier1Rules.haMobility(facts(volumes: [[name: 'root', datastore: [name: 'gfs', datastoreType: [code: 'libvirt-dir-gfs2']]]])).status == Status.PASS
+	}
+
+	def "T1-HA-MOBILITY: pinned placement and passthrough devices are info"() {
+		given:
+		Map shared = [name: 'root', datastore: [name: 'nfs-a', datastoreType: [code: 'libvirt-netfs-nfs', localStorage: false]]]
+
+		expect:
+		Tier1Rules.haMobility(facts(volumes: [shared], placementStrategy: 'pinned')).with { status == Status.FAIL && severity == Severity.INFO }
+		Tier1Rules.haMobility(facts(volumes: [shared], devices: [[id: 1]])).with { status == Status.FAIL && severity == Severity.INFO }
+	}
+
+	def "T1-NESTED-VIRT: on fails, off passes, a discovered VM without the setting is unknown"() {
+		expect:
+		Tier1Rules.nestedVirt(facts(config: [nestedVirtualization: true])).status == Status.FAIL
+		Tier1Rules.nestedVirt(facts(config: [nestedVirtualization: 'false'])).status == Status.PASS
+		Tier1Rules.nestedVirt(facts([:])).status == Status.PASS
+		Tier1Rules.nestedVirt(VmFacts.fromMap([id: 2, computeServerType: [code: 'kvmUnmanaged', managed: false]])).status == Status.UNKNOWN
+	}
+
+	def "T1-CPU-TOPOLOGY: #os with #cores vCPUs and #cps cores per socket is #status #sev"() {
+		when:
+		CheckResult r = Tier1Rules.cpuTopology(facts(serverOs: [code: code, name: os, platform: platform], maxCores: cores, coresPerSocket: cps))
+
+		then:
+		r.status == status
+		r.status != Status.FAIL || r.severity == sev
+
+		where:
+		os                    | code                      | platform  | cores | cps  || status                 | sev
+		'Windows 11'          | 'windows.11'              | 'windows' | 4     | 1    || Status.FAIL            | Severity.CRITICAL
+		'Windows 10'          | 'windows.10'              | 'windows' | 2     | 1    || Status.FAIL            | Severity.INFO
+		'Windows 11'          | 'windows.11'              | 'windows' | 4     | 4    || Status.PASS            | null
+		'Windows Server 2022' | 'windows.server.2022'     | 'windows' | 4     | 1    || Status.FAIL            | Severity.INFO
+		'Windows Server 2019' | 'windows.server.2019'     | 'windows' | 4     | 2    || Status.FAIL            | Severity.INFO
+		'Windows Server 2022' | 'windows.server.2022'     | 'windows' | 1     | 1    || Status.PASS            | null
+		'Windows Server 2022' | 'windows.server.2022'     | 'windows' | 4     | null || Status.UNKNOWN         | null
+		'Rocky 9'             | 'rocky.9'                 | 'linux'   | 4     | 1    || Status.NOT_APPLICABLE  | null
 	}
 
 	def "every check returns exactly one result for every fixture"() {

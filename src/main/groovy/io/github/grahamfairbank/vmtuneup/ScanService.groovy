@@ -41,6 +41,10 @@ class ScanService {
 	final MorpheusContext morpheus
 	final Workers workers
 	final GuestAgentProbe probe
+	/** The host CPU check (0.6), on request only. */
+	final HostCpuCheck hostCpu
+	/** The Tier 2 guest scan (0.7), on request only. */
+	final GuestScan guestScan
 	final Closure<Long> clock
 
 	/** Budgets, settable for tests. */
@@ -73,6 +77,8 @@ class ScanService {
 		this.workers = workers
 		this.probe = probe
 		this.clock = clock
+		this.hostCpu = new HostCpuCheck(morpheus, clock)
+		this.guestScan = new GuestScan(morpheus, clock)
 		this.vms = new ShortMemo<Long, VmEntry>(RESULT_TTL_MS, 5000, clock)
 	}
 
@@ -111,6 +117,16 @@ class ScanService {
 	 * "unknown: time budget". Service reads go through the {@code io} pool, each cut off at the deadline. The
 	 * agent baseline comes from the cache; no fleet listing happens here.
 	 */
+	/** A fresh copy of the server record (for writes and rescans), or null. */
+	ComputeServer loadFresh(Long id) {
+		if (id == null) return null
+		try {
+			return (Workers.call(workers.io, lookupBudgetMs, 'server record') { morpheus.services.computeServer.get(id) }) as ComputeServer
+		} catch (Throwable ignored) {
+			return null
+		}
+	}
+
 	VmEntry scanVmNow(Long serverId, ComputeServer preloaded = null) {
 		long start = clock.call()
 		try {
@@ -186,7 +202,10 @@ class ScanService {
 		Map obs = probe?.cachedObservation(m, e.hvm, permitted)
 		if (obs != null) m.observedGuestAgent = obs
 		VmFacts f = VmFacts.fromMap(m)
-		return VmReport.scan(f, new ScanContext(new Date(e.at), e.baseline ?: [:], e.baseline != null))
+		// VT-06: guest details (kernel, fstab devices, time source) only for users who may run guest scans.
+		io.github.grahamfairbank.vmtuneup.core.GuestFacts g = permitted ? guestScan?.facts(e.serverId) : null
+		if (g != null) f.guestOsFamily = g.os
+		return VmReport.scan(f, new ScanContext(new Date(e.at), e.baseline ?: [:], e.baseline != null), g)
 	}
 
 	/**

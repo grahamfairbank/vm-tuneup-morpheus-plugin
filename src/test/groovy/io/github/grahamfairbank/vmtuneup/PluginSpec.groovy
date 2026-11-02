@@ -41,7 +41,7 @@ class PluginSpec extends Specification {
 		return Stub(MorpheusContext) { getServices() >> Stub(MorpheusServices) { getComputeServer() >> cs } }
 	}
 
-	def "initialize registers five providers, two permissions, a controller and its own renderer"() {
+	def "initialize registers five providers, three permissions, a controller and its own renderer"() {
 		when:
 		plugin.initialize()
 
@@ -50,7 +50,7 @@ class PluginSpec extends Specification {
 		plugin.name == 'VM Tune-Up'
 		plugin.providers*.code as Set == ['vm-tuneup-report', 'vm-tuneup-instance-tab',
 			'vm-tuneup-server-tab', 'vm-tuneup-cluster-tab', 'vm-tuneup-ui-loader'] as Set
-		plugin.permissions*.code == ['vm-tuneup-view', 'vm-tuneup-guest-scan']
+		plugin.permissions*.code == ['vm-tuneup-view', 'vm-tuneup-guest-scan', 'vm-tuneup-update-records']
 		plugin.hasCustomRender()
 		plugin.controllers.size() == 1
 		plugin.controllers[0] instanceof VmTuneUpController

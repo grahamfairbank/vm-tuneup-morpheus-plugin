@@ -1,0 +1,37 @@
+VTU-BEGIN v1 windows
+os.caption=Microsoft Windows 10 Pro
+os.build=19045
+os.producttype=1
+os.arch=64-bit
+os.edition=Professional
+os.installtype=Client
+os.displayversion=22H2
+os.domainrole=1
+system=1
+svc.viostor=absent
+svc.vioscsi=absent
+svc.netkvm=absent
+svc.VirtioSerial=absent
+svc.balloon=absent
+svc.pvscsi=absent
+svc.vmxnet3ndis6=absent
+svc.vm3dmp=absent
+svc.vmhgfs=absent
+svc.vmmouse=absent
+svc.vmusbmouse=absent
+svc.vmci=absent
+svc.vmmemctl=absent
+svc.VMTools=absent
+svc.VGAuthService=absent
+svc.QEMU-GA=absent
+svc.QEMU_Guest_Agent_VSS_Provider=absent
+svc.W32Time=3
+run.W32Time=Stopped
+store.viostor=0
+store.vioscsi=0
+store.netkvm=0
+vss.provider=Microsoft Software Shadow Copy provider 1.0
+vmw.pcidevs=0
+time.source=time.windows.com,0x9
+time.type=NTP
+VTU-END 35

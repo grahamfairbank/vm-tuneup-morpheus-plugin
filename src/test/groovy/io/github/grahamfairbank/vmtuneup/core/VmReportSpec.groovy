@@ -43,13 +43,13 @@ class VmReportSpec extends Specification {
 		VmReport r = VmReport.scan(vm('vm-ide-import'), ctx())
 
 		then:
-		r.undecided*.checkId as Set == ['T1-SOURCE-TWIN', 'T1-CHIPSET', 'T1-FIRMWARE', 'T1-GA-CHANNEL', 'T1-GA-STATUS'] as Set
+		r.undecided*.checkId as Set == ['T1-CHIPSET', 'T1-FIRMWARE', 'T1-GA-CHANNEL', 'T1-GA-STATUS', 'T1-HA-MOBILITY', 'T1-NESTED-VIRT'] as Set
 		r.undecided.every { Scoring.penalty(it) == 0 }
 		!r.score.complete
 	}
 
-	def "a clean VM still lists the source-twin check as not evaluated"() {
+	def "a clean VM in the fixtures lists only mobility as undecided (fixtures carry no datastore type)"() {
 		expect:
-		VmReport.scan(vm('vm-clean-linux'), ctx()).undecided*.checkId == ['T1-SOURCE-TWIN']
+		VmReport.scan(vm('vm-clean-linux'), ctx()).undecided*.checkId == ['T1-HA-MOBILITY']
 	}
 }

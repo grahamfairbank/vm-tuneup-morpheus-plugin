@@ -6,13 +6,24 @@ The screenshots in this folder come from a real Morpheus appliance running the p
 
 ## Files
 
-| File | Used in | What it shows |
-|---|---|---|
-| `tab-cluster.png` | README (top), INSTALL step 5 | `cluster-a`'s VM Tune-Up tab after a finished scan, top of the tab: the Rescan and Download CSV buttons, grade counts, findings by severity and the start of **By origin**. |
-| `tab-cluster-origin.png` | README tour, INSTALL step 5 | The **By origin** table (three groups plus All) and **Worst VMs** with the **Show** filter set to **Migrated**, listing `app-legacy-01`, `web-rocky-01`, `web-rocky-02` and `db-win-01` with grade, score, origin and top findings. **How origin is decided** may be open. |
-| `tab-vm.png` | README tour, INSTALL step 6 | `app-legacy-01`'s VM Tune-Up tab: grade F, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it (downtime, risk, can be undone), Do first, in this order, How in Morpheus and references. |
-| `tab-vm-guest-agent.png` | README tour, INSTALL step 6 | The **Check guest agent** area on `db-win-01` (Windows): the button, its one-line explanation and "Answered 2 min ago". Crop to the area plus the grade line above it. |
-| `install-plugins.png` | INSTALL step 2 | **Administration → Integrations → Plugins** with **VM Tune-Up** 0.4.0 in the list, enabled. Other plugins in the list may stay if their names reveal nothing; otherwise crop or paint them out. |
+All screenshots should be retaken on the release version (1.0.0): the cluster and VM tabs changed in 0.6.0 and 0.7.0 (tune-up plan, columnar grade tables, guest checks, host CPUs). The README and INSTALL.md hold a commented-out image line (`<!-- Screenshot to add … -->`) where each new, non-optional file goes; uncomment it when the file is added. Optional shots have no placeholder: add an image line where the table says.
+
+| File | Status | Used in | What it shows |
+|---|---|---|---|
+| `tab-cluster.png` | retake | README (top), INSTALL step 5 | `cluster-a`'s VM Tune-Up tab after a finished scan, top of the tab: the Rescan, Download CSV and Print report buttons, the counts line and the **Tune-up plan** table (Now and After the plan). |
+| `tab-cluster-origin.png` | retake | README tour, INSTALL step 5 | The **By origin** table and **Worst VMs** with the **Show** filter set to **Migrated**, listing `app-legacy-01`, `web-rocky-01`, `web-rocky-02` and `db-win-01` with grade, score, After, Plan and top findings. |
+| `tab-cluster-plan.png` | **new** | README tour (cluster tab) | The **Tune-up plan** box on `cluster-a`: grade counts and average score **Now** and **After the plan**, and the lines "3 VMs need one cold window…", "0 need a guest restart", "6 can be fixed with no downtime", "7 have nothing to do". |
+| `tab-cluster-host-cpu.png` | **new** | README (The host CPU check), INSTALL step 10 | The **Host CPUs** section on `cluster-a` after **Check host CPUs**: the status badge, "checked just now", **Cluster CPU model setting: host-passthrough**, the best model usable on every host, the finding with **What to do**, and **Per host** open for `hvm-host-01` to `hvm-host-03`. Crop to the section. |
+| `tab-cluster-guest.png` | **new** | INSTALL steps 8 and 9 | The **Guest checks** section on `cluster-a`: **Run guest checks on all powered-on VMs**, its explanation, and **Missing OS fields** listing `db-win-01` with **Fill in all 1**. |
+| `tab-vm.png` | retake | README tour, INSTALL step 6 | `app-legacy-01`'s VM Tune-Up tab: grade, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it, Do first, How in Morpheus and references. |
+| `tab-vm-plan.png` | **new** | README tour (VM tab), INSTALL step 6 | The **Tune-up plan** box of `app-legacy-01`: "One cold window (VM powered off once) for 2 fixes", D 67 → A 100, **Open the instance in Morpheus**, then **Before the window, in this order**, **Any time, no downtime** and **In one cold window, in this order**. |
+| `tab-vm-guest-agent.png` | retake | README tour, INSTALL step 6 | The **Check guest agent** area on `db-win-01` (Windows): the button, its one-line explanation and "Answered 2 min ago". Crop to the area plus the grade line above it. |
+| `tab-vm-guest-checks.png` | **new** | README (Guest checks), INSTALL step 8 | `db-win-01` after **Run guest checks**: "Guest checked just now: Microsoft Windows Server 2022 Standard", and the **VMware Tools still installed** finding open (evidence line with the VMware Tools version and drivers). |
+| `tab-vm-guest-running.png` | **new**, optional | INSTALL step 8 | The activity indicator: "Running the guest checks inside the VM (this can take a few minutes)…" on `db-win-01`. |
+| `tab-vm-osfill.png` | **new** | README (Fill in OS fields), INSTALL step 9 | `db-win-01` with empty OS fields: "Morpheus has no OS type, OS family, platform for this VM. The guest reports …" and **Fill in OS fields**. A second shot with the browser's confirm dialog open is welcome (`tab-vm-osfill-confirm.png`). |
+| `print-report.png` | **new** | README (Printable report), INSTALL step 7 | The printable report of `cluster-a` at 100% zoom, top part: the print bar, title, Summary tiles, the Now / After the plan table and the start of **All VMs, worst first**. Crop below the first few VMs. |
+| `tab-vm-topology.png` | **new**, optional | README (Tier 1, CPU topology) | `desk-win11-01`'s **vCPUs spread over too many sockets** finding: critical, "4 vCPUs as 4 sockets x 1 core: Windows 10/11 uses at most 2 sockets…". |
+| `install-plugins.png` | retake | INSTALL step 2 | **Administration → Integrations → Plugins** with **VM Tune-Up** at the release version in the list, enabled. Other plugins in the list may stay if their names reveal nothing; otherwise crop or paint them out. |
 
 ## Example values
 
@@ -23,6 +34,7 @@ Use these and nothing else, so a reader sees the same name for the same thing in
 | Morpheus appliance (manager) | `morpheus.example.com`; signed in as `admin` |
 | HVM cluster | `cluster-a` |
 | HVM hosts | `hvm-host-01`, `hvm-host-02`, `hvm-host-03` |
+| Host CPU details | CPU and libvirt model names may stay; replace serial numbers, UUIDs and host names |
 | The manager's own VM, if it appears | `manager-vm` |
 | Role created by the script | `vm-tuneup-viewer` |
 | IP addresses | `192.0.2.x` (the documentation range), for example `192.0.2.21` |
@@ -34,7 +46,8 @@ The VMs, and what each one shows:
 | VM | Guest OS | Origin | What it shows |
 |---|---|---|---|
 | `app-legacy-01` | Linux | Migrated from VMware | Discovered (not managed), boot disk on IDE, e1000 network adapter, VMware MAC `00:0c:29:00:00:01`; chipset and guest agent channel unknown. Grade F. |
-| `db-win-01` | Windows Server | Migrated from VMware | Migrated, OS type fields incomplete, VMware MAC `00:0c:29:00:00:02`; guest agent connected ("Answered"). |
+| `db-win-01` | Windows Server 2022 | Migrated from VMware | Migrated, OS type fields empty, VMware MAC `00:0c:29:00:00:02`; guest agent connected ("Answered"); guest checks run: VMware Tools still installed; **Fill in OS fields** offered. |
+| `desk-win11-01` | Windows 11 | No VMware signal | Optional, for the CPU topology shot: 4 vCPUs as 4 sockets of 1 core (critical). |
 | `web-rocky-01` | Rocky Linux | Migrated from VMware | Migrated, disks on SATA, VMware MAC `00:0c:29:00:00:03`. |
 | `web-rocky-02` | Rocky Linux | Migrated from VMware | Migrated, disks on SATA, VMware MAC `00:0c:29:00:00:04`. |
 | `svc-ubuntu-01`, `svc-ubuntu-02`, `svc-ubuntu-03` | Ubuntu | No VMware signal | Clean (grade A); KVM MACs `52:54:00:00:00:0x`. |
@@ -49,6 +62,7 @@ The VMs, and what each one shows:
 | Hosts and VMs | Host names and FQDNs, VM and instance names, IP addresses, the appliance URL |
 | Hardware identity | MAC address suffixes, UUIDs, serial numbers, ids in links or URLs |
 | Content | ISO names and volume paths, log lines, anything that names a real system or person |
+| Guest check evidence | Computer and domain names, user names, NTP server names (use `ntp.example.com`), paths with real names |
 
 **Paint the example value in place of the real one**: clear the text with the background color of that spot and write the example in a similar size and color. Block out only things that aren't text: photos, avatars, other companies' logos. Never blur: it can sometimes be reversed.
 

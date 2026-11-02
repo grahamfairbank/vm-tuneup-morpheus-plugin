@@ -20,6 +20,8 @@ class ServerFacts {
 	/** Host id to cluster name, shared across one scan. */
 	final Map<Long, String> clusterByHost = [:]
 	final Map<Long, String> hostNames = [:]
+	/** Datastore id to [name, typeCode, local], shared across one scan (0.6). */
+	final Map<Long, Map> datastores = [:]
 	/**
 	 * How each service read runs: {@code reader(part, closure)}. Default: directly. Request paths and background
 	 * scans pass {@link Workers#budgetedReader}, so a slow read is cut off and reported as "time budget".
@@ -60,6 +62,11 @@ class ServerFacts {
 		m.uefi = safe { s.uefi }
 		m.secureBoot = safe { s.secureBoot }
 		m.tpm = safe { s.tpm }
+		m.maxCores = safe { s.maxCores }
+		m.coresPerSocket = safe { s.coresPerSocket }
+		def devices = safe { s.devices }
+		if (devices instanceof List) m.devices = ((List) devices).collect { [id: safe { it.id }] }
+		m.instance = [id: instanceId(s)]
 		m.config = safe { s.getConfigMap() } ?: [:]
 		m.controllers = (safe { s.controllers } ?: []).collect { c ->
 			[id: safe { c.id }, name: safe { c.name }, type: [code: safe { c.type?.code }, name: safe { c.type?.name }]]
@@ -68,7 +75,7 @@ class ServerFacts {
 			[id: safe { v.id }, name: safe { v.name }, controller: [id: safe { v.controller?.id }, name: safe { v.controller?.name }],
 			 rootVolume: safe { v.rootVolume }, diskMode: safe { v.diskMode }, type: [code: safe { v.type?.code }],
 			 maxStorage: safe { v.maxStorage }, usedStorage: safe { v.usedStorage }, sourceImage: safe { v.sourceImage },
-			 imageType: safe { v.imageType }, volumePath: safe { v.volumePath }]
+			 imageType: safe { v.imageType }, volumePath: safe { v.volumePath }, datastore: datastore(safe { v.datastore?.id } as Long, safe { v.datastore?.name } as String)]
 		}
 		m.interfaces = (safe { s.interfaces } ?: []).collect { i ->
 			[name: safe { i.name }, type: safe { i.type } != null ? [code: safe { i.type?.code }, name: safe { i.type?.name }] : null,
@@ -122,6 +129,40 @@ class ServerFacts {
 		}
 		if (!read) return null
 		return found.values().collect { Snapshot sn -> [name: safe { sn.name }, snapshotCreated: safe { sn.snapshotCreated }] }
+	}
+
+	/** The datastore's name, type and whether it's host-local; null when the volume has none. */
+	Map datastore(Long id, String name) {
+		if (id == null) return null
+		if (!datastores.containsKey(id)) {
+			Map d = [id: id, name: name]
+			try {
+				def full = fetch('datastore') { morpheus.services.cloud.datastore.get(id) }
+				if (full != null) {
+					d.name = safe { full.name } ?: name
+					def t = safe { full.datastoreType }
+					d.datastoreType = [code: safe { t?.code }, localStorage: safe { t?.localStorage }]
+					if (d.datastoreType.code == null) d.typeCode = safe { full.type }
+				}
+			} catch (Throwable e) {
+				log.debug("vm-tuneup: datastore ${id} failed: ${e}")
+			}
+			datastores[id] = d
+		}
+		return datastores[id]
+	}
+
+	/** The instance of a managed VM, through its workload; null for discovered VMs or when it can't be read. */
+	Long instanceId(ComputeServer s) {
+		Long id = safe { s.id } as Long
+		if (id == null) return null
+		try {
+			def w = fetch('instance') { morpheus.services.workload.find(new DataQuery().withFilter('server.id', id)) }
+			return safe { w?.instance?.id } as Long
+		} catch (Throwable e) {
+			log.debug("vm-tuneup: instance of server ${id} failed: ${e}")
+			return null
+		}
 	}
 
 	String hostName(ComputeServer s, Long hostId) {

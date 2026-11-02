@@ -1,0 +1,93 @@
+{{!-- Printable tune-up report of one cluster (0.6): a full page for the browser's Print > Save as PDF. Escaped
+     values only ({{ }}), no scripts. Built from results already scanned. --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VM Tune-Up report: {{clusterName}}</title>
+<style>
+@page { size: auto; margin: 14mm 12mm; }
+* { box-sizing: border-box; }
+body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1b1f24; background: #fff; font-size: 12px; line-height: 1.4; margin: 0 auto; max-width: 1100px; padding: 20px; }
+h1 { font-size: 22px; margin: 0 0 2px; } h2 { font-size: 16px; margin: 22px 0 8px; border-bottom: 2px solid #01a982; padding-bottom: 3px; }
+h3 { font-size: 13px; margin: 14px 0 4px; }
+.muted { color: #57606a; } .small { font-size: 11px; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; border-bottom: 1px solid #d0d7de; padding-bottom: 8px; }
+.tagline { font-style: italic; color: #57606a; }
+table { border-collapse: collapse; width: 100%; margin: 4px 0 8px; }
+th, td { text-align: left; padding: 3px 6px; border-bottom: 1px solid #d0d7de; vertical-align: top; }
+th { font-size: 11px; text-transform: uppercase; color: #57606a; font-weight: 600; }
+.num { text-align: right; } .g { text-align: center; width: 38px; } .zero { color: #b0b7bf; }
+.grade { display: inline-block; min-width: 22px; text-align: center; font-weight: 700; padding: 1px 5px; border-radius: 3px; color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.vtu-grade-a { background: #2e7d32; } .vtu-grade-b { background: #558b2f; } .vtu-grade-c { background: #b8860b; } .vtu-grade-d { background: #d2691e; } .vtu-grade-f { background: #c62828; }
+.badge { display: inline-block; font-size: 10px; padding: 0 5px; border-radius: 3px; border: 1px solid #8a8f98; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.vtu-sev-critical { background: #c62828; color: #fff; border-color: #c62828; } .vtu-sev-warning { background: #ef8f00; color: #fff; border-color: #ef8f00; }
+.vtu-sev-info { background: #1e6fb8; color: #fff; border-color: #1e6fb8; } .vtu-sev-pass { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+.cards { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+.card { border: 1px solid #d0d7de; border-radius: 4px; padding: 8px 12px; min-width: 150px; }
+.card b { display: block; font-size: 20px; }
+.vm { break-inside: avoid; page-break-inside: avoid; border: 1px solid #d0d7de; border-radius: 4px; padding: 8px 10px; margin: 8px 0; }
+.vm ol { margin: 2px 0 4px 18px; padding: 0; } .vm p { margin: 4px 0; }
+.stage { font-weight: 600; margin-top: 6px; }
+.foot { margin-top: 24px; border-top: 1px solid #d0d7de; padding-top: 6px; }
+.noprint { background: #e9f7f3; border: 1px solid #01a982; border-radius: 4px; padding: 6px 10px; margin-bottom: 12px; }
+@media print { .noprint { display: none; } body { padding: 0; max-width: none; } h2 { break-after: avoid; page-break-after: avoid; } }
+</style>
+</head>
+<body>
+<div class="noprint">Use your browser's Print (Ctrl+P or Cmd+P) and choose "Save as PDF". This bar doesn't print.</div>
+<div class="top">
+	<div>
+		<h1>VM Tune-Up report: {{clusterName}}</h1>
+		<div class="tagline">We've migrated to HVM. Now what?</div>
+	</div>
+	<div class="muted small">Scanned {{scannedAt}} &middot; printed {{printedAt}}{{#if version}} &middot; VM Tune-Up {{version}}{{/if}}</div>
+</div>
+
+{{#with summary}}
+<h2>Summary</h2>
+<div class="cards">
+	<div class="card"><b>{{vmCount}}</b>HVM VMs scanned</div>
+	<div class="card"><b>{{avgNow}} &rarr; {{avgAfter}}</b>average score, now &rarr; after the plan</div>
+	<div class="card"><b>{{planCold}}</b>VMs need one cold window</div>
+	<div class="card"><b>{{planLive}}</b>can be fixed with no downtime</div>
+	<div class="card"><b>{{vmwareOrigin}}</b>migrated from VMware</div>
+</div>
+<table style="width:auto;min-width:420px">
+	<tr><th></th><th class="g"><span class="grade vtu-grade-a">A</span></th><th class="g"><span class="grade vtu-grade-b">B</span></th><th class="g"><span class="grade vtu-grade-c">C</span></th><th class="g"><span class="grade vtu-grade-d">D</span></th><th class="g"><span class="grade vtu-grade-f">F</span></th><th class="num">Average</th></tr>
+	<tr><td>Now</td>{{#each grades}}<td class="g{{#if zero}} zero{{/if}}">{{count}}</td>{{/each}}<td class="num">{{avgNow}}</td></tr>
+	<tr><td><b>After the plan</b></td>{{#each gradesAfter}}<td class="g{{#if zero}} zero{{/if}}">{{count}}</td>{{/each}}<td class="num"><b>{{avgAfter}}</b></td></tr>
+</table>
+<p class="muted">Findings: <span class="badge vtu-sev-critical">{{critical}} critical</span> <span class="badge vtu-sev-warning">{{warning}} warning</span> <span class="badge vtu-sev-info">{{info}} info</span>.
+	{{planCold}} VMs need one cold window{{#if planPrep}} ({{planPrep}} need steps in the guest first){{/if}}, {{planReboot}} a guest restart, {{planLive}} no downtime, {{planNone}} nothing. "After the plan" counts every Recommendation as done; Considerations stay.</p>
+{{/with}}
+
+{{#if hostCpuStatus}}
+<h2>Host CPUs</h2>
+<p>Cluster CPU model setting: <b>{{hostCpuSetting}}</b>{{#if hostCpuBest}} &middot; best model usable on every host: <b>{{hostCpuBest}}</b>{{/if}} &middot; <span class="badge {{hostCpuStatusClass}}">{{hostCpuStatus}}</span> <span class="muted">(checked {{hostCpuAgo}})</span></p>
+{{#each hostCpuFindings}}<p><span class="badge {{statusClass}}">{{status}}</span> <b>{{title}}</b>. {{text}}{{#if recommendation}} <i>What to do:</i> {{recommendation}}{{/if}}</p>{{/each}}
+{{/if}}
+
+<h2>All VMs, worst first</h2>
+<table>
+	<tr><th>VM</th><th>Origin</th><th>Now</th><th>After</th><th>Plan</th><th class="num">Crit.</th><th class="num">Warn.</th><th class="num">Info</th><th>Top findings</th></tr>
+	{{#each vmRows}}<tr><td><b>{{name}}</b><br><span class="muted small">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span></td><td>{{originLabel}}</td><td><span class="grade {{gradeClass}}">{{grade}}</span> {{score}}</td><td><span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}}</td><td>{{planLabel}}</td><td class="num">{{critical}}</td><td class="num">{{warning}}</td><td class="num">{{info}}</td><td class="small">{{topFindings}}</td></tr>{{/each}}
+</table>
+
+{{#if hasVmPlans}}
+<h2>Tune-up plan per VM</h2>
+{{#each vmPlans}}
+<div class="vm">
+	<b>{{name}}</b> <span class="muted">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span> &middot; <span class="grade {{gradeClass}}">{{grade}}</span> {{score}} &rarr; <span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}} &middot; {{planWindow}}
+	{{#if hasPlanPrepare}}<p class="stage">Before the window, in this order:</p><ol>{{#each planPrepare}}<li>{{this}}</li>{{/each}}</ol>{{/if}}
+	{{#if hasPlanLive}}<p class="stage">Any time, no downtime:</p><ol>{{#each planLive}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
+	{{#if hasPlanReboot}}<p class="stage">With one guest restart:</p><ol>{{#each planReboot}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
+	{{#if hasPlanCold}}<p class="stage">In one cold window, in this order:</p><ol>{{#each planCold}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
+	{{#if planConsiderations}}<p class="muted">Also {{planConsiderations}} Consideration(s): see the VM's VM Tune-Up tab.</p>{{/if}}
+</div>
+{{/each}}
+{{/if}}
+
+<div class="foot muted small">{{aboutChecks}} {{disclaimer}} HPE and Morpheus are trademarks of Hewlett Packard Enterprise; VMware is a trademark of Broadcom.</div>
+</body>
+</html>

@@ -45,6 +45,9 @@ final class Tier1Rules {
 			case 'T1-DISK-ALLOCATION': return diskAllocation(vm)
 			case 'T1-DISCOVERED': return discovered(vm)
 			case 'T1-ISO-ATTACHED': return isoAttached(vm)
+			case 'T1-HA-MOBILITY': return haMobility(vm)
+			case 'T1-NESTED-VIRT': return nestedVirt(vm)
+			case 'T1-CPU-TOPOLOGY': return cpuTopology(vm)
 			default: return new CheckResult(check, Status.NOT_EVALUATED, null, 'No rule for this check.')
 		}
 	}
@@ -255,6 +258,58 @@ final class Tier1Rules {
 		if (age > SNAPSHOT_INFO_DAYS || n > SNAPSHOT_INFO_COUNT) return new CheckResult(SNAPSHOTS, Status.FAIL, Severity.INFO, seen + '.')
 		if (oldest == null) return new CheckResult(SNAPSHOTS, Status.UNKNOWN, null, seen + ': age could not be judged.')
 		return new CheckResult(SNAPSHOTS, Status.PASS, null, seen + ' (within the plugin\'s thresholds).')
+	}
+
+	// ---- mobility and CPU (0.6) ----
+
+	static CheckResult haMobility(VmFacts vm) {
+		List<String> why = []
+		Severity sev = null
+		List<VmFacts.Volume> disks = vm.disks
+		List<VmFacts.Volume> local = disks.findAll { VmFacts.Volume v -> v.datastoreLocal == Boolean.TRUE }
+		boolean unknownStorage = disks.isEmpty() || disks.any { VmFacts.Volume v -> v.datastoreLocal == null }
+		if (local) {
+			String where = local.collect { VmFacts.Volume v -> "'${v.name ?: '?'}' on ${v.datastoreName ?: 'a local datastore'}".toString() }.join(', ')
+			String plural = disks.size() == 1 ? '' : 's'
+			why.add("${local.size()} of ${disks.size()} disk${plural} on host-local storage (${where})".toString())
+			sev = Severity.WARNING
+		}
+		if (vm.placementStrategy == 'pinned') {
+			why.add('placement is pinned to one host, so it isn\'t recovered automatically')
+			sev = sev ?: Severity.INFO
+		}
+		if (vm.passthroughDevices) {
+			why.add("${vm.passthroughDevices} host device${vm.passthroughDevices == 1 ? '' : 's'} passed through (not live-migratable)".toString())
+			sev = sev ?: Severity.INFO
+		}
+		if (why) return new CheckResult(HA_MOBILITY, Status.FAIL, sev, why.join('; ').capitalize() + '.')
+		if (unknownStorage) return new CheckResult(HA_MOBILITY, Status.UNKNOWN, null, 'The datastore of one or more disks couldn\'t be read.')
+		return new CheckResult(HA_MOBILITY, Status.PASS, null, "All ${disks.size()} disk${disks.size() == 1 ? ' is' : 's are'} on shared storage; placement ${vm.placementStrategy ?: 'not pinned'}.")
+	}
+
+	static CheckResult nestedVirt(VmFacts vm) {
+		Boolean n = vm.nestedVirtualization
+		if (n == Boolean.TRUE) return new CheckResult(NESTED_VIRT, Status.FAIL, null, 'Nested virtualization is on.')
+		if (n == Boolean.FALSE) return new CheckResult(NESTED_VIRT, Status.PASS, null, 'Nested virtualization is off.')
+		if (!vm.managed) return new CheckResult(NESTED_VIRT, Status.UNKNOWN, null, 'Discovered VM: Morpheus has no nested virtualization setting for it.')
+		return new CheckResult(NESTED_VIRT, Status.PASS, null, 'Nested virtualization isn\'t set (off by default).')
+	}
+
+	/** Windows client editions: at most 2 sockets (Pro); Home 1. */
+	static final int CLIENT_SOCKETS = 2
+
+	static CheckResult cpuTopology(VmFacts vm) {
+		if (!vm.windows) return new CheckResult(CPU_TOPOLOGY, Status.NOT_APPLICABLE, null, 'Not a Windows VM.')
+		Long sockets = vm.sockets
+		if (sockets == null) return new CheckResult(CPU_TOPOLOGY, Status.UNKNOWN, null,
+			"vCPUs ${vm.maxCores ?: '?'}, cores per socket ${vm.coresPerSocket ?: 'not set'}: topology unknown.")
+		String seen = "${vm.maxCores} vCPU${vm.maxCores == 1 ? '' : 's'} as ${sockets} socket${sockets == 1 ? '' : 's'} x ${vm.coresPerSocket} core${vm.coresPerSocket == 1 ? '' : 's'}"
+		String os = ((vm.osCode ?: '') + ' ' + (vm.osName ?: '')).toLowerCase()
+		boolean client = java.util.regex.Pattern.compile(/windows[ .]?1[01]\b/).matcher(os).find()
+		if (client && sockets > CLIENT_SOCKETS) return new CheckResult(CPU_TOPOLOGY, Status.FAIL, Severity.CRITICAL,
+			seen + ": Windows 10/11 uses at most ${CLIENT_SOCKETS} sockets, so ${sockets - CLIENT_SOCKETS} of them sit idle.")
+		if (sockets > 1) return new CheckResult(CPU_TOPOLOGY, Status.FAIL, Severity.INFO, seen + ': HPE recommends one socket with all cores for Windows.')
+		return new CheckResult(CPU_TOPOLOGY, Status.PASS, null, seen + '.')
 	}
 
 	static String iso(Date d) {

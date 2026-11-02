@@ -1,0 +1,45 @@
+Welcome to Ubuntu 22.04.4 LTS (GNU/Linux 5.15.0-1060-custom x86_64)
+
+VTU-BEGIN v1 linux
+uid=0
+os.id=ubuntu
+os.version_id=22.04
+os.name=Ubuntu
+os.pretty=Ubuntu 22.04.4 LTS
+os.like=debian
+os.kernel=5.15.0-1060-custom
+os.arch=x86_64
+builtin.read=1
+initrd.file=found
+initrd.tool=initramfs-tools
+initrd.modules=dep
+builtin.virtio_blk=0
+module.virtio_blk=1
+initrd.virtio_blk=0
+builtin.virtio_scsi=0
+module.virtio_scsi=1
+initrd.virtio_scsi=0
+builtin.virtio_pci=0
+module.virtio_pci=1
+initrd.virtio_pci=0
+builtin.virtio_net=0
+module.virtio_net=1
+initrd.virtio_net=0
+fstab.read=1
+fstab.devname=/dev/sda1 /
+fstab.devname=/dev/sdb1 /srv/data
+boot.root=/dev/sda1
+pkg.open-vm-tools=2:12.3.5-3~ubuntu0.22.04.1
+vmw.running=0
+vmw.tarball=0
+vmw.mods=
+qga.running=0
+qga.channel=1
+qga.fsfreeze-freeze=default
+qga.exec=default
+qga.hook=0
+time.clocksource=kvm-clock
+time.available=kvm-clock tsc acpi_pm
+time.synced=no
+time.service=systemd-timesyn
+VTU-END 41

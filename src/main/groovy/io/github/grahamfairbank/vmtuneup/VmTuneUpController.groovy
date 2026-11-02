@@ -50,12 +50,19 @@ class VmTuneUpController implements PluginController {
 	static final String VM_PROBE = '/vmTuneUp/vmProbe'
 	static final String CLUSTER = '/vmTuneUp/cluster'
 	static final String CLUSTER_RESCAN = '/vmTuneUp/clusterRescan'
+	static final String HOST_CPU = '/vmTuneUp/hostCpu'
+	static final String PRINT = '/vmTuneUp/print'
+	static final String GUEST_SCAN = '/vmTuneUp/guestScan'
+	static final String GUEST_SCAN_CLUSTER = '/vmTuneUp/guestScanCluster'
+	static final String SET_OS = '/vmTuneUp/setOs'
+	static final String SET_OS_CLUSTER = '/vmTuneUp/setOsCluster'
+	static final String NEED_UPDATE = 'Your role needs "VM Tune-Up: Update VM records" at full to fill in VM records.'
 	static final String CSV = '/vmTuneUp/csv'
 	static final String CLUSTER_DATA = '/vmTuneUp/clusterData'
 	static final String CLUSTERS = '/vmTuneUp/clusters'
 
 	static final String NEED_VIEW = 'Your role needs "VM Tune-Up: View results" at read access.'
-	static final String NEED_GUEST = 'Your role needs "VM Tune-Up: Run guest scans" at full access.'
+	static final String NEED_GUEST = 'Your role needs "VM Tune-Up: Run guest and host checks" at full access.'
 	static final int MAX_CLUSTERS = 50
 	static final String OPEN_TAB_VM = 'Not scanned yet. Open the VM Tune-Up tab of this VM to start a scan.'
 	static final String OPEN_TAB_CLUSTER = 'Not scanned yet. Open the VM Tune-Up tab of this cluster to start a scan.'
@@ -94,6 +101,12 @@ class VmTuneUpController implements PluginController {
 		routes.add(Route.build(VM_PROBE, 'vmProbe', Permission.build(VmTuneUpPlugin.GUEST_SCAN_PERMISSION, full)))
 		routes.add(Route.build(CLUSTER, 'cluster', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
 		routes.add(Route.build(CLUSTER_RESCAN, 'clusterRescan', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
+		routes.add(Route.build(GUEST_SCAN, 'guestScan', Permission.build(VmTuneUpPlugin.GUEST_SCAN_PERMISSION, full)))
+		routes.add(Route.build(GUEST_SCAN_CLUSTER, 'guestScanCluster', Permission.build(VmTuneUpPlugin.GUEST_SCAN_PERMISSION, full)))
+		routes.add(Route.build(SET_OS, 'setOs', Permission.build(VmTuneUpPlugin.UPDATE_PERMISSION, full)))
+		routes.add(Route.build(SET_OS_CLUSTER, 'setOsCluster', Permission.build(VmTuneUpPlugin.UPDATE_PERMISSION, full)))
+		routes.add(Route.build(PRINT, 'print', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
+		routes.add(Route.build(HOST_CPU, 'hostCpu', Permission.build(VmTuneUpPlugin.GUEST_SCAN_PERMISSION, full)))
 		routes.add(Route.build(CSV, 'csv', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
 		routes.add(Route.build(CLUSTER_DATA, 'clusterData', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
 		routes.add(Route.build(CLUSTERS, 'clusters', Permission.build(VmTuneUpPlugin.VIEW_PERMISSION, read)))
@@ -195,13 +208,126 @@ class VmTuneUpController implements PluginController {
 		return vmFragment(model, e, note)
 	}
 
+	// ---- 0.7: Tier 2 guest scans and the OS fill-in ------------------------------------------------------
+
+	/** Loads a VM for a POST: the record, the viewer's tenant, HVM. Returns [server] or [status, error]. */
+	private Map vmForPost(ViewModel<Map> model, Long id) {
+		ScanService svc = scans()
+		ComputeServer server
+		try {
+			server = (Workers.call(svc.workers.io, svc.lookupBudgetMs, 'server record') { morpheus.services.computeServer.get(id) }) as ComputeServer
+		} catch (Workers.BudgetExceeded ignored) {
+			return [status: 503, error: 'Unknown: time budget. Morpheus did not return the VM in time; try again.']
+		} catch (Throwable t) {
+			server = null
+		}
+		if (server == null || !mayViewAccount(model, safe { server.account?.id } as Long)) return [status: 404, error: 'No such VM.']
+		if (!HvmScope.isHvmVm(server)) return [status: 200, error: 'Not an HVM VM: guest checks run only on HVM VMs.']
+		return [server: server]
+	}
+
+	/** POST serverId: runs the Tier 2 guest scan on one VM (guest-scan permission), then shows the VM again. */
+	HTMLResponse guestScan(ViewModel<Map> model) {
+		Map bad = requestCheck(model)
+		if (bad) return message(403, bad.error as String)
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		if (!VmTuneUpPlugin.canGuestScan(model?.user)) return message(403, NEED_GUEST)
+		Long id = idParam(model, 'serverId')
+		if (id == null) return message(400, 'Missing or invalid serverId.')
+		Map v = vmForPost(model, id)
+		if (v.status) return message(v.status as int, v.error as String)
+		ComputeServer server = v.server as ComputeServer
+		if (safe { server.powerState?.toString() } != 'on') return vmFragment(model, scans().cachedVm(id) ?: scans().scanVmNow(id, server), 'Guest checks need the VM powered on.')
+		ScanService svc = scans()
+		GuestScan.Entry ge = svc.guestScan.start(server, safe { model.user.id } as Long, svc.workers.guest)
+		String note = (!ge.running && ge.error) ? "Guest checks didn't finish: ${ge.error}.".toString() : null
+		ScanService.VmEntry e = svc.cachedVm(id) ?: svc.scanVmNow(id, server)
+		return vmFragment(model, e, note)
+	}
+
+	/** POST clusterId: runs the guest scan on every powered-on HVM VM of the cluster this viewer can see, one at a time. */
+	HTMLResponse guestScanCluster(ViewModel<Map> model) {
+		Map bad = requestCheck(model)
+		if (bad) return message(403, bad.error as String)
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		if (!VmTuneUpPlugin.canGuestScan(model?.user)) return message(403, NEED_GUEST)
+		Long id = idParam(model, 'clusterId')
+		if (id == null) return message(400, 'Missing or invalid clusterId.')
+		Map info = clusterInfo(model, id)
+		if (info.status) return message(info.status as int, info.error as String)
+		ScanService svc = scans()
+		ScanService.ClusterJob job = svc.cachedCluster(id)
+		if (job == null || job.running) return message(200, 'Wait for the cluster scan to finish, then run the guest checks.')
+		List<Long> ids = visibleEntries(svc, job, model).findAll { it.hvm && it.facts != null && (it.facts.powerState as String) == 'on' }*.serverId.findAll { it != null } as List<Long>
+		List<ComputeServer> servers
+		try {
+			servers = ids ? (((Workers.call(svc.workers.io, svc.lookupBudgetMs * 3, 'servers') { morpheus.services.computeServer.listById(ids) }) as List<ComputeServer>) ?: []) : []
+		} catch (Workers.BudgetExceeded ignored) {
+			return message(503, 'Unknown: time budget. Morpheus did not list the VMs in time; try again.')
+		}
+		servers = servers.findAll { HvmScope.isHvmVm(it) && mayViewAccount(model, safe { it.account?.id } as Long) }
+		svc.guestScan.startBatch(id, servers, safe { model.user.id } as Long, svc.workers.guestBatch)
+		return clusterResponse(model, false, true)
+	}
+
+	/** POST serverId: fills in the VM's empty guest OS fields from its guest scan (update-records permission). */
+	HTMLResponse setOs(ViewModel<Map> model) {
+		Map bad = requestCheck(model)
+		if (bad) return message(403, bad.error as String)
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		if (!VmTuneUpPlugin.canUpdate(model?.user)) return message(403, NEED_UPDATE)
+		Long id = idParam(model, 'serverId')
+		if (id == null) return message(400, 'Missing or invalid serverId.')
+		Map v = vmForPost(model, id)
+		if (v.status) return message(v.status as int, v.error as String)
+		ScanService svc = scans()
+		String note = OsFill.fill(morpheus, svc, v.server as ComputeServer, safe { model.user.id } as Long)
+		ScanService.VmEntry e = svc.scanVmNow(id, svc.loadFresh(id) ?: (v.server as ComputeServer))
+		return vmFragment(model, e, note)
+	}
+
+	/** POST clusterId: fills in the OS fields of every eligible VM of the cluster this viewer can see. */
+	HTMLResponse setOsCluster(ViewModel<Map> model) {
+		Map bad = requestCheck(model)
+		if (bad) return message(403, bad.error as String)
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		if (!VmTuneUpPlugin.canUpdate(model?.user)) return message(403, NEED_UPDATE)
+		Long id = idParam(model, 'clusterId')
+		if (id == null) return message(400, 'Missing or invalid clusterId.')
+		Map info = clusterInfo(model, id)
+		if (info.status) return message(info.status as int, info.error as String)
+		ScanService svc = scans()
+		ScanService.ClusterJob job = svc.cachedCluster(id)
+		if (job == null || job.running) return message(200, 'Wait for the cluster scan to finish first.')
+		int filled = 0
+		int tried = 0
+		long deadline = svc.clock.call() + 60_000L
+		visibleEntries(svc, job, model).each { ScanService.VmEntry e ->
+			if (tried >= OsFill.MAX_PER_REQUEST || svc.clock.call() > deadline) return
+			VmReport r = svc.report(e, true)
+			if (r == null || OsFill.proposal(r) == null) return
+			tried++
+			ComputeServer s = svc.loadFresh(e.serverId)
+			if (s == null || !mayViewAccount(model, safe { s.account?.id } as Long)) return
+			if (OsFill.fill(morpheus, svc, s, safe { model.user.id } as Long)?.startsWith('Filled in')) {
+				filled++
+				svc.scanVmNow(e.serverId, svc.loadFresh(e.serverId) ?: s)
+			}
+		}
+		log.info("vm-tuneup: OS fill-in on cluster ${id} by user ${safe { model.user.id }}: ${filled} VMs")
+		return clusterResponse(model, false, true)
+	}
+
 	private HTMLResponse vmFragment(ViewModel<Map> model, ScanService.VmEntry e, String probeNote = null) {
 		if (e == null || (e.error == null && e.found && !mayViewAccount(model, e.accountId))) return message(404, 'No such VM.')
 		if (!e.found) return message(404, 'No such VM.')
 		ScanService svc = scans()
 		boolean canProbe = VmTuneUpPlugin.canGuestScan(model?.user)
 		VmReport r = svc.report(e, canProbe)
-		return html(200, Render.render(renderer(), Render.VM, [vms: [Views.vmBlock(e, r, canProbe, svc.clock.call(), svc.probeState(e, canProbe), probeNote)]]).html)
+		long now = svc.clock.call()
+		Map block = Views.vmBlock(e, r, canProbe, now, svc.probeState(e, canProbe), probeNote) +
+			Views.guest(svc.guestScan.cached(e.serverId), r, canProbe, VmTuneUpPlugin.canUpdate(model?.user), now)
+		return html(200, Render.render(renderer(), Render.VM, [vms: [block]]).html)
 	}
 
 	// ---- clusters -----------------------------------------------------------------------------------
@@ -219,6 +345,49 @@ class VmTuneUpController implements PluginController {
 		Map bad = requestCheck(model)
 		if (bad) return message(403, bad.error as String)
 		return clusterResponse(model, true, true)
+	}
+
+	/**
+	 * GET clusterId (0.6): the printable tune-up report of one cluster, a full page for print-to-PDF. Results already
+	 * scanned only: like the CSV link, it never starts a scan.
+	 */
+	HTMLResponse print(ViewModel<Map> model) {
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		Long id = idParam(model, 'clusterId')
+		if (id == null) return message(400, 'Missing or invalid clusterId.')
+		Map info = clusterInfo(model, id)
+		if (info.status) return message(info.status as int, info.error as String)
+		ScanService svc = scans()
+		ScanService.ClusterJob job = svc.cachedCluster(id)
+		if (job == null || job.running) return message(200, 'Not ready yet: open the cluster\'s VM Tune-Up tab, wait for the scan to finish, then use Print report again.')
+		boolean permitted = VmTuneUpPlugin.canGuestScan(model?.user)
+		long now = svc.clock.call()
+		List<VmReport> reports = visibleEntries(svc, job, model).collect { svc.report(it, permitted) }.findAll { it != null }
+		List<Map> plans = reports.sort(false) { VmReport a, VmReport b -> a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '') }
+			.collect { Views.vm(it) }.findAll { it.hasPlan || it.planConsiderations }
+		String version = safe { plugin?.version } ?: ''
+		Map m = clusterModel(svc, job, permitted, model) + [vmPlans: plans, hasVmPlans: !plans.isEmpty(), version: version,
+			printedAt: VmTuneUpReportProvider.iso(new Date(now)), scannedAt: VmTuneUpReportProvider.iso(new Date(job.finishedAt ?: now))]
+		return html(200, Render.render(renderer(), Render.PRINT, m).html)
+	}
+
+	/**
+	 * POST clusterId (0.6): starts the host CPU check for the cluster (guest-scan permission at full, master tenant
+	 * only: it runs commands on the hosts), then returns the cluster view, which polls until the check is done.
+	 */
+	HTMLResponse hostCpu(ViewModel<Map> model) {
+		Map bad = requestCheck(model)
+		if (bad) return message(403, bad.error as String)
+		if (!VmTuneUpPlugin.canView(model?.user)) return message(403, NEED_VIEW)
+		if (!VmTuneUpPlugin.canGuestScan(model?.user)) return message(403, NEED_GUEST)
+		if (safe { model?.user?.account?.masterAccount } != true) return message(403, 'The host CPU check is for master-tenant users only.')
+		Long id = idParam(model, 'clusterId')
+		if (id == null) return message(400, 'Missing or invalid clusterId.')
+		Map info = clusterInfo(model, id)
+		if (info.status) return message(info.status as int, info.error as String)
+		ScanService svc = scans()
+		svc.hostCpu.start(id, safe { model.user.id } as Long, svc.workers.hostCpu)
+		return clusterResponse(model, false, true)
 	}
 
 	private HTMLResponse clusterResponse(ViewModel<Map> model, boolean force, boolean mayStart) {
@@ -262,14 +431,37 @@ class VmTuneUpController implements PluginController {
 		else if (job.running) progress = "Scanned ${job.done.get()} of ${job.total} HVM VMs…".toString()
 		else if (job.state == ScanService.ClusterJob.FAILED) progress = "The scan stopped: ${job.error ?: 'unknown error'}.".toString()
 		else progress = "Scanned ${job.done.get()} of ${job.total} HVM VMs ${Views.ago(job.finishedAt ?: now, now)}.".toString()
+		Integer progressPct = (job.running && job.state != ScanService.ClusterJob.LISTING && job.total)
+			? Math.min(100, (int) Math.round(100d * job.done.get() / job.total)) : null
 		return [clusterId: job.clusterId, clusterName: job.clusterName ?: '', running: job.running, progress: progress,
+		        progressPct: progressPct, hasProgressPct: progressPct != null,
 		        noHvm: !job.running && job.state == ScanService.ClusterJob.COMPLETE && job.hvmHosts == 0 && (job.total ?: 0) == 0,
 		        summary: Views.summary(reports, 0), hasResults: !reports.isEmpty(),
 		        groups: Views.originGroups(reports), vmRows: Views.vmRows(reports), originNote: Views.ORIGIN_NOTE,
 		        notScanned: notScanned, hasNotScanned: !notScanned.isEmpty(), notScannedCount: notScanned.size(), partialCount: partial,
 		        probed: job.probe, csvClusterUrl: "${Shell.API}/csv?clusterId=${job.clusterId}".toString(), csvAllUrl: "${Shell.API}/csv?all=true".toString(),
+		        printUrl: "${Shell.API}/print?clusterId=${job.clusterId}".toString(),
 		        csvClusterName: Views.csvFilename(job.clusterName ?: "cluster-${job.clusterId}", new Date(now)),
-		        csvAllName: Views.csvFilename('all-clusters', new Date(now))]
+		        csvAllName: Views.csvFilename('all-clusters', new Date(now))] + hostCpuModel(svc, job.clusterId, permitted, model, now, job.running) +
+		       guestClusterModel(svc, job.clusterId, reports, permitted, model, now)
+	}
+
+	/** The host CPU section (0.6): the last result or the run in progress, and whether this user may run it. */
+	Map hostCpuModel(ScanService svc, Long clusterId, boolean permitted, ViewModel<Map> model, long now, boolean scanRunning) {
+		boolean master = safe { model?.user?.account?.masterAccount } == true
+		if (!master) return [hostCpuShown: false, poll: scanRunning || svc.guestScan.batch(clusterId)?.running == true]
+		HostCpuCheck.Entry e = svc.hostCpu.cached(clusterId)
+		return Views.hostCpu(e, permitted, now) + [hostCpuShown: true, poll: scanRunning || e?.running == true || svc.guestScan.batch(clusterId)?.running == true]
+	}
+
+	/** The cluster's guest checks line and OS fill-in preview (0.7). */
+	Map guestClusterModel(ScanService svc, Long clusterId, List<VmReport> reports, boolean permitted, ViewModel<Map> model, long now) {
+		Map b = svc.guestScan.batch(clusterId)
+		List<Map> fill = reports.collect { VmReport r -> Map p = OsFill.proposal(r); p ? [name: r.facts.name, os: p.name, fields: (p.fields as List).join(', ')] : null }.findAll { it != null }
+		int scanned = reports.count { it.guest != null } as int
+		return [guestCanRun: permitted, guestBatchRunning: b?.running == true, guestBatchDone: (b?.done ?: 0), guestBatchTotal: (b?.total ?: 0),
+		        guestBatchError: b?.error, guestScanned: scanned, osFill: fill, hasOsFill: !fill.isEmpty(), osFillCount: fill.size(),
+		        osFillCanUpdate: VmTuneUpPlugin.canUpdate(model?.user)]
 	}
 
 	// ---- JSON for the browser-built CSV (0.3.0) ----------------------------------------------------------

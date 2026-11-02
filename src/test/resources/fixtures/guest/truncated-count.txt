@@ -1,0 +1,16 @@
+VTU-BEGIN v1 linux
+uid=0
+os.id=rocky
+os.version_id=9.4
+os.name=Rocky Linux
+os.pretty=Rocky Linux 9.4 (Blue Onyx)
+os.like=rhel centos fedora
+os.kernel=5.14.0-427.13.1.el9_4.x86_64
+os.arch=x86_64
+builtin.read=1
+initrd.file=found
+initrd.tool=lsinitrd
+initrd.entries=1874
+builtin.virtio_blk=0
+module.virtio_blk=1
+VTU-END 40

@@ -19,7 +19,7 @@
   var ROOT = '.vm-tuneup-tab';
   var ID = /^\d{1,18}$/;
   var POLL_MS = 5000, POLL_MAX = 240; // up to 20 minutes
-  var ACTIONS = { 'vm-refresh': true, 'vm-probe': true, 'cluster-rescan': true, 'csv-cluster': true, 'csv-all': true, 'show-all': true };
+  var ACTIONS = { 'vm-refresh': true, 'vm-probe': true, 'cluster-rescan': true, 'host-cpu': true, 'vm-guest': true, 'cluster-guest': true, 'vm-setos': true, 'cluster-setos': true, 'csv-cluster': true, 'csv-all': true, 'show-all': true };
   var CSV_POLL_MS = 3000, CSV_CAP_MS = 15 * 60 * 1000; // poll clusterData every 3 s, at most 15 minutes per cluster
   var WORST_ROWS = 15; // rows shown in the cluster's VM table until "Show all"
   var ORIGINS = { all: true, migrated: true, 'not-migrated': true, unknown: true };
@@ -100,12 +100,19 @@
     return ID.test(id || '') ? id : null;
   }
 
+  // A status that ends with an ellipsis is still working: it gets the spinning activity indicator.
+  function working(el, text) {
+    el.textContent = text;
+    var busy = /\u2026$/.test(String(text || ''));
+    if (el.classList) el.classList[busy ? 'add' : 'remove']('vtu-working');
+  }
+
   function note(slot, text) {
     var s = slot.querySelector('.vtu-act-status');
-    if (s) { s.textContent = text; return; }
+    if (s) { working(s, text); return; }
     var d = document.createElement('div');
     d.className = 'vtu-loading';
-    d.textContent = text;
+    working(d, text);
     slot.innerHTML = '';
     slot.appendChild(d);
   }
@@ -236,7 +243,7 @@
 
   function showCsv(slot) {
     var s = slot.querySelector('.vtu-csv-status');
-    if (s) s.textContent = slot.getAttribute('data-vtu-csv-text') || '';
+    if (s) working(s, slot.getAttribute('data-vtu-csv-text') || '');
   }
 
   function wait(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
@@ -321,6 +328,33 @@
     if (action === 'vm-probe' && kind === 'vm') {
       note(slot, 'Checking the guest agent (up to 20 seconds)…');
       post('/vmProbe', { serverId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
+      return;
+    }
+    var ask = btn && btn.getAttribute('data-vtu-confirm');
+    if (ask && !window.confirm(ask)) { btn.disabled = false; return; }
+    if (action === 'vm-guest' && kind === 'vm') {
+      note(slot, 'Starting the guest checks…');
+      post('/guestScan', { serverId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
+      return;
+    }
+    if (action === 'vm-setos' && kind === 'vm') {
+      note(slot, 'Filling in the OS fields…');
+      post('/setOs', { serverId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
+      return;
+    }
+    if (action === 'cluster-guest' && kind === 'cluster') {
+      note(slot, 'Starting the guest checks…');
+      post('/guestScanCluster', { clusterId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
+      return;
+    }
+    if (action === 'cluster-setos' && kind === 'cluster') {
+      note(slot, 'Filling in the OS fields…');
+      post('/setOsCluster', { clusterId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
+      return;
+    }
+    if (action === 'host-cpu' && kind === 'cluster') {
+      note(slot, 'Starting the host CPU check…');
+      post('/hostCpu', { clusterId: id }).then(function (r) { inject(slot, r); }).catch(fail(slot));
       return;
     }
     if (action === 'cluster-rescan' && kind === 'cluster') {

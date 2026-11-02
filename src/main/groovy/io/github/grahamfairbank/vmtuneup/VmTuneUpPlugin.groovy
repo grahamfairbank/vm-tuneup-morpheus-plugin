@@ -28,6 +28,8 @@ class VmTuneUpPlugin extends Plugin {
 	 * read-only commands of later milestones, which run as root/SYSTEM in the guest.
 	 */
 	static final String GUEST_SCAN_PERMISSION = 'vm-tuneup-guest-scan'
+	/** The one write (0.7): fill in a VM's empty guest OS fields from a guest scan, after the user confirms. */
+	static final String UPDATE_PERMISSION = 'vm-tuneup-update-records'
 
 	private GuestAgentProbe guestProbe
 	private Workers workers
@@ -62,7 +64,8 @@ class VmTuneUpPlugin extends Plugin {
 		this.setSourceCodeLocationUrl('https://github.com/grahamfairbank/vm-tuneup-morpheus-plugin')
 		this.setPermissions([
 			new Permission('VM Tune-Up: View results', VIEW_PERMISSION, [Permission.AccessType.none, Permission.AccessType.read]),
-			new Permission('VM Tune-Up: Run guest scans', GUEST_SCAN_PERMISSION, [Permission.AccessType.none, Permission.AccessType.full])
+			new Permission('VM Tune-Up: Run guest and host checks', GUEST_SCAN_PERMISSION, [Permission.AccessType.none, Permission.AccessType.full]),
+			new Permission('VM Tune-Up: Update VM records', UPDATE_PERMISSION, [Permission.AccessType.none, Permission.AccessType.full])
 		])
 		this.registerProvider(new VmTuneUpReportProvider(this, morpheus))
 		this.registerProvider(new VmTuneUpInstanceTabProvider(this, morpheus))
@@ -100,5 +103,9 @@ class VmTuneUpPlugin extends Plugin {
 
 	static boolean canGuestScan(User user) {
 		return level(user, GUEST_SCAN_PERMISSION) == 'full'
+	}
+
+	static boolean canUpdate(User user) {
+		return level(user, UPDATE_PERMISSION) == 'full'
 	}
 }

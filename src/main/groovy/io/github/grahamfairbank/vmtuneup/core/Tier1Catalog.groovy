@@ -161,7 +161,7 @@ final class Tier1Catalog {
 			'When Morpheus doesn\'t report the status (unknown; Morpheus 9.1.0.1 never fills it in for plugins), the plugin ' +
 			'probes the agent: it runs a harmless no-op command through the QEMU guest agent (Linux "true", Windows ' +
 			'"cmd /c exit 0") with a 20-second timeout. An answer passes; no answer fails. The probe runs only for users with ' +
-			'the "VM Tune-Up: Run guest scans" permission; otherwise the check is unknown.',
+			'the "VM Tune-Up: Run guest and host checks" permission; otherwise the check is unknown.',
 		ifYouLeaveIt: 'Snapshots are crash-consistent only (no file system freeze, no VSS on Windows), Windows guest customization ' +
 			'(Sysprep) is skipped, Morpheus may not learn the VM\'s IP address, and it has no path to the guest when the network is down.',
 		ifYouFixIt: [summary: 'Install and start the QEMU guest agent inside the guest. (To check it, the plugin only runs a ' +
@@ -265,24 +265,59 @@ final class Tier1Catalog {
 			'managed first (T1-DISCOVERED).',
 		references: [H11_MANAGING_INSTANCES, H10_OPENAPI])
 
-	static final Check SOURCE_TWIN = new Check(
-		id: 'T1-SOURCE-TWIN', title: 'VMware source VM still running', tier: Tier.ONE, severity: Severity.CRITICAL, appliesTo: AppliesTo.ANY,
-		evidence: 'VMs in a VMware cloud registered in Morpheus with the same name or MAC address (IP address as a weak signal), and ' +
-			'their power state.',
-		ifYouLeaveIt: 'If both the VMware source and the HVM copy are powered on, the network has two machines with one identity: ' +
-			'address conflicts, writes split between two copies of an application or database, and duplicate domain members.',
-		ifYouFixIt: [summary: 'Power off the VMware source VM, and delete it once the HVM copy is confirmed.',
-			downtime: Downtime.HOST_CHANGE, risk: Risk.LOW, reversible: true,
-			prerequisites: ['Confirm which copy is in service before you power anything off.']],
+	static final Check HA_MOBILITY = new Check(
+		id: 'T1-HA-MOBILITY', title: 'VM can\'t fail over or live-migrate', tier: Tier.ONE, severity: Severity.WARNING, appliesTo: AppliesTo.ANY,
+		evidence: 'The datastore type of every disk (a directory datastore is local to one host; NFS and HPE clustered datastores are ' +
+			'shared), the VM\'s placement strategy, and host devices passed through to the VM.',
+		ifYouLeaveIt: 'The VM is tied to one host: when that host goes down or into maintenance, the VM stays down instead of failing ' +
+			'over or moving live. Disks on local storage are the usual cause after a migration that landed on a host\'s local disk.',
+		ifYouFixIt: [summary: 'Move local disks to shared storage, and use automatic placement unless the VM must stay on one host.',
+			downtime: Downtime.NONE, risk: Risk.MEDIUM, reversible: true,
+			prerequisites: ['Delete the VM\'s snapshots first: they block a storage move (see T1-SNAPSHOTS).',
+				'Check that the shared datastore has room for the disks.']],
 		category: Category.RECOMMENDATION,
-		howInVme: 'Infrastructure > Compute > Virtual Machines > the VMware VM > Actions > Stop (or stop it in vCenter).',
-		references: [H8_MIGRATIONS])
+		howInVme: 'Instance > Actions > Move, with a datastore mapping to shared storage (it runs live when the VM is on). Placement: ' +
+			'Infrastructure > Compute > the VM > Actions > Manage Placement (needs the Manage Placement permission).',
+		references: [H4_VM_MIGRATION, H6_VM_PLACEMENT, H11_MANAGING_INSTANCES],
+		unverified: ['That Move maps a disk from a local to a shared datastore live on every HVM layout.',
+			'Whether a VM with passthrough devices can be made mobile at all; it is reported, not graded.'])
+
+	static final Check NESTED_VIRT = new Check(
+		id: 'T1-NESTED-VIRT', title: 'Nested virtualization turned on', tier: Tier.ONE, severity: Severity.WARNING, appliesTo: AppliesTo.ANY,
+		evidence: 'The VM\'s Nested Virtualization setting (config.nestedVirtualization).',
+		ifYouLeaveIt: 'HVM marks a VM with nested virtualization as not migratable: it can\'t move live to another host, so host ' +
+			'maintenance means downtime for it. Migrations sometimes turn it on by accident.',
+		ifYouFixIt: [summary: 'Turn nested virtualization off, unless the guest runs Docker with hardware virtualization, nested KVM or Hyper-V.',
+			downtime: Downtime.COLD_RECONFIGURE, risk: Risk.LOW, reversible: true,
+			prerequisites: ['Check with the VM\'s owner that nothing in the guest needs hardware virtualization (Hyper-V, WSL 2, ' +
+				'nested KVM, Docker Desktop, Credential Guard).']],
+		category: Category.RECOMMENDATION,
+		howInVme: 'Instance > Actions > Reconfigure > Advanced Options > clear Enable Nested Virtualization.',
+		references: [H1_ADVANCED_OPTIONS, H4_VM_MIGRATION])
+
+	static final Check CPU_TOPOLOGY = new Check(
+		id: 'T1-CPU-TOPOLOGY', title: 'vCPUs spread over too many sockets', tier: Tier.ONE, severity: Severity.INFO, infoPenalty: 2, appliesTo: AppliesTo.WINDOWS,
+		evidence: 'vCPUs (maxCores) and cores per socket: sockets = vCPUs / cores per socket. HVM creates VMs with 1 core per socket, so ' +
+			'a 4-vCPU VM shows the guest 4 sockets of 1 core.',
+		ifYouLeaveIt: 'Windows client editions use at most 2 sockets (Pro; Home 1): a Windows 10 or 11 VM with 4 single-core sockets runs ' +
+			'on 2 vCPUs and wastes the rest. Windows Server and per-socket licensed software (SQL Server Standard: 4 sockets) can hit ' +
+			'socket limits too. HPE recommends cores per socket equal to the vCPU count for Windows.',
+		ifYouFixIt: [summary: 'Give the VM one socket with all its cores (cores per socket = vCPU count).',
+			downtime: Downtime.COLD_RECONFIGURE, risk: Risk.LOW, reversible: true,
+			prerequisites: ['Check licenses that count sockets or cores (SQL Server, some backup and monitoring agents).']],
+		category: Category.RECOMMENDATION,
+		howInVme: 'Every stock HVM plan uses 1 core per socket without custom cores, so first create a plan with the same vCPUs ' +
+			'and cores per socket = vCPUs: Administration > Plans & Pricing > Add (HVM). Then Instance > Actions > Reconfigure and pick ' +
+			'that plan.',
+		references: [H2_GUEST_OS_NOTES, H12_PLANS, H11_MANAGING_INSTANCES, C1_WIN_SOCKETS],
+		unverified: ['Whether changing cores per socket in Reconfigure needs a cold restart or a guest restart on HVM.',
+			'How HVM builds sockets x cores when vCPU hotplug (maximum 32) is declared.'])
 
 	/** All Tier 1 checks, in fix-plan order (what to do first comes first). */
 	static final List<Check> ALL = Collections.unmodifiableList([
-		SOURCE_TWIN, DISCOVERED, SNAPSHOTS, ISO_ATTACHED, GA_STATUS, GA_CHANNEL, MORPHEUS_AGENT, OS_TYPE_MISMATCH,
-		DISK_BUS, NIC_MODEL, CHIPSET, FIRMWARE, VMWARE_MAC, DISK_ALLOCATION])
+		DISCOVERED, SNAPSHOTS, ISO_ATTACHED, HA_MOBILITY, GA_STATUS, GA_CHANNEL, MORPHEUS_AGENT, OS_TYPE_MISMATCH,
+		NESTED_VIRT, CPU_TOPOLOGY, DISK_BUS, NIC_MODEL, CHIPSET, FIRMWARE, VMWARE_MAC, DISK_ALLOCATION])
 
 	/** Checks defined but not run yet, pending verification. */
-	static final Set<String> NOT_EVALUATED = Collections.unmodifiableSet(['T1-SOURCE-TWIN'] as Set<String>)
+	static final Set<String> NOT_EVALUATED = Collections.<String>emptySet()
 }

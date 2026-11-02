@@ -11,15 +11,25 @@ final class VmReport {
 	final VmFacts facts
 	final List<CheckResult> results
 	final Scoring.Score score
+	/** The guest scan behind the Tier 2 results; null when the guest wasn't scanned. */
+	final GuestFacts guest
 
-	VmReport(VmFacts facts, List<CheckResult> results) {
+	VmReport(VmFacts facts, List<CheckResult> results, GuestFacts guest = null) {
 		this.facts = facts
+		this.guest = guest
 		this.results = Collections.unmodifiableList(new ArrayList<CheckResult>(results ?: Collections.<CheckResult>emptyList()))
 		this.score = Scoring.score(this.results)
 	}
 
 	static VmReport scan(VmFacts facts, ScanContext ctx) {
 		return new VmReport(facts, Tier1Rules.evaluate(facts, ctx))
+	}
+
+	/** Tier 1, plus the Tier 2 checks when a guest scan parsed cleanly (0.7). */
+	static VmReport scan(VmFacts facts, ScanContext ctx, GuestFacts guest) {
+		List<CheckResult> r = new ArrayList<CheckResult>(Tier1Rules.evaluate(facts, ctx))
+		if (guest != null && guest.ok) r.addAll(Tier2Rules.evaluate(guest, Tier2Input.fromVm(facts)))
+		return new VmReport(facts, r, guest != null && guest.ok ? guest : null)
 	}
 
 	/** Failed results, worst first (critical, warning, info), then in catalog (fix-plan) order. */
@@ -65,8 +75,9 @@ final class VmReport {
 		return facts.managed ? ORIGIN_NOT_MIGRATED : ORIGIN_UNKNOWN
 	}
 
-	private static int order(CheckResult r) {
-		int i = Tier1Catalog.ALL.indexOf(r.check)
+	/** Position in the catalog, which is also the fix order. */
+	static int order(CheckResult r) {
+		int i = CheckCatalog.ORDER.indexOf(r.check)
 		return i < 0 ? Integer.MAX_VALUE : i
 	}
 }
