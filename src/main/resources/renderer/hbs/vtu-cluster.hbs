@@ -38,6 +38,7 @@
 .vm-tuneup .vtu-plan-box { border: 1px solid rgba(1,169,130,.45); border-radius: 4px; padding: 8px 12px; margin: 6px 0 10px; }
 .vm-tuneup .vtu-plan-grades { margin: 3px 0; }
 .vm-tuneup .vtu-plan-counts { margin: 6px 0 4px 18px; padding: 0; }
+.vm-tuneup .vtu-scan-note { font-size: 12px; margin: 4px 0 8px; }
 .vm-tuneup .vtu-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
 </style>
 {{#if error}}<div class="vtu-note">{{error}}</div>{{/if}}
@@ -51,7 +52,7 @@
 </div>
 {{#if running}}{{#if hasProgressPct}}<div class="vtu-progress" aria-hidden="true"><i style="width:{{progressPct}}%"></i></div>{{else}}<div class="vtu-progress vtu-indeterminate" aria-hidden="true"><i></i></div>{{/if}}{{/if}}
 <div class="vtu-bar"><span class="vtu-csv-status" role="status" aria-live="polite"></span></div>
-<div class="vtu-bar vtu-muted"><span>{{scanEstimate}} The CSV downloads wait for a running scan to finish, so they can take a moment. Stay on this page and don't refresh it while the scan runs: the progress bar shows how far it has got.</span></div>
+<div class="vtu-muted vtu-scan-note">{{scanEstimate}} The CSV downloads wait for a running scan to finish, so they can take a moment. Stay on this page and don't refresh it while the scan runs: the progress bar shows how far it has got.</div>
 <div class="vtu-bar vtu-muted"><span>Fallback, only if the buttons don't work in your browser: direct download of the results already scanned, <a href="{{csvClusterUrl}}" target="_blank" rel="noopener noreferrer">this cluster</a> &middot; <a href="{{csvAllUrl}}" target="_blank" rel="noopener noreferrer">all clusters</a>. It never starts a scan; clusters not scanned yet are listed as such.</span></div>
 {{#if noHvm}}<div class="vtu-note">This cluster has no HVM hosts, so there is nothing to check.</div>{{/if}}
 {{#with summary}}
@@ -86,15 +87,15 @@
 	<div class="vtu-bar">
 		{{#if guestBatchRunning}}<span class="vtu-busy vtu-working" role="status" aria-live="polite">Running guest checks: {{guestBatchDone}} of {{guestBatchTotal}} VMs…</span>{{else}}
 		{{#if guestCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-guest">Run guest checks on all powered-on VMs</button>{{/if}}
-		<span class="vtu-muted">{{guestScanned}} VMs have guest results.</span>{{/if}}
+		<span class="vtu-muted">{{guestScannedText}}</span>{{/if}}
 		{{#if guestBatchError}}<span class="vtu-muted">{{guestBatchError}}</span>{{/if}}
 	</div>
 	<p class="vtu-muted">Runs one fixed, read-only script inside each VM, one VM at a time: VirtIO readiness ("ready to switch"), VMware Tools leftovers, guest agent features, time sync, driver version and the guest OS. Results are kept one hour and added to the grades and plans. The checks only read; nothing in the VM changes. {{#unless guestCanRun}}Needs "VM Tune-Up: Run guest and host checks" at full.{{/unless}}</p>
 	{{#if hasOsFill}}
-	<details open><summary>Missing OS fields ({{osFillCount}} VMs)</summary>
+	<details open><summary>Missing OS fields ({{osFillCount}} {{osFillNoun}})</summary>
 		<p class="vtu-muted">The guest checks read each VM's OS from inside the guest, through its agent. Fill in copies that OS into the empty OS fields of the VM's Morpheus record (OS type, family, platform, version), so Morpheus shows the right OS. Fields Morpheus already has stay as they are.</p>
 		<table class="vtu-table">{{#each osFill}}<tr><td>{{name}}</td><td>{{os}}</td><td class="vtu-muted">fills: {{fields}}</td></tr>{{/each}}</table>
-		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-setos" data-vtu-confirm="Copy the OS each guest reported into the empty OS fields of these {{osFillCount}} VMs' Morpheus records? Fields Morpheus already has are not changed.">Fill in all {{osFillCount}} in Morpheus</button>
+		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-setos" data-vtu-confirm="Copy the OS each guest reported into the empty OS fields of these {{osFillCount}} {{osFillNoun}}' Morpheus records? Fields Morpheus already has are not changed.">Fill in {{osFillCount}} {{osFillNoun}} in Morpheus</button>
 		{{else}}<span class="vtu-muted">A user with "VM Tune-Up: Update VM records" can fill these in from here.</span>{{/if}}
 	</details>
 	{{/if}}
@@ -135,7 +136,7 @@
 <div class="vtu-bar">
 	<label><input type="checkbox" class="vtu-origin-filter"> Migrated VMs only</label>
 	<span class="vtu-filter-count vtu-muted"></span>
-	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="show-all" hidden>Show all</button>
+	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="show-all" hidden style="display:none">Show all</button>
 </div>
 <table class="vtu-table vtu-vm-table">
 	<tr><th>VM</th><th>Origin</th><th>Grade</th><th class="vtu-num">Score</th><th>After</th><th>Plan</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th>Top findings</th></tr>

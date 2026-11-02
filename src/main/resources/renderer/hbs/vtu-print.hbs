@@ -71,7 +71,7 @@ th { font-size: 11px; text-transform: uppercase; color: #57606a; font-weight: 60
 <h2>VMs ordered by tune-up benefit</h2>
 <table>
 	<tr><th>VM</th><th>Origin</th><th>Now</th><th>After</th><th>Plan</th><th class="num">Crit.</th><th class="num">Warn.</th><th class="num">Info</th><th>Top findings</th></tr>
-	{{#each vmRows}}<tr><td><b>{{name}}</b><br><span class="muted small">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span></td><td>{{originLabel}}</td><td><span class="grade {{gradeClass}}">{{grade}}</span> {{score}}</td><td><span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}}</td><td>{{planLabel}}</td><td class="num">{{critical}}</td><td class="num">{{warning}}</td><td class="num">{{info}}</td><td class="small">{{topFindings}}</td></tr>{{/each}}
+	{{#each vmRows}}<tr><td><b>{{name}}</b><br><span class="muted small">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span></td><td>{{originLabel}}</td><td><span class="grade {{gradeClass}}">{{grade}}</span> {{score}}</td><td><span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}}</td><td style="white-space:nowrap">{{planLabel}}</td><td class="num">{{critical}}</td><td class="num">{{warning}}</td><td class="num">{{info}}</td><td class="small">{{topFindings}}</td></tr>{{/each}}
 </table>
 
 {{#if hasVmPlans}}

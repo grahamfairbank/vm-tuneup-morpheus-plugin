@@ -193,7 +193,8 @@
     var count = slot.querySelector('.vtu-filter-count');
     if (count) count.textContent = matched > shown ? 'Showing the top ' + shown + ' of ' + matched + ' VMs.' : (matched === 1 ? '1 VM.' : matched + ' VMs.');
     var more = slot.querySelector('[data-vtu-action="show-all"]');
-    if (more) more.hidden = matched <= shown;
+    // Morpheus's .btn display rule beats the hidden attribute, so set display too.
+    if (more) { more.hidden = matched <= shown; more.style.display = matched <= shown ? 'none' : ''; }
   }
 
   // ---- CSV built in the browser ---------------------------------------------------------------------------

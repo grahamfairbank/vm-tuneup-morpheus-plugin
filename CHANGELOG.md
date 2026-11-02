@@ -23,8 +23,10 @@ Upgrading from 0.5.0: give the new **VM Tune-Up: Update VM records** permission 
 - **VMs ordered by tune-up benefit** (the score the plan gains, biggest first) replace "Worst VMs" on the cluster tab and "All VMs, worst first" in the printable report. The CSV keeps lowest score first.
 - **Origin labels: Migrated, Not migrated, Origin unknown** (were Migrated from VMware, No VMware signal, Unknown origin). The filter is a **Migrated VMs only** checkbox. VMware Tools found inside a Windows guest by the guest checks now also marks a VM Migrated (not on Linux: many Linux images ship open-vm-tools). Hover over a VM's origin to see why.
 - **Scan time and "don't refresh":** under the CSV buttons, a line gives the expected scan time (about 2 to 4 seconds per VM, measured on a 9.0.1 cluster) and asks you to stay on the page while the scan runs.
-- **Fill in explained:** the cluster and VM tabs say that Fill in copies the OS the guest checks read from inside the VM, through its agent, into the empty OS fields of the Morpheus record. The cluster button is **Fill in all N in Morpheus**.
+- **Fill in explained:** the cluster and VM tabs say that Fill in copies the OS the guest checks read from inside the VM, through its agent, into the empty OS fields of the Morpheus record. The cluster button is **Fill in N VMs in Morpheus**.
 - **VM tab layout:** the action buttons are the same width, on the left, with their status to the right and the detail underneath; **Fill in OS fields** follows the same layout.
+- **Fixes:** **Show all** no longer appears when every VM is already listed (Morpheus's button style overrode the hidden attribute); "1 VM" instead of "1 VMs" in the guest checks and fill-in texts; the scan-time line wraps instead of running off the tab; the plan column in the printable report no longer wraps.
+- **Screenshots retaken** on 0.7.1 for every doc image, plus a short tour GIF at the top of the README.
 
 ## 0.7.0 (2026-11-02)
 

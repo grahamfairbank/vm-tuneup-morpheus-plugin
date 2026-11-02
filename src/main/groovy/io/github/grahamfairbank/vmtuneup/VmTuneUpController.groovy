@@ -460,7 +460,8 @@ class VmTuneUpController implements PluginController {
 		List<Map> fill = reports.collect { VmReport r -> Map p = OsFill.proposal(r); p ? [name: r.facts.name, os: p.name, fields: (p.fields as List).join(', ')] : null }.findAll { it != null }
 		int scanned = reports.count { it.guest != null } as int
 		return [guestCanRun: permitted, guestBatchRunning: b?.running == true, guestBatchDone: (b?.done ?: 0), guestBatchTotal: (b?.total ?: 0),
-		        guestBatchError: b?.error, guestScanned: scanned, osFill: fill, hasOsFill: !fill.isEmpty(), osFillCount: fill.size(),
+		        guestBatchError: b?.error, guestScanned: scanned, guestScannedText: (scanned == 1 ? '1 VM has guest results.' : "${scanned} VMs have guest results.".toString()),
+		        osFill: fill, hasOsFill: !fill.isEmpty(), osFillCount: fill.size(), osFillNoun: fill.size() == 1 ? 'VM' : 'VMs',
 		        osFillCanUpdate: VmTuneUpPlugin.canUpdate(model?.user)]
 	}
 

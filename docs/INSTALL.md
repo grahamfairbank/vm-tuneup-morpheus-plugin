@@ -47,7 +47,7 @@ You need:
 2. Click **+ Add** (on some versions **Add Plugin**), choose the jar and click **Upload**.
 3. After a few seconds, **VM Tune-Up** appears in the plugin list, with the version you uploaded and a check mark under **Enabled**.
 
-   ![Administration, Integrations, Plugins: VM Tune-Up 0.5.0 in the list, enabled](images/install-plugins.png)
+   ![Administration, Integrations, Plugins: VM Tune-Up in the list, enabled](images/install-plugins.png)
 
 The plugin has no settings: there's nothing to fill in on its edit window.
 
@@ -141,7 +141,7 @@ Results are kept for 10 minutes. Click **Rescan** to scan again after you've fix
 
    ![The VM Tune-Up tab of app-legacy-01, with the disk bus finding open](images/tab-vm.png)
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![The tune-up plan of app-legacy-01: one outage of this VM for 2 fixes, D 67 to A 100](images/tab-vm-plan.png) -->
+![The tune-up plan of app-legacy-01: one outage of this VM for 2 fixes, D 67 to A 100](images/tab-vm-plan.png)
 
 4. **Unknown or not evaluated** lists the checks the plugin couldn't decide for this VM, and why. They cost no points.
 5. **Refresh** scans this VM again.
@@ -153,7 +153,7 @@ If Morpheus doesn't report the VM's QEMU guest agent status, the tab shows a **C
 - With **Run guest and host checks** at **Full**, click **Check guest agent**. Within 20 seconds it shows **Answered** (the agent works) or **No answer** with a short reason, and when it ran. You can run it once a minute per VM.
 - Without that permission, the explanation is greyed out with "You don't have permission".
 
-![The Check guest agent area on db-win-01, showing "Answered 2 min ago"](images/tab-vm-guest-agent.png)
+![The action rows on db-win-01, with Check guest agent showing "Answered just now"](images/tab-vm-guest-agent.png)
 
 What the result means:
 
@@ -178,7 +178,7 @@ To print the cluster's report, or save it as a PDF:
 
 The report uses only results already scanned. It never starts a scan or runs a command; if the cluster is still scanning, it says "Not ready yet".
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![The printable report of cluster-a: summary, grades now and after the plan, and the VMs ordered by tune-up benefit](images/print-report.png) -->
+![The printable report of cluster-a: summary, grades now and after the plan, and the VMs ordered by tune-up benefit](images/print-report.png)
 
 **On a license with Reports**, you can also run the fleet report from the master tenant: **Operations → Reports → VM Tune-Up → Run**. It lists **VMs by score (lowest first)**, with a **Migrated** column. Morpheus stores each run and can export its rows as CSV. On Morpheus VM Essentials, which has no Reports page, use the cluster tab, the CSV and the printable report.
 
@@ -189,6 +189,8 @@ The guest checks look inside the VM for what Morpheus data can't show: whether t
 - **One VM:** on the VM's **VM Tune-Up** tab, click **Run guest checks**. The tab shows "Running the guest checks inside the VM (this can take a few minutes)…" and refreshes by itself. When it's done, it shows "Guest checked just now: <OS>", and the new findings join the grade and the plan.
 - **The whole cluster:** on the cluster tab, under **Guest checks**, click **Run guest checks on all powered-on VMs**. It checks one VM at a time (up to 200 VMs, skipping VMs checked in the last hour, for at most 90 minutes) and shows "Running guest checks: 3 of 12 VMs…".
 
+![The activity indicator on db-win-01 while the guest checks run](images/tab-vm-guest-running.png)
+
 What happens:
 
 - Morpheus runs **one fixed, read-only script** inside the VM: PowerShell through the **QEMU guest agent** on Windows, `sh` through the **Morpheus agent** on Linux. You don't enter any password: Morpheus uses the channel it already has. The [README](../README.md#guest-checks-tier-2) lists everything each script reads.
@@ -198,22 +200,22 @@ What happens:
 
 Powered-off VMs, VMs that aren't HVM VMs and discovered (unmanaged) VMs can't be checked.
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![db-win-01 after Run guest checks: the guest OS and the VMware Tools finding](images/tab-vm-guest-checks.png) -->
+![db-win-01 after Run guest checks: the guest OS and the VMware Tools finding](images/tab-vm-guest-checks.png)
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![The Guest checks section on cluster-a, with Missing OS fields and Fill in all 1 in Morpheus](images/tab-cluster-guest.png) -->
+![The Guest checks section on cluster-a, with Missing OS fields and Fill in 1 VM in Morpheus](images/tab-cluster-guest.png)
 
 ## 9. Fill in OS fields (optional)
 
 After a migration, Morpheus often has no OS type for a VM. The guest checks read each VM's OS from inside the guest, through its agent. **Fill in** copies that OS into the empty OS fields of the VM's Morpheus record (OS type, family, platform, version), so Morpheus shows the right OS. Nothing in the VM changes. It needs **Update VM records** at **Full**, and it's the plugin's only write.
 
 - **One VM:** the VM tab shows "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." The detail underneath says that Fill in copies what the guest checks read from inside the VM into the empty OS fields of this VM's Morpheus record. Click **Fill in OS fields**, read the question ("Copy the OS the guest reported (<OS>) into the empty OS fields of this VM's Morpheus record? …") and click **OK**.
-- **The whole cluster:** under **Guest checks** on the cluster tab, **Missing OS fields** explains what Fill in does, then lists each VM, the OS the guest reported, and the fields it would fill. Click **Fill in all N in Morpheus** and confirm ("Copy the OS each guest reported into the empty OS fields of these N VMs' Morpheus records? …").
+- **The whole cluster:** under **Guest checks** on the cluster tab, **Missing OS fields** explains what Fill in does, then lists each VM, the OS the guest reported, and the fields it would fill. Click **Fill in N VMs in Morpheus** and confirm ("Copy the OS each guest reported into the empty OS fields of these N VMs' Morpheus records? …").
 
 Only **empty** fields are filled (OS type, OS family, platform and version). A field Morpheus already has is never changed. If the guest's OS has no confident match in Morpheus's OS type list, nothing is written and the tab says to set it by hand. Each write is logged with your user id, the server id and the OS code. To undo it, edit the VM in Morpheus and set the fields back.
 
 Without the permission, people see the same note greyed out: "A user with "VM Tune-Up: Update VM records" can fill these in from here."
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![Fill in OS fields on db-win-01](images/tab-vm-osfill.png) -->
+![Fill in OS fields on db-win-01](images/tab-vm-osfill.png)
 
 ## 10. Check the host CPUs (optional)
 
@@ -225,7 +227,7 @@ The host CPU check makes sure every HVM host in the cluster can run the cluster'
 
 If the result recommends a change, make it in **Infrastructure → Clusters → (cluster) → Edit**. The new model reaches each VM at its next full stop and start, and then test a live migration both ways (both not yet verified on HVM; see the finding's notes). The result is kept for 1 hour; **Check again** runs it again.
 
-<!-- Screenshot to add (see images/SCREENSHOT-SPEC.md): ![The Live migration readiness section on cluster-a after Check the hosts](images/tab-cluster-host-cpu.png) -->
+![The Live migration readiness section on cluster-a after Check the hosts](images/tab-cluster-host-cpu.png)
 
 ## Upgrading
 

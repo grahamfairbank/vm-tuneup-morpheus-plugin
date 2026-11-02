@@ -12,9 +12,9 @@
 
 > **No credentials, ever.** You never enter a password, key or token anywhere: not for Morpheus, not for guests, not for hosts. VM Tune-Up works only through channels Morpheus already has. See [No credentials](#no-credentials-what-each-vm-and-host-needs-instead).
 
-![The VM Tune-Up tab on cluster-a: grade counts, findings by severity, a summary per origin group and the VMs ordered by tune-up benefit](docs/images/tab-cluster.png)
+![A tour of VM Tune-Up on cluster-a: the cluster tab, VMs ordered by tune-up benefit, live migration readiness, a VM's tune-up plan, guest checks and the printable report](docs/images/tour.gif)
 
-<sub>The cluster tab is the fleet view: every HVM VM in the cluster, graded, grouped by origin and ordered by tune-up benefit. Names and addresses in every screenshot are example values (`cluster-a`, `hvm-host-01`, `app-legacy-01`), the same ones the [install guide](docs/INSTALL.md) uses.</sub>
+<sub>A short tour: the cluster tab (every HVM VM in the cluster, graded, grouped by origin and ordered by tune-up benefit), live migration readiness, one VM's tune-up plan, the guest checks and the printable report. Names and addresses in every screenshot are example values (`cluster-a`, `hvm-host-01`, `app-legacy-01`), the same ones the [install guide](docs/INSTALL.md) uses.</sub>
 
 ## No credentials: what each VM and host needs instead
 
@@ -72,7 +72,7 @@ Open an HVM cluster and choose the **VM Tune-Up** tab (Morpheus may put it under
 
 ![The By origin table on cluster-a, with Migrated VMs only checked](docs/images/tab-cluster-origin.png)
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan summary on cluster-a: grade counts now and after the plan, and how many VMs need one outage each, a guest restart or no downtime](docs/images/tab-cluster-plan.png) -->
+![The tune-up plan summary on cluster-a: grade counts now and after the plan, and how many VMs need one outage each, a guest restart or no downtime](docs/images/tab-cluster-plan.png)
 
 ### The VM tab: what to fix, and how
 
@@ -95,9 +95,9 @@ Below the plan, each finding shows:
 - **How in Morpheus:** where to do it (for example *Actions → Reconfigure → Advanced Options*);
 - whether it's a **Recommendation** or a **Consideration**, anything **not yet verified**, and references.
 
-![The VM Tune-Up tab of app-legacy-01: grade F, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
+![The VM Tune-Up tab of app-legacy-01: grade D, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan on app-legacy-01: one outage of this VM for 2 fixes, D 67 to A 100, the steps before the outage and during it](docs/images/tab-vm-plan.png) -->
+![The tune-up plan on app-legacy-01: one outage of this VM for 2 fixes, D 67 to A 100, the steps before the outage and during it](docs/images/tab-vm-plan.png)
 
 Checks the plugin couldn't decide for this VM (for example on Morpheus 9.0.x, which doesn't report the chipset) are listed separately as **Unknown or not evaluated**. They cost no points and never count as a pass.
 
@@ -110,7 +110,7 @@ At the top of the tab is a row per action: the button on the left (all the same 
 
 Users without the right permissions see what each action does, greyed out, with the permission it needs.
 
-![The Check guest agent area on db-win-01: the button, its one-line explanation and "Answered 2 min ago"](docs/images/tab-vm-guest-agent.png)
+![The action rows on db-win-01: Refresh, Check guest agent ("Answered just now") and Run guest checks, each button on the left with its status and detail](docs/images/tab-vm-guest-agent.png)
 
 ### CSV export
 
@@ -120,7 +120,7 @@ Users without the right permissions see what each action does, greyed out, with 
 
 **Print report** on the cluster tab opens the cluster's report as a clean page: a summary (VMs scanned, average score now and after the plan, how many VMs need one outage each, a guest restart or no downtime), the VMs ordered by tune-up benefit with their grade now and after, the tune-up plan of each VM that has one, and the live migration readiness (host CPU) result if one was run. Use your browser's **Print** and choose **Save as PDF** to keep it or send it. The report uses only results already scanned: it never starts a scan or runs a command, and it says "Not ready yet" while the cluster is still scanning.
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The printable report of cluster-a: summary, VMs ordered by tune-up benefit and the tune-up plan per VM](docs/images/print-report.png) -->
+![The printable report of cluster-a: summary, VMs ordered by tune-up benefit and the tune-up plan per VM](docs/images/print-report.png)
 
 ## The checks
 
@@ -236,7 +236,7 @@ Some things can only be seen from inside the guest: whether the VirtIO drivers a
 - **Limits:** 2 minutes per VM (1 minute inside a cluster run), one run per VM at a time, at most once a minute per VM. A cluster run checks at most 200 VMs, skips VMs with a result less than an hour old, and stops starting new VMs after 90 minutes; it runs on its own worker, so single-VM runs never wait for it. Guest details (kernel, fstab devices, time source) are shown only to users who may run guest checks; view-only users see the grades without them. A scan runs in the background; the tab shows "Running the guest checks inside the VM (this can take a few minutes)…" and refreshes itself.
 - **Results** are kept in memory for **1 hour**. While they're there, the Tier 2 checks are part of the VM's grade and plan, for everyone who can view the VM, and feed [Fill in OS fields](#fill-in-os-fields-the-one-write).
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The guest checks on db-win-01: Run guest checks again, "Guest checked just now: Microsoft Windows Server 2022 Standard", and the VMware Tools finding](docs/images/tab-vm-guest-checks.png) -->
+![The guest checks on db-win-01: Run guest checks again, "Guest checked just now: Microsoft Windows Server 2022 Standard", and the VMware Tools finding](docs/images/tab-vm-guest-checks.png)
 
 ### What the Windows script reads
 
@@ -274,14 +274,14 @@ The full scripts, with comments, are in [`core/GuestScripts.groovy`](src/main/gr
 A migrated VM often has empty guest OS fields in Morpheus (OS type, OS family, platform, version). That hides it from OS-based reports and policies and makes some checks unknown. The guest checks read each VM's OS from inside the guest, through its agent. **Fill in** copies that OS into the empty OS fields of the VM's Morpheus record, so Morpheus shows the right OS. Nothing in the VM itself changes.
 
 - **Who:** only users whose role has **VM Tune-Up: Update VM records** at **Full** (a separate permission; giving someone guest scans doesn't give them this).
-- **Where:** on the VM tab, **Fill in OS fields**, next to "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." On the cluster tab, under **Guest checks**, the **Missing OS fields** list: the VMs that would be filled in and what each would get, and **Fill in all N in Morpheus**.
+- **Where:** on the VM tab, **Fill in OS fields**, next to "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." On the cluster tab, under **Guest checks**, the **Missing OS fields** list: the VMs that would be filled in and what each would get, and **Fill in N VMs in Morpheus**.
 - **Confirm first:** the browser asks before anything is written: "Copy the OS the guest reported (<OS>) into the empty OS fields of this VM's Morpheus record? …" on the VM tab, and "Copy the OS each guest reported into the empty OS fields of these N VMs' Morpheus records? …" on the cluster tab.
 - **Only empty fields.** A field Morpheus already has is never changed. The OS must have a confident match in Morpheus's own OS type catalog; if not, nothing is written and the tab says to set it by hand.
 - **One save per VM**, through Morpheus's plugin API, on a fresh copy of the VM record.
 - **Logged:** each write is logged on the appliance with the Morpheus user id, the server id and the OS code.
 - **Undo:** edit the VM in Morpheus and set the fields back. Nothing else is touched.
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![Fill in OS fields on db-win-01: "Morpheus has no OS type, OS family, platform for this VM. The guest reports Windows Server 2022 Standard."](docs/images/tab-vm-osfill.png) -->
+![Fill in OS fields on db-win-01: "Morpheus has no OS type, OS family, platform for this VM. The guest reports windows server 2022 standard desktop."](docs/images/tab-vm-osfill.png)
 
 ## The host CPU check
 
@@ -298,7 +298,7 @@ Live migration between HVM hosts needs every host to offer the CPU the VM was st
 - **Limits:** 90 seconds per command per host; one run per cluster at a time; the result is kept for **1 hour**. Output is capped and parsed with a hardened XML parser. Each run is logged with the user id and cluster id.
 - **Not part of the VM grades.** It's a cluster-level result, on the cluster tab and in the printable report.
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The Live migration readiness section on cluster-a: Identical hosts: host passthrough is fine, and the named model to switch to before adding a different host](docs/images/tab-cluster-host-cpu.png) -->
+![The Live migration readiness section on cluster-a: Identical hosts: host passthrough is fine, and the named model to switch to before adding a different host](docs/images/tab-cluster-host-cpu.png)
 
 ## Where users see it
 
