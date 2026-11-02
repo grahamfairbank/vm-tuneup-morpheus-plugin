@@ -38,7 +38,7 @@ Only this project's own compiled classes, four page templates, one script and on
 This project refers to the following names only to describe what it works with (nominative use). No affiliation or endorsement is implied.
 
 - **HPE** and **Hewlett Packard Enterprise**, and the HPE logo
-- **HPE Morpheus**, **Morpheus**, **HPE Morpheus VM Essentials** and **HPE VM Essentials** (abbreviated "VME" in this project)
+- **HPE Morpheus**, **Morpheus**, **HPE Morpheus VM Essentials**, **HPE Morpheus Advanced**, **HPE Morpheus Enterprise** and **HPE Virtual Machine** (HVM)
 
 These are trademarks or registered trademarks of Hewlett Packard Enterprise Company, or of Morpheus Data, LLC (an HPE company), in the United States and other countries.
 

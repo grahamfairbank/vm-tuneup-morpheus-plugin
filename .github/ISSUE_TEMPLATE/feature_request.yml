@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Ideas and pull requests are welcome. The plugin is read-only by design, and a Recommendation must be doable in the VME UI or inside the guest OS. If your idea runs something inside a VM or changes Morpheus, please describe how it should be protected.
+        Ideas and pull requests are welcome. The plugin is read-only by design, and a Recommendation must be doable in the Morpheus UI or inside the guest OS. If your idea runs something inside a VM or changes Morpheus, please describe how it should be protected.
   - type: textarea
     id: problem
     attributes:

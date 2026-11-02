@@ -38,8 +38,8 @@ enum Downtime {
 }
 
 /**
- * Recommendation: something the operator can do in the VME UI or inside the guest OS.
- * Consideration: worth knowing, but not a VME action (needs host-side work, re-provisioning or HPE guidance).
+ * Recommendation: something the operator can do in the Morpheus UI or inside the guest OS.
+ * Consideration: worth knowing, but not a Morpheus action (needs host-side work, re-provisioning or HPE guidance).
  */
 @CompileStatic
 enum Category {

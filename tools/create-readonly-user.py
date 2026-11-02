@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Create a least-privilege, read-only role and user for Migration Hygiene in
-HPE Morpheus / VM Essentials, then print an API token for that user.
+HPE Morpheus, then print an API token for that user.
 
 Usage:  python3 create-readonly-user.py <morpheus-ip-or-hostname>
 

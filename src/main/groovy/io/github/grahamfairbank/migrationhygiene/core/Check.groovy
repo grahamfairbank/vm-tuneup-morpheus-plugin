@@ -35,11 +35,11 @@ final class Check {
 	final boolean waivable
 	/** Penalty for an info finding, 0 to 2 (default 0). Ignored for other severities. */
 	final int infoPenalty
-	/** Recommendation (a VME UI or guest OS action) or Consideration (not a VME action). */
+	/** Recommendation (a Morpheus UI or guest OS action) or Consideration (not a Morpheus action). */
 	final Category category
-	/** For a Recommendation: the exact place in the VME UI (or "inside the guest OS: ..."). */
+	/** For a Recommendation: the exact place in the Morpheus UI (or "inside the guest OS: ..."). */
 	final String howInVme
-	/** For a Consideration: why it isn't a VME action. */
+	/** For a Consideration: why it isn't a Morpheus action. */
 	final String whyConsideration
 	/** Public sources, HPE docs first. At least one. */
 	final List<Reference> references

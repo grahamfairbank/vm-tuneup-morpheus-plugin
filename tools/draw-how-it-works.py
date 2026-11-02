@@ -124,11 +124,11 @@ col1 = [
     ("Cluster page › Migration Hygiene", [
         "The fleet view: grades, findings by severity, origin groups, worst VMs, findings per check",
         "Rescan · Download CSV (this cluster / all clusters)",
-        ("Works on every license, including VM Essentials", "note"),
+        ("Works on every edition, including Morpheus VM Essentials", "note"),
     ], BLUE),
     ("VM / instance › Migration Hygiene", [
         "Grade and findings, worst first",
-        "Evidence · If you leave it · If you fix it · How in VME · references",
+        "Evidence · If you leave it · If you fix it · How in Morpheus · references",
         "Refresh · Check guest agent (optional)",
     ], BLUE),
     ("Plugin script (migration-hygiene.js)", [
@@ -280,7 +280,7 @@ summary = [
     ("Install, scan, plan, uninstall. The plugin has no settings and no schedules: scans run only when someone opens a tab "
      "or runs the report. It never changes a VM, host or cluster. Every finding says what happens if you leave it and what "
      "fixing it costs (downtime, risk, whether it can be undone, what to do first), and is either a Recommendation (doable "
-     "in the VME UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).", "plain"),
+     "in the Morpheus UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).", "plain"),
 ]
 ih = card(24, IY, W - 48, "One and done, read-only", summary, TEAL, size=14, draw=False)
 rect(24, IY, W - 48, ih, TEAL[0], TEAL[1], rx=12, sw=2)
@@ -290,7 +290,7 @@ del out[saved]
 
 FOOT = IY + ih + 30
 t(24, FOOT, "Unofficial community project: not an HPE or Morpheus Data product, and not endorsed or supported by HPE. "
-  "HPE, Morpheus and VM Essentials are trademarks of Hewlett Packard Enterprise. See NOTICE.md.",
+  "HPE and Morpheus are trademarks of Hewlett Packard Enterprise. See NOTICE.md.",
   12, "normal", MUTED)
 H = FOOT + 22
 

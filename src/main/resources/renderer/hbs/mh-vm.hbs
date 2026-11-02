@@ -82,7 +82,7 @@
 		<p><strong>If you fix it:</strong> {{fixSummary}}<br>
 			Downtime: {{downtime}} &middot; Risk: {{risk}} &middot; Reversible: {{reversible}}</p>
 		{{#if hasPrerequisites}}<div>Do first, in this order:<ol>{{#each prerequisites}}<li>{{this}}</li>{{/each}}</ol></div>{{/if}}
-		{{#if isRecommendation}}<p><strong>How in VME:</strong> {{howInVme}}</p>{{else}}<p><strong>Why it's a consideration:</strong> {{whyConsideration}}</p>{{/if}}
+		{{#if isRecommendation}}<p><strong>How in Morpheus:</strong> {{howInVme}}</p>{{else}}<p><strong>Why it's a consideration:</strong> {{whyConsideration}}</p>{{/if}}
 		{{#if hasUnverified}}<div class="mh-muted">Not yet verified:<ul>{{#each unverified}}<li>{{this}}</li>{{/each}}</ul></div>{{/if}}
 		<div class="mh-muted">References: {{#each references}}<a href="{{url}}" target="_blank" rel="noopener noreferrer">{{label}}</a>{{#unless @last}}; {{/unless}}{{/each}}</div>
 	</div>

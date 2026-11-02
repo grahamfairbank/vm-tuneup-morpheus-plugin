@@ -26,15 +26,15 @@
 <text x="52" y="281" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="281" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Rescan · Download CSV (this</text>
 <text x="66" y="298" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">cluster / all clusters)</text>
-<text x="52" y="318" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Works on every license, including VM</text>
-<text x="52" y="334" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Essentials</text>
+<text x="52" y="318" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Works on every edition, including</text>
+<text x="52" y="334" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus VM Essentials</text>
 <rect x="38" y="362" width="278" height="161" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
 <text x="52" y="391" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">VM / instance › Migration Hygiene</text>
 <text x="52" y="414" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="414" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Grade and findings, worst first</text>
 <text x="52" y="435" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="435" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Evidence · If you leave it · If</text>
-<text x="66" y="452" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">you fix it · How in VME ·</text>
+<text x="66" y="452" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">you fix it · How in Morpheus ·</text>
 <text x="66" y="469" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">references</text>
 <text x="52" y="490" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="490" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Refresh · Check guest agent</text>
@@ -217,6 +217,6 @@
 <text x="38" y="1179" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">One and done, read-only</text>
 <text x="38" y="1203" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">Install, scan, plan, uninstall. The plugin has no settings and no schedules: scans run only when someone opens a tab or runs the report. It never changes a VM, host or cluster.</text>
 <text x="38" y="1221" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">Every finding says what happens if you leave it and what fixing it costs (downtime, risk, whether it can be undone, what to do first), and is either a Recommendation (doable in</text>
-<text x="38" y="1239" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">the VME UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).</text>
-<text x="24" y="1285" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Unofficial community project: not an HPE or Morpheus Data product, and not endorsed or supported by HPE. HPE, Morpheus and VM Essentials are trademarks of Hewlett Packard Enterprise. See NOTICE.md.</text>
+<text x="38" y="1239" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">the Morpheus UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).</text>
+<text x="24" y="1285" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Unofficial community project: not an HPE or Morpheus Data product, and not endorsed or supported by HPE. HPE and Morpheus are trademarks of Hewlett Packard Enterprise. See NOTICE.md.</text>
 </svg>

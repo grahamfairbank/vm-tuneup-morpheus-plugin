@@ -7,14 +7,14 @@ import static io.github.grahamfairbank.migrationhygiene.core.Refs.*
 /**
  * The Tier 1 checks: what each one reads, why it matters, and what fixing it costs. Facts and field values come
  * from docs/verify-findings.md; wording rules from docs/best-practices.md (Recommendation only for what can be
- * done in the VME UI or inside the guest OS; never hand-edited host or libvirt files).
+ * done in the Morpheus UI or inside the guest OS; never hand-edited host or libvirt files).
  */
 @CompileStatic
 final class Tier1Catalog {
 
 	private Tier1Catalog() {}
 
-	static final String BACKUP_FIRST = 'Take a backup or a VME snapshot of the VM first, and delete that snapshot once the VM runs well (see T1-SNAPSHOTS).'
+	static final String BACKUP_FIRST = 'Take a backup or a Morpheus snapshot of the VM first, and delete that snapshot once the VM runs well (see T1-SNAPSHOTS).'
 
 	/** Ordering rule for Windows: the VirtIO storage driver must be installed and boot-start before any bus switch. */
 	static final String WINDOWS_BUS_RULE = 'Windows, before any disk bus switch: install the VirtIO storage driver (viostor for VirtIO Block, ' +
@@ -36,15 +36,15 @@ final class Tier1Catalog {
 	static final Check DISK_BUS = new Check(
 		id: 'T1-DISK-BUS', title: 'Disk on an emulated SATA or IDE bus', tier: Tier.ONE, severity: Severity.WARNING, appliesTo: AppliesTo.ANY,
 		evidence: 'Each disk\'s bus (volume diskMode) and controller type (kvm-virtio-blk, kvm-virtio-scsi, kvm-sata, kvm-ide). CD-ROM drives ' +
-			'are ignored: VME puts them on SATA by design. A boot disk on IDE is critical; any other disk on SATA or IDE is a warning.',
+			'are ignored: Morpheus puts them on SATA by design. A boot disk on IDE is critical; any other disk on SATA or IDE is a warning.',
 		ifYouLeaveIt: 'SATA and IDE are emulated in software, so disk I/O is slower and uses more host CPU than VirtIO, which is the HVM ' +
-			'standard. IDE also limits how many disks the VM can have. A boot disk on IDE usually means the VM was imported outside VME\'s ' +
+			'standard. IDE also limits how many disks the VM can have. A boot disk on IDE usually means the VM was imported outside Morpheus\'s ' +
 			'migration tools or runs on the Legacy chipset.',
 		ifYouFixIt: [summary: 'Move the disks to a VirtIO controller (VirtIO Block, or VirtIO SCSI for many or shared disks). Prepare the ' +
 			'guest first: switching the bus before the guest can load the VirtIO driver at boot makes the VM fail to boot.',
 			downtime: Downtime.COLD_RECONFIGURE, risk: Risk.MEDIUM, reversible: true,
 			prerequisites: [BACKUP_FIRST, WINDOWS_BUS_RULE, LINUX_BUS_RULE,
-				'A discovered VM must be converted to managed first (see T1-DISCOVERED), so VME can reconfigure it.', SWITCH_LAST]],
+				'A discovered VM must be converted to managed first (see T1-DISCOVERED), so Morpheus can reconfigure it.', SWITCH_LAST]],
 		category: Category.RECOMMENDATION,
 		howInVme: 'Instance > Actions > Reconfigure: change the disk\'s storage controller to VirtIO. If the VM also runs on the Legacy ' +
 			'chipset, set Actions > Reconfigure > Advanced Options > Hardware Compatibility to Modern instead (see T1-CHIPSET).',
@@ -67,7 +67,7 @@ final class Tier1Catalog {
 				'Linux: the interface name changes (for example ens34 to enp1s0). Make sure the network configuration (netplan, ' +
 					'NetworkManager, ifcfg) matches the new adapter or falls back to DHCP, or the VM loses its network. Current kernels ' +
 					'include the VirtIO network driver.',
-				'Keep the VME console at hand in case the network doesn\'t come up.']],
+				'Keep the Morpheus console at hand in case the network doesn\'t come up.']],
 		category: Category.RECOMMENDATION,
 		howInVme: 'Instance > Actions > Reconfigure > Networks: add an interface of type VirtIO, then remove the old interface once the ' +
 			'guest uses the new one.',
@@ -101,7 +101,7 @@ final class Tier1Catalog {
 			downtime: Downtime.NONE, risk: Risk.LOW, reversible: true,
 			prerequisites: ['Confirm the HVM copy is in service and backed up before you delete the VMware source VM; powering it off can be undone, deleting it can\'t.']],
 		category: Category.CONSIDERATION,
-		whyConsideration: 'There\'s nothing to fix on the HVM side. VME has no documented action to set a new MAC on an existing ' +
+		whyConsideration: 'There\'s nothing to fix on the HVM side. Morpheus has no documented action to set a new MAC on an existing ' +
 			'interface: that would mean re-creating the interface (see T1-NIC-MODEL) and updating everything tied to the old address.',
 		references: [H8_MIGRATIONS, IEEE_OUI])
 
@@ -117,9 +117,9 @@ final class Tier1Catalog {
 			downtime: Downtime.NONE, risk: Risk.LOW, reversible: true,
 			prerequisites: ['Confirm the guest OS name and version from inside the VM first.']],
 		category: Category.CONSIDERATION,
-		whyConsideration: 'The VME UI path to correct these fields on a migrated VM isn\'t verified yet (a candidate is Edit on the VM). ' +
+		whyConsideration: 'The Morpheus UI path to correct these fields on a migrated VM isn\'t verified yet (a candidate is Edit on the VM). ' +
 			'Until it is, raise it with HPE support rather than changing records by other means.',
-		unverified: ['Which Morpheus behavior the incomplete fields change.', 'The VME UI path to correct them.'],
+		unverified: ['Which Morpheus behavior the incomplete fields change.', 'The Morpheus UI path to correct them.'],
 		references: [H8_MIGRATIONS, H10_OPENAPI])
 
 	static final Check FIRMWARE = new Check(
@@ -150,7 +150,7 @@ final class Tier1Catalog {
 			downtime: Downtime.COLD_RECONFIGURE, risk: Risk.LOW, reversible: true, prerequisites: []],
 		category: Category.CONSIDERATION,
 		whyConsideration: 'HPE\'s Advanced Options documentation lists no control for the guest agent channel on an existing VM, so ' +
-			'there\'s no verified VME action yet. Ask HPE support how to re-enable it.',
+			'there\'s no verified Morpheus action yet. Ask HPE support how to re-enable it.',
 		unverified: ['Whether the setting can be changed with Reconfigure, and whether that needs a cold reconfigure.'],
 		references: [H2_GUEST_OS_NOTES, H3_SNAPSHOTS, H10_OPENAPI])
 
@@ -172,7 +172,7 @@ final class Tier1Catalog {
 				'Linux: install the qemu-guest-agent package (apt or dnf), then run systemctl enable --now qemu-guest-agent.',
 				'If the agent runs but Morpheus still shows it as not connected, check the guest agent channel (T1-GA-CHANNEL).']],
 		category: Category.RECOMMENDATION,
-		howInVme: 'Inside the guest OS; no VME setting is needed. Morpheus updates the status on its next poll; the plugin keeps ' +
+		howInVme: 'Inside the guest OS; no Morpheus setting is needed. Morpheus updates the status on its next poll; the plugin keeps ' +
 			'a probe result for 10 minutes.',
 		references: [H2_GUEST_OS_NOTES, H3_SNAPSHOTS])
 
@@ -186,7 +186,7 @@ final class Tier1Catalog {
 		ifYouFixIt: [summary: 'Install the Morpheus agent, or upgrade it to the version the rest of the fleet runs.',
 			downtime: Downtime.NONE, risk: Risk.LOW, reversible: true,
 			prerequisites: [
-				'Make sure security software allows the agent package and its connection to the VME manager.',
+				'Make sure security software allows the agent package and its connection to the Morpheus manager.',
 				'If the VM was provisioned without the agent on purpose, you can leave it.']],
 		category: Category.RECOMMENDATION,
 		howInVme: 'VM or Instance > Actions > Install Agent; for an old agent, Actions > Upgrade Agent. Actions > Download Agent Script ' +
@@ -239,9 +239,9 @@ final class Tier1Catalog {
 		'QEMU guest agent channel'])
 
 	static final Check DISCOVERED = new Check(
-		id: 'T1-DISCOVERED', title: 'VM not managed by VME', tier: Tier.ONE, severity: Severity.INFO, appliesTo: AppliesTo.ANY,
-		evidence: 'The server type: kvmUnmanaged (or another unmanaged type) means VME found the VM on a host but doesn\'t manage it.',
-		ifYouLeaveIt: 'A discovered VM has no instance, fewer Morpheus actions, and none of the defaults VME gives the VMs it manages: ' +
+		id: 'T1-DISCOVERED', title: 'VM not managed by Morpheus', tier: Tier.ONE, severity: Severity.INFO, appliesTo: AppliesTo.ANY,
+		evidence: 'The server type: kvmUnmanaged (or another unmanaged type) means Morpheus found the VM on a host but doesn\'t manage it.',
+		ifYouLeaveIt: 'A discovered VM has no instance, fewer Morpheus actions, and none of the defaults Morpheus gives the VMs it manages: ' +
 			MANAGED_DEFAULTS.join(', ') + '. Its chipset and guest agent channel show as unknown.',
 		ifYouFixIt: [summary: 'Convert the VM to managed.',
 			downtime: Downtime.NONE, risk: Risk.LOW, reversible: true,

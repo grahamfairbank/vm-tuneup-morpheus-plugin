@@ -10,7 +10,7 @@ The screenshots in this folder come from a real Morpheus appliance running the p
 |---|---|---|
 | `tab-cluster.png` | README (top), INSTALL step 5 | `cluster-a`'s Migration Hygiene tab after a finished scan, top of the tab: the Rescan and Download CSV buttons, grade counts, findings by severity and the start of **By origin**. |
 | `tab-cluster-origin.png` | README tour, INSTALL step 5 | The **By origin** table (three groups plus All) and **Worst VMs** with the **Show** filter set to **Migrated**, listing `app-legacy-01`, `web-rocky-01`, `web-rocky-02` and `db-win-01` with grade, score, origin and top findings. **How origin is decided** may be open. |
-| `tab-vm.png` | README tour, INSTALL step 6 | `app-legacy-01`'s Migration Hygiene tab: grade F, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it (downtime, risk, can be undone), Do first, in this order, How in VME and references. |
+| `tab-vm.png` | README tour, INSTALL step 6 | `app-legacy-01`'s Migration Hygiene tab: grade F, the findings list, and the **Disk on an emulated SATA or IDE bus** finding open, showing evidence, If you leave it, If you fix it (downtime, risk, can be undone), Do first, in this order, How in Morpheus and references. |
 | `tab-vm-guest-agent.png` | README tour, INSTALL step 6 | The **Check guest agent** area on `db-win-01` (Windows): the button, its one-line explanation and "Answered 2 min ago". Crop to the area plus the grade line above it. |
 | `install-plugins.png` | INSTALL step 2 | **Administration → Integrations → Plugins** with **Migration Hygiene** 0.4.0 in the list, enabled. Other plugins in the list may stay if their names reveal nothing; otherwise crop or paint them out. |
 
@@ -20,7 +20,7 @@ Use these and nothing else, so a reader sees the same name for the same thing in
 
 | Thing | Example value |
 |---|---|
-| Morpheus appliance (manager) | `vme-manager.example.com`; signed in as `admin` |
+| Morpheus appliance (manager) | `morpheus.example.com`; signed in as `admin` |
 | HVM cluster | `cluster-a` |
 | HVM hosts | `hvm-host-01`, `hvm-host-02`, `hvm-host-03` |
 | The manager's own VM, if it appears | `manager-vm` |
@@ -38,7 +38,7 @@ The VMs, and what each one shows:
 | `web-rocky-01` | Rocky Linux | Migrated from VMware | Migrated, disks on SATA, VMware MAC `00:0c:29:00:00:03`. |
 | `web-rocky-02` | Rocky Linux | Migrated from VMware | Migrated, disks on SATA, VMware MAC `00:0c:29:00:00:04`. |
 | `svc-ubuntu-01`, `svc-ubuntu-02`, `svc-ubuntu-03` | Ubuntu | No VMware signal | Clean (grade A); KVM MACs `52:54:00:00:00:0x`. |
-| `manager-vm` | Linux | No VMware signal | The VME manager's own VM, if it runs on the cluster. |
+| `manager-vm` | Linux | No VMware signal | The Morpheus manager's own VM, if it runs on the cluster. |
 
 ## What to replace
 

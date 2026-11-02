@@ -2,7 +2,7 @@
 
 > Unofficial community plugin, not an HPE product and not supported by HPE. See [NOTICE.md](../NOTICE.md).
 
-This guide assumes you've never installed a Morpheus plugin before, and that you don't use the Morpheus API. Every step says where to click and what you should see. Allow about 15 minutes, plus the time the first scan takes.
+This guide is for HPE Morpheus 9.0.x and 9.1.x with HVM (HPE Virtual Machine) clusters. It assumes you've never installed a Morpheus plugin before, and that you don't use the Morpheus API. Every step says where to click and what you should see. Allow about 15 minutes, plus the time the first scan takes.
 
 The plugin is "one and done": install it, scan, plan your fixes, and uninstall it when you're finished. It's read-only and has no settings.
 
@@ -10,7 +10,7 @@ The plugin is "one and done": install it, scan, plan your fixes, and uninstall i
 
 | In the examples | Example value |
 |---|---|
-| Morpheus appliance | `vme-manager.example.com`, signed in as `admin` |
+| Morpheus appliance | `morpheus.example.com`, signed in as `admin` |
 | HVM cluster | `cluster-a` |
 | HVM hosts | `hvm-host-01`, `hvm-host-02`, `hvm-host-03` |
 | A VM with a lot to fix | `app-legacy-01` (boot disk on IDE, e1000 network adapter, discovered, VMware MAC address) |
@@ -23,7 +23,7 @@ The plugin is "one and done": install it, scan, plan your fixes, and uninstall i
 
 You need:
 
-- **Morpheus admin access.** HPE Morpheus or HPE VM Essentials **9.0.x or 9.1.x**, and a login that can open **Administration → Integrations → Plugins** and **Administration → Roles**.
+- **Morpheus admin access.** HPE Morpheus **9.0.x or 9.1.x** (VM Essentials, Advanced or Enterprise edition), and a login that can open **Administration → Integrations → Plugins** and **Administration → Roles**.
 - **At least one HVM cluster.** The plugin looks only at VMs on HVM clusters; other clouds are ignored.
 - **Nothing else.** No network access, no credentials, no API client, no agent on the VMs.
 
@@ -84,10 +84,10 @@ People who plan the post-migration work often need to see clusters and VMs and t
 2. In a terminal, in the folder where you saved it, run:
 
    ```bash
-   python3 create-readonly-user.py vme-manager.example.com
+   python3 create-readonly-user.py morpheus.example.com
    ```
 
-   Use your appliance's host name or IP address in place of `vme-manager.example.com`. Add `--guest-scan` at the end to also allow **Check guest agent** for this user, and `--port <n>` if the appliance doesn't use port 443.
+   Use your appliance's host name or IP address in place of `morpheus.example.com`. Add `--guest-scan` at the end to also allow **Check guest agent** for this user, and `--port <n>` if the appliance doesn't use port 443.
 
 3. Answer the prompts:
    - **Certificate:** if the appliance uses a self-signed certificate, the script shows its fingerprint and asks whether to trust it for this run. Compare it with the appliance's certificate if you can, then answer `y`.
@@ -127,7 +127,7 @@ Results are kept for 10 minutes. Click **Rescan** to scan again after you've fix
 
 1. In **Worst VMs**, click a VM's name (`app-legacy-01` in the examples). Or go to **Infrastructure → Compute → Virtual Machines → (VM)**, or to the VM's instance under **Provisioning → Instances**.
 2. Open its **Migration Hygiene** tab (again, it may be in the overflow menu).
-3. You see the VM's grade and its findings, worst first. Click a finding to see the evidence, **If you leave it**, **If you fix it** (downtime, risk, whether it can be undone), **Do first, in this order**, **How in VME** and the references.
+3. You see the VM's grade and its findings, worst first. Click a finding to see the evidence, **If you leave it**, **If you fix it** (downtime, risk, whether it can be undone), **Do first, in this order**, **How in Morpheus** and the references.
 
    ![The Migration Hygiene tab of app-legacy-01, with the disk bus finding open](images/tab-vm.png)
 
@@ -159,7 +159,7 @@ What the result means:
 
 The **direct download** links under the buttons are a fallback for browsers where the buttons don't work. They only use results already in memory and never start a scan.
 
-**On a license with Reports**, you can also run the fleet report from the master tenant: **Operations → Reports → Migration Hygiene → Run**. Morpheus stores each run and can export its rows as CSV. On VM Essentials, which has no Reports page, use the cluster tab and the CSV.
+**On a license with Reports**, you can also run the fleet report from the master tenant: **Operations → Reports → Migration Hygiene → Run**. Morpheus stores each run and can export its rows as CSV. On Morpheus VM Essentials, which has no Reports page, use the cluster tab and the CSV.
 
 ## Upgrading
 

@@ -19,7 +19,7 @@ final class Reference {
 		if (!this.url.startsWith('https://')) throw new IllegalArgumentException("reference url '${url}' must be https")
 	}
 
-	/** True for HPE's public Morpheus/VME docs and API spec. */
+	/** True for HPE's public Morpheus docs and API spec. */
 	boolean isHpe() {
 		return url.startsWith('https://docs.morpheusdata.com/') || url.startsWith('https://github.com/HewlettPackard/')
 	}

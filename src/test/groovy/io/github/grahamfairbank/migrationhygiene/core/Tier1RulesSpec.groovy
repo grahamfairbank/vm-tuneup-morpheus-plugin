@@ -353,7 +353,7 @@ class Tier1RulesSpec extends Specification {
 		'vm-sata-import-linux'    | Status.FAIL
 	}
 
-	def "T1-DISCOVERED lists the VME defaults the VM lacks"() {
+	def "T1-DISCOVERED lists the Morpheus defaults the VM lacks"() {
 		expect:
 		DISCOVERED.ifYouLeaveIt.contains('QEMU guest agent channel')
 		DISCOVERED.ifYouLeaveIt.contains('io_uring')

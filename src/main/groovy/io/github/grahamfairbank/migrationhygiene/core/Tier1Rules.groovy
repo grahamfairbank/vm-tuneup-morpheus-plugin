@@ -282,7 +282,7 @@ final class Tier1Rules {
 	static CheckResult discovered(VmFacts vm) {
 		String t = vm.serverType ?: 'unknown'
 		if (vm.managed) return new CheckResult(DISCOVERED, Status.PASS, null, "Managed (server type ${t}).")
-		return new CheckResult(DISCOVERED, Status.FAIL, null, "Server type ${t}: VM not managed by VME, so it lacks the VME defaults.")
+		return new CheckResult(DISCOVERED, Status.FAIL, null, "Server type ${t}: VM not managed by Morpheus, so it lacks the Morpheus defaults.")
 	}
 
 	static CheckResult isoAttached(VmFacts vm) {

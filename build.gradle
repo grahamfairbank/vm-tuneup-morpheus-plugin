@@ -1,4 +1,4 @@
-// migration-hygiene-plugin: read-only audit of HVM VMs for leftovers from VMware migrations, in HPE VM Essentials.
+// migration-hygiene-plugin: read-only audit of HVM VMs for leftovers from VMware migrations, in HPE Morpheus (HVM clusters).
 // Layout follows the Morpheus plugin generator: Gradle + shadow "fat jar" + asset pipeline +
 // morpheus-plugin-gradle. Build with ./gradlew shadowJar (or tools/build.sh, which needs only Docker).
 

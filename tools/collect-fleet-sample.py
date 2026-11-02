@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect an anonymized, read-only sample of VM data from a Morpheus / VM Essentials appliance.
+"""Collect an anonymized, read-only sample of VM data from an HPE Morpheus appliance.
 
 Migration Hygiene uses this sample to check its rules against real fleets. The script:
 

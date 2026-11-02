@@ -1,13 +1,13 @@
 # migration-hygiene-plugin
 
-**We've migrated to HVM. Now what?** Whatever tool you used to migrate, and whenever you did it, see what it left behind on your HPE VM Essentials virtual machines and what to tune next: disks on emulated SATA or IDE, e1000 network adapters, the Legacy chipset, a QEMU guest agent that doesn't answer, VMware MAC addresses, old snapshots, attached ISOs and more. Every VM gets a grade, and every finding says what happens **if you leave it** and what it costs **if you fix it**.
+**We've migrated to HVM. Now what?** Whatever tool you used to migrate, and whenever you did it, see what it left behind on your HPE Morpheus virtual machines on HVM (HPE Virtual Machine) hosts, and what to tune next: disks on emulated SATA or IDE, e1000 network adapters, the Legacy chipset, a QEMU guest agent that doesn't answer, VMware MAC addresses, old snapshots, attached ISOs and more. Every VM gets a grade, and every finding says what happens **if you leave it** and what it costs **if you fix it**.
 
 [![Latest release](https://img.shields.io/github/v/release/grahamfairbank/migration-hygiene-plugin?label=release&include_prereleases)](../../releases)
 [![Morpheus 9.0 | 9.1](https://img.shields.io/badge/Morpheus-9.0%20%7C%209.1-0d7b6a)](#requirements)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](CONTRIBUTING.md)
 
-> **Unofficial community project.** Not an HPE or Morpheus Data product. Not developed, endorsed or supported by Hewlett Packard Enterprise. Provided as is, without warranty. HPE, Morpheus and VM Essentials are trademarks of Hewlett Packard Enterprise; VMware is a trademark of Broadcom. See [NOTICE.md](NOTICE.md) for trademarks and for every source this project was built from.
+> **Unofficial community project.** Not an HPE or Morpheus Data product. Not developed, endorsed or supported by Hewlett Packard Enterprise. Provided as is, without warranty. HPE and Morpheus are trademarks of Hewlett Packard Enterprise; VMware is a trademark of Broadcom. See [NOTICE.md](NOTICE.md) for trademarks and for every source this project was built from.
 
 ![The Migration Hygiene tab on cluster-a: grade counts, findings by severity, a summary per origin group and the worst VMs first](docs/images/tab-cluster.png)
 
@@ -16,11 +16,11 @@
 ## Why you'll want it
 
 - **Migration is the start, not the finish.** A VM that boots on HVM can still run on emulated disks and network adapters, the Legacy chipset and no guest agent, and carry snapshots and ISOs from the move. Migration Hygiene finds all of it in minutes, across the whole cluster.
-- **Works whatever tool you used.** VME's own migration, an image upload, a third-party converter or a VM that was simply discovered on the hosts: the checks look at the VM as it is today, not at how it got there. Each VM is also put in an origin group (**Migrated from VMware**, **No VMware signal**, **Unknown origin**), with honest wording about what Morpheus data can and can't show.
+- **Works whatever tool you used.** Morpheus's own migration tool, an image upload, a third-party converter or a VM that was simply discovered on the hosts: the checks look at the VM as it is today, not at how it got there. Each VM is also put in an origin group (**Migrated from VMware**, **No VMware signal**, **Unknown origin**), with honest wording about what Morpheus data can and can't show.
 - **Every finding is a plan, not a scare.** "If you leave it" says what the problem costs you. "If you fix it" gives the downtime, the risk, whether it can be undone, and what must happen first, in order (for example: the VirtIO storage driver must be installed and boot-start on Windows before a disk bus switch). HPE documentation is cited first.
-- **Recommendations you can actually do.** A **Recommendation** is something you can do in the VME UI or inside the guest OS. Anything that would need host-level work is a **Consideration**: worth knowing, never recommended.
+- **Recommendations you can actually do.** A **Recommendation** is something you can do in the Morpheus UI or inside the guest OS. Anything that would need host-level work is a **Consideration**: worth knowing, never recommended.
 - **Read-only, and nothing leaves the appliance.** The checks read Morpheus data. The plugin changes nothing, makes no external calls and sends no telemetry. The one optional exception is a harmless no-op command that tests the guest agent, for users you give a separate permission.
-- **Works on every license.** The cluster tab and the CSV export are the fleet view, so it works on VM Essentials licenses that have no Reports page. Where your license includes Reports, there's a fleet report too.
+- **Works on every license.** The cluster tab and the CSV export are the fleet view, so it works on the Morpheus VM Essentials license, which has no Reports page. Where your license includes Reports, there's a fleet report too.
 - **One and done.** Install it, scan, plan your fixes, uninstall it. No schedules, no agents, nothing to configure.
 - **Doesn't slow Morpheus down.** Tabs never block a page load. Scans run in the background, only when someone opens a tab, and pace themselves.
 
@@ -54,7 +54,7 @@ Every HVM VM (and every instance on one) gets a **Migration Hygiene** tab with i
 - the **evidence** (what the plugin read, for example each disk's bus and controller);
 - **If you leave it:** what the problem costs you;
 - **If you fix it:** the downtime, the risk, whether it can be undone, and **Do first, in this order:** the prerequisites;
-- **How in VME:** where to do it (for example *Actions → Reconfigure → Advanced Options*);
+- **How in Morpheus:** where to do it (for example *Actions → Reconfigure → Advanced Options*);
 - whether it's a **Recommendation** or a **Consideration**, anything **not yet verified**, and references.
 
 ![The Migration Hygiene tab of app-legacy-01: grade F, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
@@ -81,7 +81,7 @@ The UI shows each check by its title, with a short ID in small type (for example
 | Check | Severity | Type | If you fix it: downtime, risk, can be undone | Unknown when |
 |---|---|---|---|---|
 | VMware source VM still running (`SOURCE-TWIN`) | critical | Recommendation | on the VMware side; low; yes | not evaluated yet (pending verification) |
-| VM not managed by VME (`DISCOVERED`) | info | Recommendation | none; low; yes | |
+| VM not managed by Morpheus (`DISCOVERED`) | info | Recommendation | none; low; yes | |
 | Old or many snapshots (`SNAPSHOTS`) | info; warning when older than 90 days | Recommendation | none; medium; **no** | snapshots can't be read |
 | ISO still attached (`ISO-ATTACHED`) | info | Recommendation | none; low; yes | |
 | QEMU guest agent not connected (`GA-STATUS`) | warning | Recommendation | none; low; yes | VM powered off or power state unknown; status not reported and not checked |
@@ -100,7 +100,7 @@ The UI shows each check by its title, with a short ID in small type (for example
 **A few things worth knowing:**
 
 - **Disk bus and chipset fixes list their prerequisites in order.** On Windows, the VirtIO storage driver must be installed **and** a boot-start driver before the switch, or Windows fails to boot. On Linux, VirtIO must be in the initramfs (or built into the kernel), and `/etc/fstab` and the boot loader must refer to disks by UUID or label. The VM tab spells out each step.
-- **Network adapter changes** give the guest a new adapter: record its IP settings first, and keep the VME console at hand.
+- **Network adapter changes** give the guest a new adapter: record its IP settings first, and keep the Morpheus console at hand.
 - **Network adapters Morpheus doesn't name** (it reports E1000E and some other models with no type) count as "not VirtIO, model unknown".
 - **The VMware MAC check is a Consideration.** Keeping the MAC is usually harmless; the real risk is the VMware source VM being powered on again on the same network.
 
@@ -109,7 +109,7 @@ The UI shows each check by its title, with a short ID in small type (for example
 A check is **unknown** when the data it needs isn't there, and the VM tab says why. The common cases:
 
 - **Morpheus 9.0.x** doesn't report the chipset (machine type) or the guest agent channel, so `CHIPSET` and `GA-CHANNEL` are unknown on 9.0.x.
-- **Discovered (unmanaged) VMs** have no VME configuration, so the same two checks are unknown for them.
+- **Discovered (unmanaged) VMs** have no Morpheus configuration, so the same two checks are unknown for them.
 - **Powered-off VMs:** the guest agent status is judged only while the VM runs.
 - **Time budget:** a part of a scan that didn't finish in time (snapshots, host or cluster name) shows as "unknown: time budget", and the rest of the result is still shown.
 
@@ -151,7 +151,7 @@ Through the plugin API, Morpheus 9.1.0.1 reports every VM's QEMU guest agent sta
 | **CSV export** (from the cluster tab) | One row per VM, for this cluster or every HVM cluster you can see. | Every license |
 | **Fleet report** (Operations → Reports → Migration Hygiene) | A summary, then one row per HVM VM; Morpheus can export the rows as CSV. Runs from the master tenant only, for users with the view permission. | Licenses that include Reports |
 
-The Reports page isn't part of the VM Essentials license, so on VM Essentials the cluster tab and the CSV are the fleet view.
+The Reports page isn't part of the Morpheus VM Essentials license, so on that edition the cluster tab and the CSV are the fleet view.
 
 ### CSV columns
 
@@ -223,7 +223,7 @@ The infographic is generated by [`tools/draw-how-it-works.py`](tools/draw-how-it
 
 ## Requirements
 
-- HPE Morpheus or HPE VM Essentials **9.0.x or 9.1.x** (Plugin API 1.4.1 or later). Tested on 9.1.0.1; an earlier version was also tried on 9.0.1.
+- HPE Morpheus **9.0.x or 9.1.x** (Plugin API 1.4.1 or later), any edition with HVM clusters: Morpheus VM Essentials, Morpheus Advanced or Morpheus Enterprise. Tested on 9.1.0.1; an earlier version was also tried on 9.0.1.
 - HVM clusters. Other cloud types are ignored.
 - No network access, credentials or settings: the plugin has no settings form.
 
@@ -231,7 +231,7 @@ The infographic is generated by [`tools/draw-how-it-works.py`](tools/draw-how-it
 
 Use the prebuilt jar from the [Releases](../../releases) page. There's no need to build anything.
 
-**One jar, `migration-hygiene-plugin-<version>.jar`, works on Morpheus / VM Essentials 9.0.x and 9.1.x.** It's compiled against the oldest supported Plugin API (1.4.1, Morpheus 9.0), and its whole test suite also runs against Plugin API 1.5.0 (Morpheus 9.1). Before each release, `tools/check-plugin-core.sh` checks HPE's published plugin sources and docs for any compatibility change.
+**One jar, `migration-hygiene-plugin-<version>.jar`, works on HPE Morpheus 9.0.x and 9.1.x.** It's compiled against the oldest supported Plugin API (1.4.1, Morpheus 9.0), and its whole test suite also runs against Plugin API 1.5.0 (Morpheus 9.1). Before each release, `tools/check-plugin-core.sh` checks HPE's published plugin sources and docs for any compatibility change.
 
 Each release includes `SHA256SUMS`. Check the download with `sha256sum -c SHA256SUMS`.
 

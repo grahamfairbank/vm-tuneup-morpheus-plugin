@@ -37,7 +37,7 @@ Tested on Morpheus 9.1.0.1. Security hardening after an independent review of th
 ## 0.2.0 (2026-11-02)
 
 - **Tabs never block page loads.** 0.1.x scanned while Morpheus built the page, so Infrastructure pages could hang. Tabs now render a small shell, and the plugin's script fills them from the plugin's routes.
-- **The cluster tab is the fleet view:** grade counts, findings by severity, the worst VMs and failures per check, with **Rescan** and CSV downloads. The VM Essentials license has no Reports page, so the fleet report can't be the main view there.
+- **The cluster tab is the fleet view:** grade counts, findings by severity, the worst VMs and failures per check, with **Rescan** and CSV downloads. The Morpheus VM Essentials license has no Reports page, so the fleet report can't be the main view there.
 - VM scans have a 15-second budget; parts not done in time show as "unknown: time budget". Cluster scans run in the background with progress, one per cluster at a time.
 - The agent baseline is computed in the background at most every 15 minutes. Results are cached for 10 minutes. All plugin threads stop when the plugin is disabled or removed.
 - The guest agent check never runs automatically when a tab opens.

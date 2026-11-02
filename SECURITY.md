@@ -14,7 +14,7 @@ Please include:
 - what a user (or someone without an account) can do that they shouldn't, and which Morpheus permissions they need;
 - the steps to reproduce it.
 
-Use example values in anything you send: `app-legacy-01`, `hvm-host-01`, `cluster-a`, `192.0.2.21`, `vme-manager.example.com` and so on. Never send a real token, password, host name, MAC address or IP address. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to replace them.
+Use example values in anything you send: `app-legacy-01`, `hvm-host-01`, `cluster-a`, `192.0.2.21`, `morpheus.example.com` and so on. Never send a real token, password, host name, MAC address or IP address. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to replace them.
 
 This is a community project maintained in spare time. You should get a reply within a week. Confirmed issues are fixed in a new release, with a note in the [changelog](CHANGELOG.md); you'll be credited there unless you'd rather not be.
 
@@ -49,6 +49,6 @@ The [Security section of the README](README.md#security) has the details, includ
 
 ## Out of scope
 
-- Problems in Morpheus or VM Essentials themselves. Report those to HPE.
+- Problems in HPE Morpheus itself. Report those to HPE.
 - What a user with a permission can do by design: for example, a guest-scan user running the no-op guest agent check in a VM their tenant owns, or a view user seeing the MAC addresses and paths the checks report.
 - Findings that need an appliance administrator, or someone who can already install plugins.
