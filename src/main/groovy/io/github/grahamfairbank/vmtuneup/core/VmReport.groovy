@@ -51,18 +51,30 @@ final class VmReport {
 		return results.count { CheckResult r -> r.status == Status.FAIL && r.severity == s } as int
 	}
 
-	/** True when a VMware MAC or the native-migration OS typing gap was found. */
+	/**
+	 * VMware Tools found inside a Windows guest also marks the VM as migrated (1.0). Not on Linux: many Linux images
+	 * ship open-vm-tools by default, so it says nothing about where the VM came from.
+	 */
+	static final String GUEST_ORIGIN_CHECK = 'T2-VMWARE-TOOLS'
+
+	private boolean originSignal(CheckResult r) {
+		if (r.status != Status.FAIL) return false
+		if (r.checkId in VMWARE_ORIGIN_CHECKS) return true
+		return r.checkId == GUEST_ORIGIN_CHECK && (facts.windows || guest?.os == 'windows')
+	}
+
+	/** True when a VMware MAC, the native-migration OS typing gap, or VMware Tools in a Windows guest was found. */
 	boolean isVmwareOrigin() {
-		return results.any { CheckResult r -> r.status == Status.FAIL && r.checkId in VMWARE_ORIGIN_CHECKS }
+		return results.any { CheckResult r -> originSignal(r) }
 	}
 
 	static final String ORIGIN_MIGRATED = 'migrated'
 	static final String ORIGIN_NOT_MIGRATED = 'not-migrated'
 	static final String ORIGIN_UNKNOWN = 'unknown'
 
-	/** The checks that marked this VM as VMware origin (failed T1-VMWARE-MAC, T1-OS-TYPE-MISMATCH), in catalog order. */
+	/** The checks that marked this VM as VMware origin, in catalog order. */
 	List<String> getOriginSignals() {
-		return results.findAll { CheckResult r -> r.status == Status.FAIL && r.checkId in VMWARE_ORIGIN_CHECKS }
+		return results.findAll { CheckResult r -> originSignal(r) }
 			.sort(false) { CheckResult r -> order(r) }.collect { CheckResult r -> r.checkId }
 	}
 

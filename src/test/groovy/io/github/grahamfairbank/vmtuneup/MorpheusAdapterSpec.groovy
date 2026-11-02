@@ -286,6 +286,6 @@ class MorpheusAdapterSpec extends Specification {
 		bySection.main[0].dataMap.checkIds.startsWith('DISK-BUS; ')
 		html.contains('vm-&lt;b&gt;bad&lt;/b&gt;')
 		!html.contains('<b>bad</b>')
-		html.contains('VMs (worst first)')
+		html.contains('VMs by score (lowest first)')
 	}
 }

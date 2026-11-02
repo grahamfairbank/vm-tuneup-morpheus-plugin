@@ -363,7 +363,7 @@ class VmTuneUpController implements PluginController {
 		boolean permitted = VmTuneUpPlugin.canGuestScan(model?.user)
 		long now = svc.clock.call()
 		List<VmReport> reports = visibleEntries(svc, job, model).collect { svc.report(it, permitted) }.findAll { it != null }
-		List<Map> plans = reports.sort(false) { VmReport a, VmReport b -> a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '') }
+		List<Map> plans = Views.byBenefit(reports)
 			.collect { Views.vm(it) }.findAll { it.hasPlan || it.planConsiderations }
 		String version = safe { plugin?.version } ?: ''
 		Map m = clusterModel(svc, job, permitted, model) + [vmPlans: plans, hasVmPlans: !plans.isEmpty(), version: version,
@@ -440,7 +440,7 @@ class VmTuneUpController implements PluginController {
 		        groups: Views.originGroups(reports), vmRows: Views.vmRows(reports), originNote: Views.ORIGIN_NOTE,
 		        notScanned: notScanned, hasNotScanned: !notScanned.isEmpty(), notScannedCount: notScanned.size(), partialCount: partial,
 		        probed: job.probe, csvClusterUrl: "${Shell.API}/csv?clusterId=${job.clusterId}".toString(), csvAllUrl: "${Shell.API}/csv?all=true".toString(),
-		        printUrl: "${Shell.API}/print?clusterId=${job.clusterId}".toString(),
+		        printUrl: "${Shell.API}/print?clusterId=${job.clusterId}".toString(), scanEstimate: Views.scanEstimate(job.total ?: entries.size()),
 		        csvClusterName: Views.csvFilename(job.clusterName ?: "cluster-${job.clusterId}", new Date(now)),
 		        csvAllName: Views.csvFilename('all-clusters', new Date(now))] + hostCpuModel(svc, job.clusterId, permitted, model, now, job.running) +
 		       guestClusterModel(svc, job.clusterId, reports, permitted, model, now)

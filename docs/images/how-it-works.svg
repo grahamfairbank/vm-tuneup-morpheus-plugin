@@ -1,58 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1630" viewBox="0 0 1400 1630" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1647" viewBox="0 0 1400 1647" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
 <title>How vm-tuneup-morpheus-plugin works</title>
 <desc>Architecture and request flows of vm-tuneup-morpheus-plugin: the browser, the plugin inside the Morpheus appliance, and the HVM VMs it audits.</desc>
 <defs>
 <marker id="a2a6bb8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2a6bb8"/></marker>
 <marker id="aa35f00" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#a35f00"/></marker>
 </defs>
-<rect width="1400" height="1630" fill="#ffffff"/>
+<rect width="1400" height="1647" fill="#ffffff"/>
 <text x="24" y="48" font-size="30" font-weight="bold" fill="#1b1f24">How vm-tuneup-morpheus-plugin works</text>
 <text x="24" y="76" font-size="15" fill="#57606a">We've migrated to HVM. Now what? An audit of HVM VMs inside Morpheus: what the migration left behind, what to tune next, and a plan to do it.</text>
-<rect x="24" y="108" width="306" height="725" rx="14" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
+<rect x="24" y="108" width="306" height="742" rx="14" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
 <text x="42" y="138" font-size="19" font-weight="bold" fill="#2a6bb8" text-anchor="start">① Your browser</text>
 <text x="42" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus web UI: nothing to install</text>
-<rect x="400" y="108" width="600" height="725" rx="14" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
+<rect x="400" y="108" width="600" height="742" rx="14" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
 <text x="418" y="138" font-size="19" font-weight="bold" fill="#1c7a5c" text-anchor="start">② Morpheus appliance</text>
 <text x="418" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">vm-tuneup-morpheus-plugin jar, running inside Morpheus</text>
-<rect x="1070" y="108" width="306" height="725" rx="14" fill="#eef7e6" stroke="#3f7a1d" stroke-width="2"/>
+<rect x="1070" y="108" width="306" height="742" rx="14" fill="#eef7e6" stroke="#3f7a1d" stroke-width="2"/>
 <text x="1088" y="138" font-size="19" font-weight="bold" fill="#3f7a1d" text-anchor="start">③ Your HVM hosts and VMs</text>
 <text x="1088" y="158" font-size="13" font-weight="normal" fill="#57606a" text-anchor="start">Reached only through Morpheus</text>
-<rect x="38" y="174" width="278" height="214" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
+<rect x="38" y="174" width="278" height="231" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
 <text x="52" y="203" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Cluster page › VM Tune-Up</text>
 <text x="52" y="226" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="66" y="226" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fleet view: grades now and after</text>
-<text x="66" y="243" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">the plan, origin groups, worst</text>
-<text x="66" y="260" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">VMs, findings per check</text>
-<text x="52" y="281" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="281" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Tune-up plan summary · Host CPUs ·</text>
-<text x="66" y="298" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Guest checks</text>
-<text x="52" y="319" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="319" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Rescan · Download CSV · Print</text>
-<text x="66" y="336" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">report</text>
-<text x="52" y="356" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Works on every edition, including</text>
-<text x="52" y="372" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus VM Essentials</text>
-<rect x="38" y="400" width="278" height="178" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
-<text x="52" y="429" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">VM / instance › VM Tune-Up</text>
-<text x="52" y="452" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="452" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Grade, tune-up plan and findings,</text>
-<text x="66" y="469" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">with links to the VM in Morpheus</text>
-<text x="52" y="490" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="490" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Evidence · If you leave it · If</text>
-<text x="66" y="507" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">you fix it · How in Morpheus ·</text>
-<text x="66" y="524" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">references</text>
-<text x="52" y="545" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="545" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Refresh · Check guest agent · Run</text>
-<text x="66" y="562" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">guest checks · Fill in OS fields</text>
-<rect x="38" y="590" width="278" height="159" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
-<text x="52" y="619" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Plugin script (vm-tuneup.js)</text>
-<text x="52" y="642" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="642" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fills only the tab you open; shows</text>
-<text x="66" y="659" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">what&#x27;s running</text>
-<text x="52" y="680" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="66" y="680" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Builds the CSV in the browser;</text>
-<text x="66" y="697" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">asks before any write</text>
-<text x="52" y="717" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Talks only to the plugin&#x27;s own routes</text>
-<text x="52" y="733" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">on the same appliance.</text>
+<text x="66" y="243" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">the plan, origin groups, VMs by</text>
+<text x="66" y="260" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">tune-up benefit, findings per</text>
+<text x="66" y="277" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">check</text>
+<text x="52" y="298" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="298" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Tune-up plan summary · Live</text>
+<text x="66" y="315" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">migration readiness · Guest checks</text>
+<text x="52" y="336" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="336" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Rescan · Download CSV · Print</text>
+<text x="66" y="353" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">report</text>
+<text x="52" y="373" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Works on every edition, including</text>
+<text x="52" y="389" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Morpheus VM Essentials</text>
+<rect x="38" y="417" width="278" height="178" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
+<text x="52" y="446" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">VM / instance › VM Tune-Up</text>
+<text x="52" y="469" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="469" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Grade, tune-up plan and findings,</text>
+<text x="66" y="486" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">with links to the VM in Morpheus</text>
+<text x="52" y="507" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="507" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Evidence · If you leave it · If</text>
+<text x="66" y="524" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">you fix it · How in Morpheus ·</text>
+<text x="66" y="541" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">references</text>
+<text x="52" y="562" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="562" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Refresh · Check guest agent · Run</text>
+<text x="66" y="579" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">guest checks · Fill in OS fields</text>
+<rect x="38" y="607" width="278" height="159" rx="8" fill="#ffffff" stroke="#2a6bb8" stroke-width="1.2"/>
+<text x="52" y="636" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">Plugin script (vm-tuneup.js)</text>
+<text x="52" y="659" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="659" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fills only the tab you open; shows</text>
+<text x="66" y="676" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">what&#x27;s running</text>
+<text x="52" y="697" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
+<text x="66" y="697" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Builds the CSV in the browser;</text>
+<text x="66" y="714" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">asks before any write</text>
+<text x="52" y="734" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Talks only to the plugin&#x27;s own routes</text>
+<text x="52" y="750" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">on the same appliance.</text>
 <rect x="414" y="174" width="279" height="140" rx="8" fill="#ffffff" stroke="#1c7a5c" stroke-width="1.2"/>
 <text x="428" y="203" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">Tab providers and script loader</text>
 <text x="428" y="226" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
@@ -93,8 +94,8 @@
 <text x="735" y="395" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">data; 6 Tier 2 checks after a</text>
 <text x="735" y="412" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">guest scan</text>
 <text x="721" y="433" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
-<text x="735" y="433" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Plan per VM: one cold window, a</text>
-<text x="735" y="450" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">guest restart, or no downtime;</text>
+<text x="735" y="433" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Plan per VM: one outage of the VM,</text>
+<text x="735" y="450" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">a guest restart, or no downtime;</text>
 <text x="735" y="467" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">grade after the plan</text>
 <text x="721" y="488" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="735" y="488" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Host CPU result per cluster (not</text>
@@ -132,26 +133,26 @@
 <text x="1098" y="670" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">•</text>
 <text x="1112" y="670" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">On each HVM host of the cluster,</text>
 <text x="1112" y="687" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">through Morpheus</text>
-<rect x="414" y="641" width="572" height="178" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.2" stroke-dasharray="5 4"/>
-<text x="428" y="665" font-size="15" font-weight="bold" fill="#57606a" text-anchor="start">Morpheus data the plugin reads</text>
-<text x="428" y="688" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each VM&#x27;s disks, controllers and datastores · network interfaces and MAC</text>
-<text x="428" y="705" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">addresses · machine type, UEFI, Secure Boot, TPM · vCPUs and cores per socket</text>
-<text x="428" y="722" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">· nested virtualization · placement · guest agent and Morpheus agent state ·</text>
-<text x="428" y="739" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">snapshots · CD-ROM drives · server type and OS · the cluster CPU model · your</text>
-<text x="428" y="756" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">tenant and permissions</text>
-<text x="428" y="779" font-size="13" font-weight="bold" fill="#a35f00" text-anchor="start">Its one write (opt-in): fill in a VM&#x27;s EMPTY guest OS fields, after you</text>
-<text x="428" y="796" font-size="13" font-weight="bold" fill="#a35f00" text-anchor="start">confirm, with Update VM records.</text>
-<text x="38" y="783" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">A plain link or another site never starts a</text>
-<text x="38" y="799" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">scan or a command: only the plugin&#x27;s own</text>
-<text x="38" y="815" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">script can.</text>
-<text x="1084" y="799" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Nothing leaves the appliance: no telemetry,</text>
-<text x="1084" y="815" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">no external calls.</text>
-<line x1="334" y1="281.0" x2="396" y2="281.0" stroke="#2a6bb8" stroke-width="2" marker-end="url(#a2a6bb8)" marker-start="url(#a2a6bb8)"/>
-<text x="365.0" y="255.0" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">tab</text>
-<text x="365.0" y="270.0" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">HTML</text>
-<line x1="334" y1="669.5" x2="396" y2="669.5" stroke="#2a6bb8" stroke-width="2" marker-end="url(#a2a6bb8)"/>
-<text x="365.0" y="643.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">route</text>
-<text x="365.0" y="658.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">requests</text>
+<rect x="414" y="658" width="572" height="178" rx="8" fill="#ffffff" stroke="#57606a" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="428" y="682" font-size="15" font-weight="bold" fill="#57606a" text-anchor="start">Morpheus data the plugin reads</text>
+<text x="428" y="705" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each VM&#x27;s disks, controllers and datastores · network interfaces and MAC</text>
+<text x="428" y="722" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">addresses · machine type, UEFI, Secure Boot, TPM · vCPUs and cores per socket</text>
+<text x="428" y="739" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">· nested virtualization · placement · guest agent and Morpheus agent state ·</text>
+<text x="428" y="756" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">snapshots · CD-ROM drives · server type and OS · the cluster CPU model · your</text>
+<text x="428" y="773" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">tenant and permissions</text>
+<text x="428" y="796" font-size="13" font-weight="bold" fill="#a35f00" text-anchor="start">Its one write (opt-in): copy the OS the guest reported into the EMPTY OS</text>
+<text x="428" y="813" font-size="13" font-weight="bold" fill="#a35f00" text-anchor="start">fields of the VM&#x27;s Morpheus record, after you confirm, with Update VM records.</text>
+<text x="38" y="800" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">A plain link or another site never starts a</text>
+<text x="38" y="816" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">scan or a command: only the plugin&#x27;s own</text>
+<text x="38" y="832" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">script can.</text>
+<text x="1084" y="816" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Nothing leaves the appliance: no telemetry,</text>
+<text x="1084" y="832" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">no external calls.</text>
+<line x1="334" y1="289.5" x2="396" y2="289.5" stroke="#2a6bb8" stroke-width="2" marker-end="url(#a2a6bb8)" marker-start="url(#a2a6bb8)"/>
+<text x="365.0" y="263.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">tab</text>
+<text x="365.0" y="278.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">HTML</text>
+<line x1="334" y1="686.5" x2="396" y2="686.5" stroke="#2a6bb8" stroke-width="2" marker-end="url(#a2a6bb8)"/>
+<text x="365.0" y="660.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">route</text>
+<text x="365.0" y="675.5" font-size="12" font-weight="bold" fill="#2a6bb8" text-anchor="middle">requests</text>
 <line x1="1004" y1="361.5" x2="1066" y2="361.5" stroke="#a35f00" stroke-width="2" marker-end="url(#aa35f00)"/>
 <text x="1035.0" y="351.5" font-size="12" font-weight="bold" fill="#a35f00" text-anchor="middle">no-op</text>
 <line x1="1004" y1="498.0" x2="1066" y2="498.0" stroke="#a35f00" stroke-width="2" marker-end="url(#aa35f00)"/>
@@ -159,109 +160,112 @@
 <text x="1035.0" y="487.0" font-size="12" font-weight="bold" fill="#a35f00" text-anchor="middle">script</text>
 <line x1="1004" y1="642.5" x2="1066" y2="642.5" stroke="#a35f00" stroke-width="2" marker-end="url(#aa35f00)"/>
 <text x="1035.0" y="632.5" font-size="12" font-weight="bold" fill="#a35f00" text-anchor="middle">virsh</text>
-<text x="700.0" y="877" font-size="22" font-weight="bold" fill="#1b1f24" text-anchor="middle">What happens, step by step</text>
-<rect x="24.0" y="899" width="440.0" height="254" rx="12" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
-<text x="38.0" y="928" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">A.  Opening a VM&#x27;s tab</text>
-<text x="38.0" y="951" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
-<text x="52.0" y="951" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus asks the tab whether to show itself: an HVM VM,</text>
-<text x="52.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and a role with View results.</text>
-<text x="38.0" y="989" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
-<text x="52.0" y="989" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab renders a small shell at once. The page never</text>
-<text x="52.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">waits.</text>
-<text x="38.0" y="1027" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
-<text x="52.0" y="1027" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The script asks the vm route. The route checks the level</text>
-<text x="52.0" y="1044" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and that your tenant owns the VM.</text>
-<text x="38.0" y="1065" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">4.</text>
-<text x="52.0" y="1065" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The VM is scanned with a 15 s budget (or served from</text>
-<text x="52.0" y="1082" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">memory). Guest check results from the last hour are</text>
-<text x="52.0" y="1099" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">added.</text>
-<text x="38.0" y="1120" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">5.</text>
-<text x="52.0" y="1120" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab shows the grade, the tune-up plan (grade after</text>
-<text x="52.0" y="1137" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">it) and the findings.</text>
-<rect x="480.0" y="899" width="440.0" height="254" rx="12" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
-<text x="494.0" y="928" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">B.  Scanning a cluster</text>
-<text x="494.0" y="951" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
-<text x="508.0" y="951" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Opening the cluster tab starts a background scan, or</text>
-<text x="508.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">joins the one already running.</text>
-<text x="494.0" y="989" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
-<text x="508.0" y="989" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">One worker scans each HVM VM in turn, pausing 250 ms</text>
-<text x="508.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">after each.</text>
-<text x="494.0" y="1027" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
-<text x="508.0" y="1027" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab shows progress and refreshes every 5 s until the</text>
-<text x="508.0" y="1044" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">scan is done.</text>
-<text x="494.0" y="1065" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">4.</text>
-<text x="508.0" y="1065" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fleet view and plan summary. Non-master users see only</text>
-<text x="508.0" y="1082" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">their tenant&#x27;s VMs.</text>
-<text x="494.0" y="1102" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">At most 2 scans run and 8 wait; 3 running per user.</text>
-<rect x="936.0" y="899" width="440.0" height="254" rx="12" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
-<text x="950.0" y="928" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">C.  CSV and printable report</text>
-<text x="950.0" y="951" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
-<text x="964.0" y="951" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Download CSV waits for the scan with progress, then the</text>
-<text x="964.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">browser builds the file (formulas neutralized).</text>
-<text x="950.0" y="989" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
-<text x="964.0" y="989" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The CSV adds gradeAfter, scoreAfter, planWindow and</text>
-<text x="964.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">planSteps.</text>
-<text x="950.0" y="1027" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
-<text x="964.0" y="1027" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Print report opens a page for your browser&#x27;s Save as PDF:</text>
-<text x="964.0" y="1044" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">summary, all VMs, plan per VM, host CPUs.</text>
-<text x="950.0" y="1064" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Both use results already scanned; neither runs a guest or host</text>
-<text x="950.0" y="1080" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">command.</text>
-<rect x="24.0" y="1169" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
-<text x="38.0" y="1198" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">D.  Guest checks (and Check guest agent)</text>
-<text x="38.0" y="1221" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Every gate must pass, in this order:</text>
-<text x="38.0" y="1242" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="52.0" y="1242" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">POST with X-Requested-With, same origin, Morpheus CSRF</text>
-<text x="52.0" y="1259" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">token</text>
-<text x="38.0" y="1280" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="52.0" y="1280" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Role has Run guest and host checks (Full)</text>
-<text x="38.0" y="1301" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="52.0" y="1301" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Your tenant owns the VM; it&#x27;s a powered-on HVM VM</text>
-<text x="38.0" y="1322" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="52.0" y="1322" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">One run per VM at a time; not run in the last minute</text>
-<text x="38.0" y="1343" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">→</text>
-<text x="52.0" y="1343" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus runs the fixed script (2 min limit); the run is</text>
-<text x="52.0" y="1360" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">logged with your user id and the script&#x27;s hash, never the</text>
-<text x="52.0" y="1377" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">output.</text>
-<text x="38.0" y="1398" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">→</text>
-<text x="52.0" y="1398" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Results kept 1 hour, added to grades and plans. Cluster</text>
-<text x="52.0" y="1415" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">tab: all powered-on VMs, one at a time.</text>
-<rect x="480.0" y="1169" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
-<text x="494.0" y="1198" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">E.  Host CPU check</text>
-<text x="494.0" y="1221" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="508.0" y="1221" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Gates: POST checks as in D; Run guest and host checks</text>
-<text x="508.0" y="1238" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">(Full); master tenant only.</text>
-<text x="494.0" y="1259" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
-<text x="508.0" y="1259" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">On each HVM host, through Morpheus: virsh capabilities</text>
-<text x="508.0" y="1276" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and virsh domcapabilities --virttype kvm (as root, or</text>
-<text x="508.0" y="1293" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">sudo -n).</text>
-<text x="494.0" y="1314" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
-<text x="508.0" y="1314" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each host&#x27;s CPU, microcode and usable named CPU models</text>
-<text x="508.0" y="1331" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">are compared with the cluster&#x27;s CPU model setting.</text>
-<text x="494.0" y="1352" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
-<text x="508.0" y="1352" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The result names the best model every host can run, and</text>
-<text x="508.0" y="1369" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">what to change in Morpheus.</text>
-<text x="494.0" y="1389" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Cached 1 hour; one run per cluster at a time.</text>
-<rect x="936.0" y="1169" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
-<text x="950.0" y="1198" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">F.  Fill in OS fields: the one write</text>
-<text x="950.0" y="1221" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
-<text x="964.0" y="1221" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Shown when Morpheus has empty OS fields and a guest scan</text>
-<text x="964.0" y="1238" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">identified the OS.</text>
-<text x="950.0" y="1259" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="964.0" y="1259" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Needs Update VM records (Full), plus the POST checks and</text>
-<text x="964.0" y="1276" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">the tenant check.</text>
-<text x="950.0" y="1297" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
-<text x="964.0" y="1297" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">You confirm in a dialog first.</text>
-<text x="950.0" y="1318" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
-<text x="964.0" y="1318" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fills only EMPTY fields (OS type, family, platform,</text>
-<text x="964.0" y="1335" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">version); never changes a value Morpheus has.</text>
-<text x="950.0" y="1356" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
-<text x="964.0" y="1356" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each write is logged with your user id, the VM and the</text>
-<text x="964.0" y="1373" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">OS.</text>
-<rect x="24" y="1455" width="1352" height="123" rx="12" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
-<text x="38" y="1484" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">One and done, read-only except one opt-in write</text>
-<text x="38" y="1508" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">Install, scan, plan, uninstall. The plugin has no settings and no schedules: scans run only when someone opens a tab or runs the report, and guest and host commands only for</text>
-<text x="38" y="1526" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">people with the permission (the guest and host checks only on a click). It never changes a VM&#x27;s hardware, a host or a cluster; its one write fills in empty OS fields, opt-in and</text>
-<text x="38" y="1544" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">confirmed. Every finding says what happens if you leave it and what fixing it costs (downtime, risk, whether it can be undone, what to do first), and is either a Recommendation</text>
-<text x="38" y="1562" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">(doable in the Morpheus UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).</text>
-<text x="24" y="1608" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Unofficial community project: not an HPE or Morpheus Data product, and not endorsed or supported by HPE. HPE and Morpheus are trademarks of Hewlett Packard Enterprise. See NOTICE.md.</text>
+<text x="700.0" y="894" font-size="22" font-weight="bold" fill="#1b1f24" text-anchor="middle">What happens, step by step</text>
+<rect x="24.0" y="916" width="440.0" height="254" rx="12" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
+<text x="38.0" y="945" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">A.  Opening a VM&#x27;s tab</text>
+<text x="38.0" y="968" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
+<text x="52.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus asks the tab whether to show itself: an HVM VM,</text>
+<text x="52.0" y="985" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and a role with View results.</text>
+<text x="38.0" y="1006" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
+<text x="52.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab renders a small shell at once. The page never</text>
+<text x="52.0" y="1023" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">waits.</text>
+<text x="38.0" y="1044" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
+<text x="52.0" y="1044" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The script asks the vm route. The route checks the level</text>
+<text x="52.0" y="1061" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and that your tenant owns the VM.</text>
+<text x="38.0" y="1082" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">4.</text>
+<text x="52.0" y="1082" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The VM is scanned with a 15 s budget (or served from</text>
+<text x="52.0" y="1099" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">memory). Guest check results from the last hour are</text>
+<text x="52.0" y="1116" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">added.</text>
+<text x="38.0" y="1137" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">5.</text>
+<text x="52.0" y="1137" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab shows the grade, the tune-up plan (grade after</text>
+<text x="52.0" y="1154" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">it) and the findings.</text>
+<rect x="480.0" y="916" width="440.0" height="254" rx="12" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
+<text x="494.0" y="945" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">B.  Scanning a cluster</text>
+<text x="494.0" y="968" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
+<text x="508.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Opening the cluster tab starts a background scan, or</text>
+<text x="508.0" y="985" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">joins the one already running.</text>
+<text x="494.0" y="1006" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
+<text x="508.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">One worker scans each HVM VM in turn (about 2 to 4 s</text>
+<text x="508.0" y="1023" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">each), pausing 250 ms after each. Stay on the page; don&#x27;t</text>
+<text x="508.0" y="1040" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">refresh.</text>
+<text x="494.0" y="1061" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
+<text x="508.0" y="1061" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The tab shows progress and refreshes every 5 s until the</text>
+<text x="508.0" y="1078" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">scan is done.</text>
+<text x="494.0" y="1099" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">4.</text>
+<text x="508.0" y="1099" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Fleet view and plan summary. Non-master users see only</text>
+<text x="508.0" y="1116" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">their tenant&#x27;s VMs.</text>
+<text x="494.0" y="1136" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">At most 2 scans run and 8 wait; 3 running per user.</text>
+<rect x="936.0" y="916" width="440.0" height="254" rx="12" fill="#eaf2fc" stroke="#2a6bb8" stroke-width="2"/>
+<text x="950.0" y="945" font-size="15" font-weight="bold" fill="#2a6bb8" text-anchor="start">C.  CSV and printable report</text>
+<text x="950.0" y="968" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
+<text x="964.0" y="968" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Download CSV waits for the scan with progress, then the</text>
+<text x="964.0" y="985" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">browser builds the file (formulas neutralized).</text>
+<text x="950.0" y="1006" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
+<text x="964.0" y="1006" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">The CSV adds gradeAfter, scoreAfter, planWindow and</text>
+<text x="964.0" y="1023" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">planSteps.</text>
+<text x="950.0" y="1044" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
+<text x="964.0" y="1044" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Print report opens a page for your browser&#x27;s Save as PDF:</text>
+<text x="964.0" y="1061" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">summary, VMs by tune-up benefit, plan per VM, live</text>
+<text x="964.0" y="1078" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">migration readiness.</text>
+<text x="950.0" y="1098" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Both use results already scanned; neither runs a guest or host</text>
+<text x="950.0" y="1114" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">command.</text>
+<rect x="24.0" y="1186" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
+<text x="38.0" y="1215" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">D.  Guest checks (and Check guest agent)</text>
+<text x="38.0" y="1238" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Every gate must pass, in this order:</text>
+<text x="38.0" y="1259" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="52.0" y="1259" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">POST with X-Requested-With, same origin, Morpheus CSRF</text>
+<text x="52.0" y="1276" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">token</text>
+<text x="38.0" y="1297" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="52.0" y="1297" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Role has Run guest and host checks (Full)</text>
+<text x="38.0" y="1318" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="52.0" y="1318" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Your tenant owns the VM; it&#x27;s a powered-on HVM VM</text>
+<text x="38.0" y="1339" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="52.0" y="1339" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">One run per VM at a time; not run in the last minute</text>
+<text x="38.0" y="1360" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">→</text>
+<text x="52.0" y="1360" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus runs the fixed script (2 min limit); the run is</text>
+<text x="52.0" y="1377" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">logged with your user id and the script&#x27;s hash, never the</text>
+<text x="52.0" y="1394" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">output.</text>
+<text x="38.0" y="1415" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">→</text>
+<text x="52.0" y="1415" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Results kept 1 hour, added to grades and plans. Cluster</text>
+<text x="52.0" y="1432" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">tab: all powered-on VMs, one at a time.</text>
+<rect x="480.0" y="1186" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
+<text x="494.0" y="1215" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">E.  Host CPU check</text>
+<text x="494.0" y="1238" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="508.0" y="1238" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Gates: POST checks as in D; Run guest and host checks</text>
+<text x="508.0" y="1255" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">(Full); master tenant only.</text>
+<text x="494.0" y="1276" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
+<text x="508.0" y="1276" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">On each HVM host, through Morpheus: virsh capabilities</text>
+<text x="508.0" y="1293" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and virsh domcapabilities --virttype kvm (as root, or</text>
+<text x="508.0" y="1310" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">sudo -n).</text>
+<text x="494.0" y="1331" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
+<text x="508.0" y="1331" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each host&#x27;s CPU, microcode and usable named CPU models</text>
+<text x="508.0" y="1348" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">are compared with the cluster&#x27;s CPU model setting.</text>
+<text x="494.0" y="1369" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
+<text x="508.0" y="1369" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Live migration readiness names the best model every host</text>
+<text x="508.0" y="1386" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">can run, and what to change in Morpheus.</text>
+<text x="494.0" y="1406" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Cached 1 hour; one run per cluster at a time.</text>
+<rect x="936.0" y="1186" width="440.0" height="262" rx="12" fill="#fff5e1" stroke="#a35f00" stroke-width="2"/>
+<text x="950.0" y="1215" font-size="15" font-weight="bold" fill="#a35f00" text-anchor="start">F.  Fill in OS fields: the one write</text>
+<text x="950.0" y="1238" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">1.</text>
+<text x="964.0" y="1238" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Shown when the VM&#x27;s Morpheus record has empty OS fields</text>
+<text x="964.0" y="1255" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">and the guest checks read the OS inside the guest.</text>
+<text x="950.0" y="1276" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="964.0" y="1276" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Needs Update VM records (Full), plus the POST checks and</text>
+<text x="964.0" y="1293" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">the tenant check.</text>
+<text x="950.0" y="1314" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">✓</text>
+<text x="964.0" y="1314" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">You confirm in a dialog first.</text>
+<text x="950.0" y="1335" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">2.</text>
+<text x="964.0" y="1335" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Copies that OS into only the EMPTY fields (OS type,</text>
+<text x="964.0" y="1352" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">family, platform, version); never changes a value</text>
+<text x="964.0" y="1369" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Morpheus has.</text>
+<text x="950.0" y="1390" font-size="13" font-weight="bold" fill="#1b1f24" text-anchor="start">3.</text>
+<text x="964.0" y="1390" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">Each write is logged with your user id, the VM and the</text>
+<text x="964.0" y="1407" font-size="13" font-weight="normal" fill="#1b1f24" text-anchor="start">OS.</text>
+<rect x="24" y="1472" width="1352" height="123" rx="12" fill="#ecf6f2" stroke="#1c7a5c" stroke-width="2"/>
+<text x="38" y="1501" font-size="15" font-weight="bold" fill="#1c7a5c" text-anchor="start">One and done, read-only except one opt-in write</text>
+<text x="38" y="1525" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">Install, scan, plan, uninstall. The plugin has no settings and no schedules: scans run only when someone opens a tab or runs the report, and guest and host commands only for</text>
+<text x="38" y="1543" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">people with the permission (the guest and host checks only on a click). It never changes a VM&#x27;s hardware, a host or a cluster; its one write fills in empty OS fields, opt-in and</text>
+<text x="38" y="1561" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">confirmed. Every finding says what happens if you leave it and what fixing it costs (downtime, risk, whether it can be undone, what to do first), and is either a Recommendation</text>
+<text x="38" y="1579" font-size="14" font-weight="normal" fill="#1b1f24" text-anchor="start">(doable in the Morpheus UI or inside the guest OS) or a Consideration (needs host-level work; never recommended).</text>
+<text x="24" y="1625" font-size="12" font-weight="normal" fill="#57606a" text-anchor="start">Unofficial community project: not an HPE or Morpheus Data product, and not endorsed or supported by HPE. HPE and Morpheus are trademarks of Hewlett Packard Enterprise. See NOTICE.md.</text>
 </svg>

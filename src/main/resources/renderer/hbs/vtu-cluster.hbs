@@ -51,6 +51,7 @@
 </div>
 {{#if running}}{{#if hasProgressPct}}<div class="vtu-progress" aria-hidden="true"><i style="width:{{progressPct}}%"></i></div>{{else}}<div class="vtu-progress vtu-indeterminate" aria-hidden="true"><i></i></div>{{/if}}{{/if}}
 <div class="vtu-bar"><span class="vtu-csv-status" role="status" aria-live="polite"></span></div>
+<div class="vtu-bar vtu-muted"><span>{{scanEstimate}} The CSV downloads wait for a running scan to finish, so they can take a moment. Stay on this page and don't refresh it while the scan runs: the progress bar shows how far it has got.</span></div>
 <div class="vtu-bar vtu-muted"><span>Fallback, only if the buttons don't work in your browser: direct download of the results already scanned, <a href="{{csvClusterUrl}}" target="_blank" rel="noopener noreferrer">this cluster</a> &middot; <a href="{{csvAllUrl}}" target="_blank" rel="noopener noreferrer">all clusters</a>. It never starts a scan; clusters not scanned yet are listed as such.</span></div>
 {{#if noHvm}}<div class="vtu-note">This cluster has no HVM hosts, so there is nothing to check.</div>{{/if}}
 {{#with summary}}
@@ -72,12 +73,12 @@
 		<tr class="vtu-all"><td>After the plan</td>{{#each gradesAfter}}<td class="vtu-g{{#if zero}} vtu-zero{{/if}}">{{count}}</td>{{/each}}<td class="vtu-num">{{avgAfter}}</td></tr>
 	</table>
 	<ul class="vtu-plan-counts">
-		<li><strong>{{planCold}}</strong> VMs need one cold window (powered off once){{#if planPrep}}; {{planPrep}} of them need steps in the guest first{{/if}}</li>
+		<li><strong>{{planCold}}</strong> VMs need one outage each: each of these VMs is powered off once, on its own schedule{{#if planPrep}}; {{planPrep}} of them need steps in the guest first{{/if}}</li>
 		<li><strong>{{planReboot}}</strong> need a guest restart</li>
 		<li><strong>{{planLive}}</strong> can be fixed with no downtime</li>
 		<li><strong>{{planNone}}</strong> have nothing to do</li>
 	</ul>
-	<div class="vtu-muted">Each VM's tab lists its plan in order. "After the plan" counts every Recommendation as done; Considerations stay.</div>
+	<div class="vtu-muted">Each VM's tab lists its plan in order. Outages are per VM: the rest of the cluster keeps running. "After the plan" counts every Recommendation as done; Considerations stay.</div>
 </div>
 {{/with}}
 <h4>Guest checks</h4>
@@ -88,21 +89,22 @@
 		<span class="vtu-muted">{{guestScanned}} VMs have guest results.</span>{{/if}}
 		{{#if guestBatchError}}<span class="vtu-muted">{{guestBatchError}}</span>{{/if}}
 	</div>
-	<p class="vtu-muted">Runs one fixed, read-only script inside each VM, one VM at a time: VirtIO readiness ("ready to switch"), VMware Tools leftovers, guest agent features, time sync, driver version and the guest OS. Results are kept one hour and added to the grades and plans. {{#unless guestCanRun}}Needs "VM Tune-Up: Run guest and host checks" at full.{{/unless}}</p>
+	<p class="vtu-muted">Runs one fixed, read-only script inside each VM, one VM at a time: VirtIO readiness ("ready to switch"), VMware Tools leftovers, guest agent features, time sync, driver version and the guest OS. Results are kept one hour and added to the grades and plans. The checks only read; nothing in the VM changes. {{#unless guestCanRun}}Needs "VM Tune-Up: Run guest and host checks" at full.{{/unless}}</p>
 	{{#if hasOsFill}}
 	<details open><summary>Missing OS fields ({{osFillCount}} VMs)</summary>
+		<p class="vtu-muted">The guest checks read each VM's OS from inside the guest, through its agent. Fill in copies that OS into the empty OS fields of the VM's Morpheus record (OS type, family, platform, version), so Morpheus shows the right OS. Fields Morpheus already has stay as they are.</p>
 		<table class="vtu-table">{{#each osFill}}<tr><td>{{name}}</td><td>{{os}}</td><td class="vtu-muted">fills: {{fields}}</td></tr>{{/each}}</table>
-		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-setos" data-vtu-confirm="Fill in the empty OS fields of these {{osFillCount}} VMs from their guest scans? Fields Morpheus already has are not changed.">Fill in all {{osFillCount}}</button>
+		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="cluster-setos" data-vtu-confirm="Copy the OS each guest reported into the empty OS fields of these {{osFillCount}} VMs' Morpheus records? Fields Morpheus already has are not changed.">Fill in all {{osFillCount}} in Morpheus</button>
 		{{else}}<span class="vtu-muted">A user with "VM Tune-Up: Update VM records" can fill these in from here.</span>{{/if}}
 	</details>
 	{{/if}}
 </div>
 {{#if hostCpuShown}}
-<h4>Host CPUs</h4>
+<h4>Live migration readiness</h4>
 <div class="vtu-plan-box">
 	<div class="vtu-bar">
 		{{#if hostCpuRunning}}<span class="vtu-busy vtu-working" role="status" aria-live="polite">Reading each host's CPU with virsh…</span>{{else}}
-		{{#if hostCpuCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="host-cpu">{{#if hostCpuDone}}Check again{{else}}Check host CPUs{{/if}}</button>{{/if}}
+		{{#if hostCpuCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="host-cpu">{{#if hostCpuDone}}Check again{{else}}Check the hosts{{/if}}</button>{{/if}}
 		{{#if hostCpuStatus}}<span class="vtu-badge {{hostCpuStatusClass}}">{{hostCpuStatus}}</span> <span class="vtu-muted">checked {{hostCpuAgo}}</span>{{/if}}{{/if}}
 		<span class="vtu-act-status vtu-muted"></span>
 	</div>
@@ -129,20 +131,15 @@
 	<summary>How origin is decided</summary>
 	<p>{{originNote}}</p>
 </details>
-<h4>Worst VMs</h4>
+<h4>VMs ordered by tune-up benefit</h4>
 <div class="vtu-bar">
-	<label>Show <select class="vtu-origin-filter" aria-label="Filter the VMs by origin">
-		<option value="all">All</option>
-		<option value="migrated">Migrated</option>
-		<option value="not-migrated">No VMware signal</option>
-		<option value="unknown">Unknown origin</option>
-	</select></label>
+	<label><input type="checkbox" class="vtu-origin-filter"> Migrated VMs only</label>
 	<span class="vtu-filter-count vtu-muted"></span>
 	<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="show-all" hidden>Show all</button>
 </div>
 <table class="vtu-table vtu-vm-table">
 	<tr><th>VM</th><th>Origin</th><th>Grade</th><th class="vtu-num">Score</th><th>After</th><th>Plan</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th>Top findings</th></tr>
-	{{#each vmRows}}<tr class="vtu-vmrow" data-vtu-origin="{{origin}}"><td><a href="{{linkUrl}}">{{name}}</a><br><span class="vtu-muted">{{os}}{{#if host}} &middot; host {{host}}{{/if}}</span></td><td title="{{originWhy}}">{{originLabel}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td><span class="vtu-grade vtu-grade-small {{gradeAfterClass}}">{{gradeAfter}}</span> <span class="vtu-muted">{{scoreAfter}}</span></td><td>{{planLabel}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td>{{topFindings}}</td></tr>{{/each}}
+	{{#each vmRows}}<tr class="vtu-vmrow" data-vtu-origin="{{origin}}"><td><a href="{{linkUrl}}">{{name}}</a><br><span class="vtu-muted">{{os}}{{#if host}} &middot; host {{host}}{{/if}}</span></td><td title="{{originWhy}}" style="white-space:nowrap">{{originLabel}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td><span class="vtu-grade vtu-grade-small {{gradeAfterClass}}">{{gradeAfter}}</span> <span class="vtu-muted">{{scoreAfter}}</span></td><td style="white-space:nowrap">{{planLabel}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td>{{topFindings}}</td></tr>{{/each}}
 	<tr class="vtu-vmrow-none" hidden><td colspan="10" class="vtu-muted">No VMs in this group.</td></tr>
 </table>
 {{#with summary}}

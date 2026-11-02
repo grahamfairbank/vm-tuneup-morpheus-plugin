@@ -97,7 +97,7 @@ final class TuneUpPlan {
 	/** Plain-words label of the window, for the tab and the CSV. */
 	String getWindowLabel() {
 		switch (window) {
-			case Window.COLD: return "One cold window (VM powered off once) for ${cold.size()} fix${cold.size() == 1 ? '' : 'es'}"
+			case Window.COLD: return "One outage of this VM (powered off once) for ${cold.size()} fix${cold.size() == 1 ? '' : 'es'}"
 			case Window.GUEST_REBOOT: return 'One guest restart'
 			case Window.LIVE: return 'No downtime'
 			default: return 'Nothing to do'

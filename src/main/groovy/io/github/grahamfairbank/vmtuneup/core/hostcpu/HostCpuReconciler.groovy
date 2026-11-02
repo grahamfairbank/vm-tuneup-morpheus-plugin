@@ -145,11 +145,14 @@ final class HostCpuReconciler {
 			for (HostCpu h : cmp) ev[h.label] = h.describe()
 			String hm = cmp[0].hostModelName ? " and host-model (${cmp[0].hostModelName})".toString() : ''
 			String count = cmp.size() == all.size() ? "All ${cmp.size()} hosts".toString() : "The ${cmp.size()} hosts that could be read".toString()
-			f << new HostCpuFinding('HOSTS-IDENTICAL', HostCpuStatus.PASS, 'Hosts have identical CPUs',
-				"${count} report the same CPU: same model, features, microcode${hm}. The cluster uses ${words}, which works for live migration between identical hosts.".toString(),
-				'Keep the hosts identical: add only hosts with the same CPU and microcode, and update microcode on all hosts ' +
-					'together. Before you add a different host, switch the cluster to a named model first' +
-					(best ? ": ${best.name} is the newest one every host can run today. ${HOW_IN_MORPHEUS}".toString() : ". ${HOW_IN_MORPHEUS}".toString()),
+			f << new HostCpuFinding('HOSTS-IDENTICAL', HostCpuStatus.PASS,
+				"Identical hosts: ${mode == ClusterCpuMode.HOST_MODEL ? 'host-model' : mode == ClusterCpuMode.MAXIMUM ? 'maximum' : 'host passthrough'} is fine".toString(),
+				("${count} report the same CPU: same model, features, microcode${hm}. The cluster uses ${words}. Because the hosts are " +
+					'identical, that is fine: VMs get the full CPU of the hosts and can live-migrate between any of them.').toString(),
+				'The CPU Model setting will need to change before you add a host with a different CPU or microcode: set it to a ' +
+					'named model that every host can run' +
+					(best ? " (today that is ${best.name}). ${HOW_IN_MORPHEUS}".toString() : ". ${HOW_IN_MORPHEUS}".toString()) +
+					' Until then, VMs can\'t live-migrate to or from the new host. Update microcode on all hosts together, so they stay identical.',
 				ev)
 			return
 		}

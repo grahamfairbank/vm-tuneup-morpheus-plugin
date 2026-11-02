@@ -28,44 +28,53 @@
 .vm-tuneup summary { cursor: pointer; font-weight: 600; }
 .vm-tuneup .vtu-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 12px; }
 .vm-tuneup .vtu-id { font-size: 11px; font-weight: normal; }
-.vm-tuneup .vtu-probe-hint { font-size: 12px; opacity: .8; flex-basis: 100%; }
+.vm-tuneup .vtu-probe-hint { font-size: 12px; opacity: .8; }
 .vm-tuneup .vtu-probe-off { opacity: .55; }
 .vm-tuneup .vtu-plan-box { border: 1px solid rgba(1,169,130,.45); border-radius: 4px; padding: 8px 12px; margin: 8px 0 10px; }
 .vm-tuneup .vtu-plan-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .vm-tuneup .vtu-plan-link { margin-left: auto; }
 .vm-tuneup .vtu-plan-stage { margin: 8px 0 2px; font-weight: 600; }
 .vm-tuneup .vtu-plan-box ol { margin: 2px 0 4px 20px; padding: 0; }
+.vm-tuneup .vtu-acts { display: grid; grid-template-columns: 170px minmax(0, 1fr); column-gap: 10px; row-gap: 4px; align-items: center; margin: 4px 0 10px; font-size: 12px; }
+.vm-tuneup .vtu-act-row { display: contents; }
+.vm-tuneup .vtu-act-btn { grid-column: 1; }
+.vm-tuneup .vtu-act-btn .btn { width: 100%; }
+.vm-tuneup .vtu-act-state { grid-column: 2; }
+.vm-tuneup .vtu-act-detail { grid-column: 2; margin-bottom: 6px; }
 .vm-tuneup .vtu-note { padding: 8px 10px; border-left: 3px solid #8a8f98; background: rgba(128,128,128,.08); margin: 8px 0; }
 </style>
 {{#if error}}<div class="vtu-note">{{error}}</div>{{/if}}
 {{#each vms}}
 <div class="vtu-vm-block"{{#if guestRunning}} data-vtu-poll="1"{{/if}}>
-	<div class="vtu-bar">
-		<span class="vtu-muted">Scanned {{scannedAgo}}.</span>
-		<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-refresh">Refresh</button>
-		<span class="vtu-act-status vtu-muted"></span>
+	<div class="vtu-acts">
+	<div class="vtu-act-row">
+		<div class="vtu-act-btn"><button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-refresh">Refresh</button></div>
+		<div class="vtu-act-state"><span class="vtu-muted">Scanned {{scannedAgo}}.</span> <span class="vtu-act-status vtu-muted"></span></div>
 	</div>
 	{{#if probeShown}}
-	<div class="vtu-bar vtu-probe">
-		{{#if probeReported}}<span class="vtu-muted">{{probeReported}}</span>{{else}}
-		{{#if canProbe}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-probe" title="20-second timeout">Check guest agent</button>
-		{{#if probeLast}}<span class="vtu-probe-last">{{probeLast}}</span>{{/if}}{{#if probeNote}} <span class="vtu-probe-note vtu-muted">{{probeNote}}</span>{{/if}}{{/if}}
-		<span class="vtu-probe-hint{{#unless canProbe}} vtu-probe-off{{/unless}}">{{probeHint}}{{#if probeLinuxNote}} {{probeLinuxNote}}{{/if}}{{#if probeDenied}} <strong>{{probeDenied}}</strong>{{/if}}</span>
+	<div class="vtu-act-row vtu-probe">
+		{{#if probeReported}}<div class="vtu-act-btn"></div><div class="vtu-act-state vtu-muted">{{probeReported}}</div>{{else}}
+		<div class="vtu-act-btn">{{#if canProbe}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-probe" title="20-second timeout">Check guest agent</button>{{/if}}</div>
+		<div class="vtu-act-state">{{#if probeLast}}<span class="vtu-probe-last">{{probeLast}}</span>{{/if}}{{#if probeNote}} <span class="vtu-probe-note vtu-muted">{{probeNote}}</span>{{/if}}</div>
+		<div class="vtu-act-detail vtu-probe-hint{{#unless canProbe}} vtu-probe-off{{/unless}}">{{probeHint}}{{#if probeLinuxNote}} {{probeLinuxNote}}{{/if}}{{#if probeDenied}} <strong>{{probeDenied}}</strong>{{/if}}</div>
 		{{/if}}
 	</div>
 	{{/if}}
-	<div class="vtu-bar vtu-guest">
-		{{#if guestRunning}}<span class="vtu-busy vtu-working" role="status">Running the guest checks inside the VM (this can take a few minutes)…</span>{{else}}
-		{{#if guestCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-guest">{{#if guestAgo}}Run guest checks again{{else}}Run guest checks{{/if}}</button>{{/if}}
+	<div class="vtu-act-row vtu-guest">
+		<div class="vtu-act-btn">{{#unless guestRunning}}{{#if guestCanRun}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-guest">{{#if guestAgo}}Run guest checks again{{else}}Run guest checks{{/if}}</button>{{/if}}{{/unless}}</div>
+		<div class="vtu-act-state">{{#if guestRunning}}<span class="vtu-busy vtu-working" role="status">Running the guest checks inside the VM (this can take a few minutes)…</span>{{else}}
 		{{#if guestAgo}}<span class="vtu-muted">Guest checked {{guestAgo}}{{#if guestOs}}: {{guestOs}}{{/if}}.</span>{{/if}}
-		{{#if guestError}}<span class="vtu-muted">Last run didn't finish: {{guestError}}</span>{{/if}}{{/if}}
-		<span class="vtu-probe-hint{{#unless guestCanRun}} vtu-probe-off{{/unless}}">{{guestHint}}</span>
+		{{#if guestError}}<span class="vtu-muted">Last run didn't finish: {{guestError}}</span>{{/if}}{{/if}}</div>
+		<div class="vtu-act-detail vtu-probe-hint{{#unless guestCanRun}} vtu-probe-off{{/unless}}">{{guestHint}}</div>
 	</div>
 	{{#if osFillShown}}
-	<div class="vtu-note vtu-osfill">Morpheus has no {{osFillFields}} for this VM. The guest reports <strong>{{osFillName}}</strong>.
-		{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-setos" data-vtu-confirm="Fill in the empty OS fields of this VM as {{osFillName}}? Fields Morpheus already has are not changed.">Fill in OS fields</button>
-		{{else}}<span class="vtu-muted">A user with "VM Tune-Up: Update VM records" can fill these in from here.</span>{{/if}}</div>
+	<div class="vtu-act-row vtu-osfill">
+		<div class="vtu-act-btn">{{#if osFillCanUpdate}}<button type="button" class="btn btn-default btn-xs vtu-act" data-vtu-action="vm-setos" data-vtu-confirm="Copy the OS the guest reported ({{osFillName}}) into the empty OS fields of this VM's Morpheus record? Fields Morpheus already has are not changed.">Fill in OS fields</button>{{/if}}</div>
+		<div class="vtu-act-state">Morpheus has no {{osFillFields}} for this VM. The guest reports <strong>{{osFillName}}</strong>.</div>
+		<div class="vtu-act-detail vtu-probe-hint">Fill in copies what the guest checks read from inside the VM (through its agent) into the empty OS fields of this VM's Morpheus record. Fields Morpheus already has stay as they are.{{#unless osFillCanUpdate}} Needs "VM Tune-Up: Update VM records" at full.{{/unless}}</div>
+	</div>
 	{{/if}}
+	</div>
 	{{#if problem}}
 	<div class="vtu-note"><strong>{{name}}</strong>: {{problem}}</div>
 	{{else}}
@@ -88,10 +97,10 @@
 		<div class="vtu-plan-head"><strong>Tune-up plan:</strong> {{planWindow}}
 			<span class="vtu-plan-after"><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span> {{score}} &rarr; <span class="vtu-grade vtu-grade-small {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}}</span>
 			{{#if linkUrl}}<a class="vtu-plan-link" href="{{linkUrl}}">{{linkLabel}}</a>{{/if}}</div>
-		{{#if hasPlanPrepare}}<p class="vtu-plan-stage">Before the window, in this order:</p><ol>{{#each planPrepare}}<li>{{this}}</li>{{/each}}</ol>{{/if}}
+		{{#if hasPlanPrepare}}<p class="vtu-plan-stage">Before the outage, in this order:</p><ol>{{#each planPrepare}}<li>{{this}}</li>{{/each}}</ol>{{/if}}
 		{{#if hasPlanLive}}<p class="vtu-plan-stage">Any time, no downtime:</p><ol>{{#each planLive}}<li>{{title}} <span class="vtu-muted vtu-id">{{id}}</span><br><span class="vtu-muted">{{howInVme}}</span>{{#if hasStepPrereqs}}<ul class="vtu-muted">{{#each stepPrereqs}}<li>{{this}}</li>{{/each}}</ul>{{/if}}</li>{{/each}}</ol>{{/if}}
 		{{#if hasPlanReboot}}<p class="vtu-plan-stage">With one guest restart:</p><ol>{{#each planReboot}}<li>{{title}} <span class="vtu-muted vtu-id">{{id}}</span><br><span class="vtu-muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
-		{{#if hasPlanCold}}<p class="vtu-plan-stage">In one cold window (Morpheus powers the VM off once), in this order:</p><ol>{{#each planCold}}<li>{{title}} <span class="vtu-muted vtu-id">{{id}}</span><br><span class="vtu-muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
+		{{#if hasPlanCold}}<p class="vtu-plan-stage">During one outage of this VM (Morpheus powers it off once), in this order:</p><ol>{{#each planCold}}<li>{{title}} <span class="vtu-muted vtu-id">{{id}}</span><br><span class="vtu-muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
 		{{#if planConsiderations}}<p class="vtu-muted">Not in the plan: {{planConsiderations}} Consideration(s), listed below with the findings.</p>{{/if}}
 	</div>
 	{{else}}{{#if linkUrl}}<div class="vtu-bar"><a href="{{linkUrl}}">{{linkLabel}}</a></div>{{/if}}{{/if}}

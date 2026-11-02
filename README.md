@@ -2,6 +2,7 @@
 
 **We've migrated to HVM. Now what?** VM Tune-Up grades every virtual machine on your HPE Morpheus HVM (HPE Virtual Machine) clusters, migrated or not. Whatever tool you used to migrate, and whenever you did it, see what it left behind and what to tune next: disks on emulated SATA or IDE, e1000 network adapters, the Legacy chipset, a QEMU guest agent that doesn't answer, VMware Tools still running, VMs that can't fail over, a cluster CPU setting your hosts can't all run, old snapshots, attached ISOs and more. Every VM gets a grade and a **tune-up plan**: what to do, in what order, in how few maintenance windows, and the grade it will have afterward.
 
+
 [![Latest release](https://img.shields.io/github/v/release/grahamfairbank/vm-tuneup-morpheus-plugin?label=release&include_prereleases)](../../releases)
 [![Morpheus 9.0 | 9.1](https://img.shields.io/badge/Morpheus-9.0%20%7C%209.1-0d7b6a)](#requirements)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -11,9 +12,9 @@
 
 > **No credentials, ever.** You never enter a password, key or token anywhere: not for Morpheus, not for guests, not for hosts. VM Tune-Up works only through channels Morpheus already has. See [No credentials](#no-credentials-what-each-vm-and-host-needs-instead).
 
-![The VM Tune-Up tab on cluster-a: grade counts, findings by severity, a summary per origin group and the worst VMs first](docs/images/tab-cluster.png)
+![The VM Tune-Up tab on cluster-a: grade counts, findings by severity, a summary per origin group and the VMs ordered by tune-up benefit](docs/images/tab-cluster.png)
 
-<sub>The cluster tab is the fleet view: every HVM VM in the cluster, graded, grouped by origin and sorted worst first. Names and addresses in every screenshot are example values (`cluster-a`, `hvm-host-01`, `app-legacy-01`), the same ones the [install guide](docs/INSTALL.md) uses.</sub>
+<sub>The cluster tab is the fleet view: every HVM VM in the cluster, graded, grouped by origin and ordered by tune-up benefit. Names and addresses in every screenshot are example values (`cluster-a`, `hvm-host-01`, `app-legacy-01`), the same ones the [install guide](docs/INSTALL.md) uses.</sub>
 
 ## No credentials: what each VM and host needs instead
 
@@ -34,8 +35,8 @@
 ## Why you'll want it
 
 - **Migration is the start, not the finish.** A VM that boots on HVM can still run on emulated disks and network adapters, the Legacy chipset and no guest agent, and carry VMware Tools, snapshots and ISOs from the move. VM Tune-Up finds all of it in minutes, across the whole cluster.
-- **A plan, not just a list.** Each VM's fixes are grouped by the downtime they need: things you can do any time, one guest restart, and **one cold window** where Morpheus powers the VM off once for every hardware change. What must happen first (drivers, backups) is listed once, in order. You see the grade **now** and **after the plan**, per VM and for the cluster.
-- **Works whatever tool you used.** Morpheus's own migration tool, an image upload, a third-party converter or a VM that was simply discovered on the hosts: the checks look at the VM as it is today. Each VM is also put in an origin group (**Migrated from VMware**, **No VMware signal**, **Unknown origin**), with honest wording about what Morpheus data can and can't show.
+- **A plan, not just a list.** Each VM's fixes are grouped by the downtime they need: things you can do any time, one guest restart, and **one outage of the VM**, where Morpheus powers it off once for every hardware change. Outages are per VM: the rest of the cluster keeps running. What must happen first (drivers, backups) is listed once, in order. You see the grade **now** and **after the plan**, per VM and for the cluster.
+- **Works whatever tool you used.** Morpheus's own migration tool, an image upload, a third-party converter or a VM that was simply discovered on the hosts: the checks look at the VM as it is today. Each VM is also put in an origin group (**Migrated**, **Not migrated**, **Origin unknown**), with honest wording about what Morpheus data can and can't show.
 - **Every finding is a plan, not a scare.** "If you leave it" says what the problem costs you. "If you fix it" gives the downtime, the risk, whether it can be undone, and what must happen first, in order. HPE documentation is cited first.
 - **Recommendations you can actually do.** A **Recommendation** is something you can do in the Morpheus UI or inside the guest OS. Anything that would need host-level work is a **Consideration**: worth knowing, never recommended.
 - **Optional checks inside the guest and on the hosts.** For people you trust with it, one fixed, read-only script per OS looks inside the VM (VirtIO readiness, VMware Tools leftovers, guest agent, time sync), and a host CPU check reads each HVM host's CPU models with `virsh`. Both run only when someone with the permission clicks a button.
@@ -58,31 +59,31 @@ Step-by-step instructions, written for someone doing this for the first time: **
 
 ### The cluster tab: your fleet view
 
-Open an HVM cluster and choose the **VM Tune-Up** tab (Morpheus may put it under the tab row's overflow menu). The first time, the tab scans the cluster in the background and shows its progress ("Scanned 4 of 9 HVM VMs"). A small activity indicator shows whenever something is running. Then it shows:
+Open an HVM cluster and choose the **VM Tune-Up** tab (Morpheus may put it under the tab row's overflow menu). The first time, the tab scans the cluster in the background and shows its progress ("Scanned 4 of 9 HVM VMs"). A scan takes about 2 to 4 seconds per VM, so about 1 to 2 minutes for 16 VMs. Stay on the page and don't refresh it while the scan runs: the progress bar shows how far it has got. A small activity indicator shows whenever something is running. Then it shows:
 
 - **Grade counts** (A to F) and **findings by severity** (critical, warning, info) for the whole cluster;
-- **Tune-up plan:** a table of grade counts and the average score **Now** and **After the plan**, and how many VMs need one cold window, a guest restart, no downtime, or nothing at all;
-- **Host CPUs:** the [host CPU check](#the-host-cpu-check) (master-tenant users with the guest-scan permission);
-- **Guest checks:** **Run guest checks on all powered-on VMs**, and the VMs whose empty OS fields can be filled in (see [Guest checks](#guest-checks-tier-2) and [Fill in OS fields](#fill-in-os-fields-the-one-write));
+- **Tune-up plan:** a table of grade counts and the average score **Now** and **After the plan**, and how many VMs need one outage each (each of those VMs is powered off once, on its own schedule), a guest restart, no downtime, or nothing at all;
+- **Live migration readiness:** the [host CPU check](#the-host-cpu-check) (master-tenant users with the guest-scan permission);
+- **Guest checks:** **Run guest checks on all powered-on VMs**, and the VMs with empty OS fields in Morpheus that can be filled in from what the guest checks read inside the guest (see [Guest checks](#guest-checks-tier-2) and [Fill in OS fields](#fill-in-os-fields-the-one-write));
 - **By origin:** the same counts per origin group;
-- **Worst VMs**, worst first: grade, score, the grade after the plan, the plan's window, top findings, and a link to the VM in Morpheus. Filter by origin, see the 15 worst or **Show all**;
+- **VMs ordered by tune-up benefit:** the VMs whose plan gains the most points come first, then the lowest score, then the name. Each row has the grade, score, the grade after the plan, the plan's downtime, top findings, and a link to the VM in Morpheus. Tick **Migrated VMs only** to see just those, and see the top 15 or **Show all**;
 - **Findings per check:** how many VMs fail each check, and how many couldn't be decided;
-- buttons: **Rescan**, **Download CSV (this cluster)**, **Download CSV (all clusters)** and **Print report**.
+- buttons: **Rescan**, **Download CSV (this cluster)**, **Download CSV (all clusters)** and **Print report**. The grey line under the CSV buttons gives a rough scan time for the cluster's VM count.
 
-![The By origin table on cluster-a, with the origin filter set to Migrated](docs/images/tab-cluster-origin.png)
+![The By origin table on cluster-a, with Migrated VMs only checked](docs/images/tab-cluster-origin.png)
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan summary on cluster-a: grade counts now and after the plan, and how many VMs need each kind of window](docs/images/tab-cluster-plan.png) -->
+<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan summary on cluster-a: grade counts now and after the plan, and how many VMs need one outage each, a guest restart or no downtime](docs/images/tab-cluster-plan.png) -->
 
 ### The VM tab: what to fix, and how
 
 Every HVM VM (and every instance on one) gets a **VM Tune-Up** tab with its grade, its tune-up plan and its findings, worst first. Discovered VMs, which have no instance, get it on the VM page.
 
-The **tune-up plan** comes first. It shows the window the VM needs ("One cold window (VM powered off once) for 2 fixes", "One guest restart", "No downtime" or "Nothing to do"), the grade now and after the plan, and a link to the instance (or VM) in Morpheus, where the actions are. Then, in order:
+The **tune-up plan** comes first. It shows the downtime the VM needs ("One outage of this VM (powered off once) for 2 fixes", "One guest restart", "No downtime" or "Nothing to do"), the grade now and after the plan, and a link to the instance (or VM) in Morpheus, where the actions are. Then, in order:
 
-- **Before the window, in this order:** the prerequisites of every fix in the window, once each, only those for the VM's OS;
+- **Before the outage, in this order:** the prerequisites of every fix in the outage, once each, only those for the VM's OS;
 - **Any time, no downtime:** fixes you can do while the VM runs;
 - **With one guest restart:** fixes that restart the guest OS;
-- **In one cold window, in this order:** fixes where Morpheus powers the VM off once and changes its hardware.
+- **During one outage of this VM (Morpheus powers it off once), in this order:** fixes where Morpheus powers the VM off and changes its hardware.
 
 "After the plan" counts every Recommendation as done. Considerations aren't part of the plan and keep their score; the plan only mentions how many there are.
 
@@ -96,23 +97,30 @@ Below the plan, each finding shows:
 
 ![The VM Tune-Up tab of app-legacy-01: grade F, a boot disk on IDE, an e1000 network adapter, a VMware MAC address and a discovered VM](docs/images/tab-vm.png)
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan on app-legacy-01: one cold window for 2 fixes, D 67 to A 100, the steps before the window and in it](docs/images/tab-vm-plan.png) -->
+<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The tune-up plan on app-legacy-01: one outage of this VM for 2 fixes, D 67 to A 100, the steps before the outage and during it](docs/images/tab-vm-plan.png) -->
 
 Checks the plugin couldn't decide for this VM (for example on Morpheus 9.0.x, which doesn't report the chipset) are listed separately as **Unknown or not evaluated**. They cost no points and never count as a pass.
 
-At the top of the tab, users with the right permissions also get **Check guest agent**, **Run guest checks** and **Fill in OS fields**. Everyone else sees what each does, greyed out, with the permission it needs.
+At the top of the tab is a row per action: the button on the left (all the same width), its status to the right, and the detail underneath:
+
+- **Refresh**: "Scanned 2 min ago."
+- **Check guest agent**: the last answer ("Answered 2 min ago").
+- **Run guest checks**: "Guest checked 5 min ago: <OS>."
+- **Fill in OS fields** (when there is something to fill in): "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." Underneath, it explains that this copies what the guest checks read from inside the VM (through its agent) into the empty OS fields of this VM's Morpheus record, and that fields Morpheus already has stay as they are.
+
+Users without the right permissions see what each action does, greyed out, with the permission it needs.
 
 ![The Check guest agent area on db-win-01: the button, its one-line explanation and "Answered 2 min ago"](docs/images/tab-vm-guest-agent.png)
 
 ### CSV export
 
-**Download CSV (this cluster)** and **Download CSV (all clusters)** save one row per VM, worst first, with the plan's columns, ready for a spreadsheet and a change plan. See [CSV columns](#csv-columns).
+**Download CSV (this cluster)** and **Download CSV (all clusters)** save one row per VM, lowest score first, with the plan's columns, ready for a spreadsheet and a change plan. A download waits for a running scan to finish, so it can take a moment; stay on the page and don't refresh it. See [CSV columns](#csv-columns).
 
 ### Printable report
 
-**Print report** on the cluster tab opens the cluster's report as a clean page: a summary (VMs scanned, average score now and after the plan, VMs per window), all VMs worst first with their grade now and after, the tune-up plan of each VM that has one, and the host CPU result if one was run. Use your browser's **Print** and choose **Save as PDF** to keep it or send it. The report uses only results already scanned: it never starts a scan or runs a command, and it says "Not ready yet" while the cluster is still scanning.
+**Print report** on the cluster tab opens the cluster's report as a clean page: a summary (VMs scanned, average score now and after the plan, how many VMs need one outage each, a guest restart or no downtime), the VMs ordered by tune-up benefit with their grade now and after, the tune-up plan of each VM that has one, and the live migration readiness (host CPU) result if one was run. Use your browser's **Print** and choose **Save as PDF** to keep it or send it. The report uses only results already scanned: it never starts a scan or runs a command, and it says "Not ready yet" while the cluster is still scanning.
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The printable report of cluster-a: summary, all VMs worst first and the tune-up plan per VM](docs/images/print-report.png) -->
+<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The printable report of cluster-a: summary, VMs ordered by tune-up benefit and the tune-up plan per VM](docs/images/print-report.png) -->
 
 ## The checks
 
@@ -151,7 +159,7 @@ Listed in fix-plan order: what to do first comes first.
 
 **A few things worth knowing:**
 
-- **Disk bus and chipset fixes list their prerequisites in order.** On Windows, the VirtIO storage driver must be installed **and** a boot-start driver before the switch, or Windows fails to boot. On Linux, VirtIO must be in the initramfs (or built into the kernel), and `/etc/fstab` and the boot loader must refer to disks by UUID or label. The plan lists each step once, before the window. The guest checks can confirm the guest is ready (`VIRTIO-READY`).
+- **Disk bus and chipset fixes list their prerequisites in order.** On Windows, the VirtIO storage driver must be installed **and** a boot-start driver before the switch, or Windows fails to boot. On Linux, VirtIO must be in the initramfs (or built into the kernel), and `/etc/fstab` and the boot loader must refer to disks by UUID or label. The plan lists each step once, before the outage. The guest checks can confirm the guest is ready (`VIRTIO-READY`).
 - **Network adapter changes** give the guest a new adapter: record its IP settings first, and keep the Morpheus console at hand.
 - **Network adapters Morpheus doesn't name** (it reports E1000E and some other models with no type) count as "not VirtIO, model unknown".
 - **HA and mobility.** A VM with a disk on a host's local (directory) datastore stays down when that host does. NFS and HPE clustered datastores are shared. The fix is **Actions → Move** to shared storage, which runs live when the VM is on.
@@ -191,17 +199,17 @@ Each VM is put in one of three groups, on the cluster tab and in the CSV (`origi
 
 | Group | When | What it can't tell you |
 |---|---|---|
-| **Migrated from VMware** | The VM still has a VMware MAC address (prefix 00:50:56, 00:0C:29, 00:05:69 or 00:1C:14), or its OS type fields are incomplete the way a native VMware migration leaves them. | |
-| **No VMware signal** | A managed VM with neither signal. | Most are native HVM VMs, but a VM migrated through an image upload or another tool, with a new MAC address and corrected OS type, lands here too. The guest checks spot VMware Tools and its leftovers. |
-| **Unknown origin** | A discovered (unmanaged) VM with neither signal. | It may have been created outside Morpheus or moved by another tool. |
+| **Migrated** | The VM still has a VMware MAC address (prefix 00:50:56, 00:0C:29, 00:05:69 or 00:1C:14), or its OS type fields are incomplete the way a native VMware migration leaves them, or (after the guest checks) VMware Tools was found inside a Windows guest (`VMWARE-TOOLS` fails). | |
+| **Not migrated** | A managed VM with none of these signs. | Most are VMs built on HVM, but a VM moved by an image upload or another tool, with a new MAC address and corrected OS fields, also lands here until the guest checks find VMware Tools. |
+| **Origin unknown** | A discovered (unmanaged) VM with none of these signs. | It may have been created outside Morpheus or moved by another tool. |
 
-The cluster tab explains this under **How origin is decided**.
+VMware Tools counts only on Windows: many Linux images ship open-vm-tools by default, so on Linux it says nothing about where the VM came from. Hover over a VM's origin on the cluster tab to see why it's in that group, for example "VMware MAC address", "OS fields left incomplete by a VMware migration", "VMware Tools in the guest", or "managed VM: no VMware MAC, OS fields complete, guest checks not run". The cluster tab explains all this under **How origin is decided**, and its summary badge counts the VMs as "N migrated from VMware".
 
 ### Scoring and the plan
 
 Each VM starts at 100. Each failed check costs points: critical 25, warning 8, info 0 to 2. The score never goes below 0. Grades: **A** 90+, **B** 80+, **C** 70+, **D** 60+, **F** below 60. Unknown and not-evaluated checks cost nothing.
 
-The **score after the plan** is the same calculation with every failed Recommendation counted as fixed. Considerations and unknown checks stay as they are. The plan's window is the biggest interruption any of its fixes needs: a cold window if any fix needs Morpheus to power the VM off, else a guest restart, else no downtime.
+The **score after the plan** is the same calculation with every failed Recommendation counted as fixed. Considerations and unknown checks stay as they are. The plan's downtime is the biggest interruption any of its fixes needs: one outage of the VM if any fix needs Morpheus to power it off, else a guest restart, else no downtime.
 
 ## The guest agent check
 
@@ -219,7 +227,7 @@ Through the plugin API, Morpheus 9.1.0.1 reports every VM's QEMU guest agent sta
 Some things can only be seen from inside the guest: whether the VirtIO drivers are ready before a bus switch, whether VMware Tools still runs, whether the guest agent can freeze the file systems for a consistent snapshot, whether the clock is synchronized. **Run guest checks** looks for them.
 
 - **Who, and when:** users with **VM Tune-Up: Run guest and host checks** at **Full**, only when they click. On the VM tab: **Run guest checks** (one VM). On the cluster tab: **Run guest checks on all powered-on VMs** (every powered-on HVM VM of the cluster their tenant can see, one VM at a time, with progress). Never automatically.
-- **What runs:** one fixed, read-only script per OS, built into the plugin. Nothing from the page, the user or the VM is ever put into it. It runs once per VM:
+- **What runs:** one fixed, read-only script per OS, built into the plugin. Nothing from the page, the user or the VM is ever put into it. It runs once per VM. The checks only read; nothing in the VM changes.
   - **Windows:** a PowerShell script (Windows PowerShell 4.0 or later), run as SYSTEM through the **QEMU guest agent**, by Morpheus's guest execution;
   - **Linux:** a POSIX `sh` script, run as root through the **Morpheus agent**, by Morpheus's guest execution.
 - **No credentials.** The plugin never asks for or holds a guest password, SSH key or WinRM login. Morpheus uses the channel it already has to each VM.
@@ -263,11 +271,11 @@ The full scripts, with comments, are in [`core/GuestScripts.groovy`](src/main/gr
 
 ## Fill in OS fields: the one write
 
-A migrated VM often has empty guest OS fields in Morpheus (OS type, OS family, platform, version). That hides it from OS-based reports and policies and makes some checks unknown. Once a guest scan has identified the OS, VM Tune-Up can fill them in.
+A migrated VM often has empty guest OS fields in Morpheus (OS type, OS family, platform, version). That hides it from OS-based reports and policies and makes some checks unknown. The guest checks read each VM's OS from inside the guest, through its agent. **Fill in** copies that OS into the empty OS fields of the VM's Morpheus record, so Morpheus shows the right OS. Nothing in the VM itself changes.
 
 - **Who:** only users whose role has **VM Tune-Up: Update VM records** at **Full** (a separate permission; giving someone guest scans doesn't give them this).
-- **Where:** on the VM tab, **Fill in OS fields**, next to "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." On the cluster tab, under **Guest checks**, a list of the VMs that would be filled in and what each would get, and **Fill in all N**.
-- **Confirm first:** the browser asks before anything is written ("Fill in the empty OS fields of this VM as <OS>? Fields Morpheus already has are not changed.").
+- **Where:** on the VM tab, **Fill in OS fields**, next to "Morpheus has no OS type, OS family, platform for this VM. The guest reports <OS>." On the cluster tab, under **Guest checks**, the **Missing OS fields** list: the VMs that would be filled in and what each would get, and **Fill in all N in Morpheus**.
+- **Confirm first:** the browser asks before anything is written: "Copy the OS the guest reported (<OS>) into the empty OS fields of this VM's Morpheus record? …" on the VM tab, and "Copy the OS each guest reported into the empty OS fields of these N VMs' Morpheus records? …" on the cluster tab.
 - **Only empty fields.** A field Morpheus already has is never changed. The OS must have a confident match in Morpheus's own OS type catalog; if not, nothing is written and the tab says to set it by hand.
 - **One save per VM**, through Morpheus's plugin API, on a fresh copy of the VM record.
 - **Logged:** each write is logged on the appliance with the Morpheus user id, the server id and the OS code.
@@ -279,28 +287,28 @@ A migrated VM often has empty guest OS fields in Morpheus (OS type, OS family, p
 
 Live migration between HVM hosts needs every host to offer the CPU the VM was started with. The cluster's CPU model setting decides that. Host passthrough (HVM's default) is fine only while every host has the same CPU **and** microcode; microcode updates have removed CPU features before (Intel TSX), so a named model that worked last month may not work after a patch. The host CPU check looks at what each host can really run today.
 
-- **Who, and when:** users in the **master tenant** whose role has **VM Tune-Up: Run guest and host checks** at **Full**, only when they click **Check host CPUs** in the cluster tab's **Host CPUs** section. The result is shown only to master-tenant users.
+- **Who, and when:** users in the **master tenant** whose role has **VM Tune-Up: Run guest and host checks** at **Full**, only when they click **Check the hosts** (later **Check again**) in the cluster tab's **Live migration readiness** section. The result is shown only to master-tenant users.
 - **What runs:** on each HVM host of the cluster, through Morpheus's own connection to the host, two fixed, read-only commands:
   - `virsh -c qemu:///system capabilities` (the host's CPU model, vendor, features and microcode);
   - `virsh -c qemu:///system domcapabilities --virttype kvm` (which named CPU models this host can run, and what blocks the others).
 
   `domcapabilities` needs a read-write libvirt connection, so each runs as root, or through `sudo -n` (which never prompts) when Morpheus's host account isn't root. No credentials are entered: Morpheus uses the access it already has to its hosts.
 - **What it checks:** the cluster's CPU model setting against every host: CPU vendors or architectures that differ (critical); host passthrough or host-model on hosts that differ (warning); a named model that some host can't run, with libvirt's reason, for example TSX removed by microcode (critical); a deprecated or newer-than-needed model; and hosts that couldn't be read (unknown, never a pass).
-- **What it recommends:** the newest named CPU model that **every** host can run today, and where to change it in Morpheus (**Infrastructure → Clusters → (cluster) → Edit**). It also says what to watch: keep hosts identical while you use host passthrough, and update microcode on all hosts together.
+- **What it recommends:** the newest named CPU model that **every** host can run today, and where to change it in Morpheus (**Infrastructure → Clusters → (cluster) → Edit**). It also says what to watch: keep hosts identical while you use host passthrough, and update microcode on all hosts together. When the hosts are identical, the result is **Identical hosts: host passthrough is fine** (or host-model or maximum, by the setting): VMs get the full host CPU and can live-migrate between the hosts. Its **What to do** says that before you add a host with a different CPU or microcode, the CPU Model setting must change to a named model every host can run, and names the best one (for example, "today that is Broadwell-noTSX-IBRS"); until then, VMs can't live-migrate to or from the new host.
 - **Limits:** 90 seconds per command per host; one run per cluster at a time; the result is kept for **1 hour**. Output is capped and parsed with a hardened XML parser. Each run is logged with the user id and cluster id.
 - **Not part of the VM grades.** It's a cluster-level result, on the cluster tab and in the printable report.
 
-<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The Host CPUs section on cluster-a: Pass, hosts have identical CPUs, cluster setting host-passthrough, best model usable on every host](docs/images/tab-cluster-host-cpu.png) -->
+<!-- Screenshot to add (see docs/images/SCREENSHOT-SPEC.md): ![The Live migration readiness section on cluster-a: Identical hosts: host passthrough is fine, and the named model to switch to before adding a different host](docs/images/tab-cluster-host-cpu.png) -->
 
 ## Where users see it
 
 | Where | What | License |
 |---|---|---|
-| **Cluster tab** (Infrastructure → Clusters → an HVM cluster → VM Tune-Up) | The fleet view: grade counts now and after the plan, findings by severity, host CPUs, guest checks, origin groups, worst VMs, findings per check, Rescan, CSV downloads and Print report. | Every license |
+| **Cluster tab** (Infrastructure → Clusters → an HVM cluster → VM Tune-Up) | The fleet view: grade counts now and after the plan, findings by severity, live migration readiness, guest checks, origin groups, VMs ordered by tune-up benefit, findings per check, Rescan, CSV downloads and Print report. | Every license |
 | **VM tab** (Infrastructure → Compute → Virtual Machines → a VM) and **instance tab** (Provisioning → Instances → an instance) | One VM's grade, tune-up plan and findings, with Refresh, Check guest agent, Run guest checks and Fill in OS fields. | Every license |
 | **CSV export** (from the cluster tab) | One row per VM, for this cluster or every HVM cluster you can see. | Every license |
-| **Printable report** (from the cluster tab) | A page for your browser's Save as PDF: summary, all VMs, plan per VM, host CPUs. | Every license |
-| **Fleet report** (Operations → Reports → VM Tune-Up) | A summary, then one row per HVM VM; Morpheus can export the rows as CSV. Runs from the master tenant only, for users with the view permission. | Licenses that include Reports |
+| **Printable report** (from the cluster tab) | A page for your browser's Save as PDF: summary, VMs ordered by tune-up benefit, plan per VM, live migration readiness. | Every license |
+| **Fleet report** (Operations → Reports → VM Tune-Up) | A summary, then **VMs by score (lowest first)**, one row per HVM VM with a **Migrated** column; Morpheus can export the rows as CSV. Runs from the master tenant only, for users with the view permission. | Licenses that include Reports |
 
 The Reports page isn't part of the Morpheus VM Essentials license, so on that edition the cluster tab, the CSV and the printable report are the fleet view.
 
@@ -309,10 +317,10 @@ The Reports page isn't part of the Morpheus VM Essentials license, so on that ed
 `name`, `cluster`, `host`, `os`, `serverType`, `managed`, `power`, `grade`, `score`, `gradeAfter`, `scoreAfter`, `planWindow`, `planSteps`, `critical`, `warning`, `info`, `unknown`, `vmwareOrigin` (yes/no), `origin` (migrated, not-migrated, unknown), `guestAgentProbe`, `topFindings` (plain titles with severity), `checkIds` (short IDs), `scanStatus`, `scannedAt`.
 
 - `gradeAfter` and `scoreAfter`: the grade and score after the plan.
-- `planWindow`: `cold` (one cold window), `guest-reboot` (one guest restart), `live` (no downtime) or `none` (nothing to do).
+- `planWindow`: `cold` (one outage of the VM), `guest-reboot` (one guest restart), `live` (no downtime) or `none` (nothing to do).
 - `planSteps`: the plan's checks in the order to do them, by short ID, for example `DISCOVERED > MORPHEUS-AGENT > DISK-BUS > NIC-MODEL`.
 
-The browser builds the file from the plugin's own data: it shows progress ("Preparing CSV: scanned 12 of 63…"), waits for the scan to finish (at most 15 minutes per cluster; after that the file has the VMs scanned so far, with a note), and saves `vm-tuneup-<cluster>-<date>.csv` in UTF-8 with a byte order mark, so Excel reads it correctly. **All clusters** goes through your clusters one at a time and saves one file. Cells a spreadsheet could read as a formula get a leading apostrophe.
+The browser builds the file from the plugin's own data: it shows progress ("Preparing CSV: scanned 12 of 63…"), waits for the scan to finish (about 2 to 4 seconds per VM; at most 15 minutes per cluster, after that the file has the VMs scanned so far, with a note). Stay on the page and don't refresh it while it runs. It saves `vm-tuneup-<cluster>-<date>.csv` in UTF-8 with a byte order mark, so Excel reads it correctly. **All clusters** goes through your clusters one at a time and saves one file. Cells a spreadsheet could read as a formula get a leading apostrophe.
 
 Under the buttons, **direct download** links are a fallback for browsers where the buttons don't work. They give the same columns from results already in memory and never start a scan: a cluster that's still scanning, or wasn't scanned in the last 10 minutes, is listed as such.
 
@@ -351,7 +359,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 - **No credentials, anywhere.** The plugin has no settings form and never asks for, receives or stores a password, key or token. Commands in guests go through Morpheus's guest execution (the QEMU guest agent on Windows, the Morpheus agent on Linux); commands on hosts go through Morpheus's own connection to its HVM hosts.
 - **Read-only, except one opt-in action.** The checks read Morpheus data and never change a VM, host or cluster. Commands run only for users with **Run guest and host checks**, and are fixed constants: a no-op (guest agent check, also run during a cluster scan such a user starts), one read-only script per OS (guest checks, only on a click), and two read-only `virsh` queries per host (host CPU check, only on a click, master tenant only). Nothing from the request, the page or Morpheus data is ever put into a command. The only write is **Fill in OS fields**, behind **Update VM records**: empty OS fields only, after a confirm, logged.
 - **Every route checks the user itself.** Morpheus only checks that a role has the permission code, so each route checks the level (view: Read; guest scans and host CPU: Full; OS fill-in: Full) and the tenant before it reads, scans or runs anything. Outside the master tenant, a user sees only their own tenant's VMs and clusters, a cluster-wide guest scan or fill-in covers only their tenant's VMs, and the host CPU check isn't available.
-- **Only the plugin's own script starts work.** A GET starts or joins a scan only when it carries `X-Requested-With: XMLHttpRequest` and a same-origin `Origin`, `Referer` or `Sec-Fetch-Site`. A plain link, a new tab or another site gets results already in memory, or a note to open the tab; it never starts a scan or a command. Rescan, Check guest agent, Run guest checks, Check host CPUs and Fill in OS fields are POSTs that also need the same origin and Morpheus's CSRF token. The only command a GET can lead to is the no-op guest agent check, inside a cluster scan started by a guest-scan user. `X-Forwarded-Host` isn't trusted for the origin check.
+- **Only the plugin's own script starts work.** A GET starts or joins a scan only when it carries `X-Requested-With: XMLHttpRequest` and a same-origin `Origin`, `Referer` or `Sec-Fetch-Site`. A plain link, a new tab or another site gets results already in memory, or a note to open the tab; it never starts a scan or a command. Rescan, Check guest agent, Run guest checks, Check the hosts and Fill in OS fields are POSTs that also need the same origin and Morpheus's CSRF token. The only command a GET can lead to is the no-op guest agent check, inside a cluster scan started by a guest-scan user. `X-Forwarded-Host` isn't trusted for the origin check.
 - **What's logged.** Each command run and each write is logged on the appliance with the Morpheus user id and the server or cluster id. Guest scan output is never logged (it can hold internal names); the script's SHA-256 is.
 - **Output.** Every value is HTML-escaped in the tabs and the printable report. The script inserts only same-origin HTML that starts with the plugin's own markup (an expired session shows "Reload the page and sign in again" instead). CSV cells that could run as spreadsheet formulas are neutralized. The server CSV is served only as a `text/csv` attachment with `nosniff`, and JSON as UTF-8. Guest and host output is size-capped, and host XML is parsed with external entities and DTDs turned off.
 - **What view users see (by design).** For the VMs their tenant owns, view users see what the checks are about: full MAC addresses, attached ISO and volume paths, host and cluster names, OS and agent versions, and, once someone has run the guest checks, what they found inside the guest (driver and service states, VMware Tools version, time source). A role without Infrastructure read still learns these through the plugin, so grant the view permission to people you'd show the VMs' settings to.

@@ -44,9 +44,9 @@
 </table>
 <p class="vtu-muted">Scanned {{scannedAt}}. Unknown and not-evaluated results carry no penalty. Snapshot and allocation thresholds are plugin heuristics, not HPE guidance.</p>
 {{/with}}
-<h4>VMs (worst first)</h4>
+<h4>VMs by score (lowest first)</h4>
 <table class="vtu-table">
-	<tr><th>VM</th><th>Cluster</th><th>OS</th><th>Grade</th><th class="vtu-num">Score</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th class="vtu-num">Unknown</th><th>VMware origin</th><th>Top findings</th></tr>
+	<tr><th>VM</th><th>Cluster</th><th>OS</th><th>Grade</th><th class="vtu-num">Score</th><th class="vtu-num">Critical</th><th class="vtu-num">Warning</th><th class="vtu-num">Info</th><th class="vtu-num">Unknown</th><th>Migrated</th><th>Top findings</th></tr>
 	{{#each rows}}<tr><td>{{name}}</td><td>{{cluster}}</td><td>{{os}}</td><td><span class="vtu-grade vtu-grade-small {{gradeClass}}">{{grade}}</span></td><td class="vtu-num">{{score}}</td><td class="vtu-num">{{critical}}</td><td class="vtu-num">{{warning}}</td><td class="vtu-num">{{info}}</td><td class="vtu-num">{{unknown}}</td><td>{{vmwareOrigin}}</td><td>{{topFindings}}</td></tr>{{/each}}
 </table>
 <div class="vtu-muted">Export this report as CSV for the per-VM rows. Open a VM's VM Tune-Up tab for evidence and fix steps. {{disclaimer}}</div>

@@ -28,8 +28,8 @@ class OriginSpec extends Specification {
 		then:
 		r.originSignals == []
 		r.origin == 'not-migrated'
-		Views.originLabel(r.origin) == 'No VMware signal'
-		Views.originWhy(r) == 'managed VM, no VMware signal'
+		Views.originLabel(r.origin) == 'Not migrated'
+		Views.originWhy(r) == 'managed VM: no VMware MAC, OS fields complete, guest checks not run'
 	}
 
 	def "a VMware MAC alone: migrated"() {
@@ -39,7 +39,7 @@ class OriginSpec extends Specification {
 		then:
 		r.originSignals == ['T1-VMWARE-MAC']
 		r.origin == 'migrated'
-		Views.originLabel(r.origin) == 'Migrated from VMware'
+		Views.originLabel(r.origin) == 'Migrated'
 		Views.originWhy(r) == 'VMware MAC address'
 	}
 
@@ -51,7 +51,7 @@ class OriginSpec extends Specification {
 		r.results.find { it.checkId == 'T1-VMWARE-MAC' }.status == Status.PASS
 		r.originSignals == ['T1-OS-TYPE-MISMATCH']
 		r.origin == 'migrated'
-		Views.originWhy(r) == 'OS type fields incomplete after migration'
+		Views.originWhy(r) == 'OS fields left incomplete by a VMware migration'
 	}
 
 	def "both signals: migrated, both named"() {
@@ -60,7 +60,7 @@ class OriginSpec extends Specification {
 
 		then:
 		r.originSignals as Set == ['T1-VMWARE-MAC', 'T1-OS-TYPE-MISMATCH'] as Set
-		Views.originWhy(r).split(', ') as Set == ['VMware MAC address', 'OS type fields incomplete after migration'] as Set
+		Views.originWhy(r).split(', ') as Set == ['VMware MAC address', 'OS fields left incomplete by a VMware migration'] as Set
 	}
 
 	def "a discovered VM with no signal: unknown origin; with a signal: migrated"() {
@@ -70,8 +70,8 @@ class OriginSpec extends Specification {
 
 		then:
 		plain.origin == 'unknown'
-		Views.originLabel(plain.origin) == 'Unknown origin'
-		Views.originWhy(plain) == 'discovered VM, no VMware signal'
+		Views.originLabel(plain.origin) == 'Origin unknown'
+		Views.originWhy(plain) == 'discovered VM: no VMware MAC, OS fields complete, guest checks not run'
 		signal.origin == 'migrated'
 	}
 
@@ -99,7 +99,7 @@ class OriginSpec extends Specification {
 
 		then:
 		g*.origin == ['migrated', 'not-migrated', 'unknown', 'all']
-		g*.label == ['Migrated from VMware', 'No VMware signal', 'Unknown origin', 'All VMs']
+		g*.label == ['Migrated', 'Not migrated', 'Origin unknown', 'All VMs']
 		byKey.migrated.vmCount == 2
 		byKey['not-migrated'].vmCount == 1
 		byKey.unknown.vmCount == 1
@@ -111,14 +111,40 @@ class OriginSpec extends Specification {
 		(byKey.all.grades as List<Map>)*.grade == ['A', 'B', 'C', 'D', 'F']
 	}
 
-	def "the VM table rows carry the origin, worst first"() {
+	def "the VM table rows carry the origin, biggest tune-up benefit first"() {
 		when:
-		List<Map> rows = Views.vmRows([report(), report('vm-ide-import'), report { VmFacts f -> f.managed = false }])
+		List<VmReport> rs = [report(), report('vm-ide-import'), report { VmFacts f -> f.managed = false }]
+		List<Map> rows = Views.vmRows(rs)
+		List<Integer> gains = Views.byBenefit(rs).collect { TuneUpPlan.of(it).gain }
 
 		then:
 		rows[0].origin == 'migrated'
 		rows*.origin as Set == ['migrated', 'not-migrated', 'unknown'] as Set
 		rows.every { it.originLabel && it.originWhy }
-		rows*.score == rows*.score.sort(false)
+		gains == gains.sort(false).reverse()
+	}
+
+	def "VMware Tools in a Windows guest marks the VM migrated; open-vm-tools in a Linux guest does not"() {
+		given:
+		GuestFacts win = GuestFacts.parse('VTU-BEGIN v1 windows\npkg.vmwaretools=12.3.0\nsvc.VMTools=2\nrun.VMTools=Running\nVTU-END 3\n')
+		GuestFacts lin = GuestFacts.parse('VTU-BEGIN v1 linux\npkg.open-vm-tools=12.3.0\nrun.vmtoolsd=1\nVTU-END 2\n')
+
+		when:
+		VmReport w = VmReport.scan(vm('vm-clean-linux'), ctx(), win)
+		VmReport l = VmReport.scan(vm('vm-clean-linux'), ctx(), lin)
+
+		then:
+		w.results.find { it.checkId == 'T2-VMWARE-TOOLS' }?.status == Status.FAIL
+		w.origin == 'migrated'
+		Views.originWhy(w).contains('VMware Tools in the guest')
+		l.origin == 'not-migrated'
+		Views.originWhy(l).contains('no VMware MAC, OS fields complete, no VMware Tools')
+	}
+
+	def "scan time estimate: 2 to 4 seconds per VM"() {
+		expect:
+		Views.scanEstimate(0) == 'A scan takes about 2 to 4 seconds per VM.'
+		Views.scanEstimate(10) == "A scan takes about 2 to 4 seconds per VM: about a minute for this cluster's 10 VMs."
+		Views.scanEstimate(90) == "A scan takes about 2 to 4 seconds per VM: about 3 to 6 minutes for this cluster's 90 VMs."
 	}
 }

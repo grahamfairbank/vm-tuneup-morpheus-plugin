@@ -22,7 +22,6 @@
   var ACTIONS = { 'vm-refresh': true, 'vm-probe': true, 'cluster-rescan': true, 'host-cpu': true, 'vm-guest': true, 'cluster-guest': true, 'vm-setos': true, 'cluster-setos': true, 'csv-cluster': true, 'csv-all': true, 'show-all': true };
   var CSV_POLL_MS = 3000, CSV_CAP_MS = 15 * 60 * 1000; // poll clusterData every 3 s, at most 15 minutes per cluster
   var WORST_ROWS = 15; // rows shown in the cluster's VM table until "Show all"
-  var ORIGINS = { all: true, migrated: true, 'not-migrated': true, unknown: true };
   var MARKER = '<div class="vm-tuneup';
   var SIGN_IN = 'Reload the page and sign in again.';
 
@@ -175,11 +174,10 @@
   // State lives on the slot, so it survives the 5-second re-render of a running scan.
 
   function applyFilter(slot) {
-    var sel = slot.querySelector('select.vtu-origin-filter');
-    if (!sel) return;
-    var want = slot.getAttribute('data-vtu-filter') || 'all';
-    if (!ORIGINS.hasOwnProperty(want)) want = 'all';
-    sel.value = want;
+    var box = slot.querySelector('input.vtu-origin-filter');
+    if (!box) return;
+    var want = slot.getAttribute('data-vtu-filter') === 'migrated' ? 'migrated' : 'all';
+    box.checked = want === 'migrated';
     var expanded = slot.getAttribute('data-vtu-expanded') === '1';
     var rows = slot.querySelectorAll('tr.vtu-vmrow');
     var matched = 0, shown = 0;
@@ -193,7 +191,7 @@
     var none = slot.querySelector('tr.vtu-vmrow-none');
     if (none) none.hidden = matched !== 0;
     var count = slot.querySelector('.vtu-filter-count');
-    if (count) count.textContent = matched > shown ? 'Showing the worst ' + shown + ' of ' + matched + ' VMs.' : (matched === 1 ? '1 VM.' : matched + ' VMs.');
+    if (count) count.textContent = matched > shown ? 'Showing the top ' + shown + ' of ' + matched + ' VMs.' : (matched === 1 ? '1 VM.' : matched + ' VMs.');
     var more = slot.querySelector('[data-vtu-action="show-all"]');
     if (more) more.hidden = matched <= shown;
   }
@@ -372,10 +370,10 @@
 
   document.addEventListener('change', function (ev) {
     var t = ev.target;
-    if (!t || !t.closest || !t.closest(ROOT) || !t.matches || !t.matches('select.vtu-origin-filter')) return;
+    if (!t || !t.closest || !t.closest(ROOT) || !t.matches || !t.matches('input.vtu-origin-filter')) return;
     var slot = t.closest('.vtu-slot');
     if (!slot) return;
-    slot.setAttribute('data-vtu-filter', ORIGINS.hasOwnProperty(t.value) ? t.value : 'all');
+    slot.setAttribute('data-vtu-filter', t.checked ? 'migrated' : 'all');
     slot.removeAttribute('data-vtu-expanded');
     applyFilter(slot);
   });

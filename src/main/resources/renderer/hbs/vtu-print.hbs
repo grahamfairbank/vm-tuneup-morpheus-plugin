@@ -49,7 +49,7 @@ th { font-size: 11px; text-transform: uppercase; color: #57606a; font-weight: 60
 <div class="cards">
 	<div class="card"><b>{{vmCount}}</b>HVM VMs scanned</div>
 	<div class="card"><b>{{avgNow}} &rarr; {{avgAfter}}</b>average score, now &rarr; after the plan</div>
-	<div class="card"><b>{{planCold}}</b>VMs need one cold window</div>
+	<div class="card"><b>{{planCold}}</b>VMs need one outage each</div>
 	<div class="card"><b>{{planLive}}</b>can be fixed with no downtime</div>
 	<div class="card"><b>{{vmwareOrigin}}</b>migrated from VMware</div>
 </div>
@@ -59,16 +59,16 @@ th { font-size: 11px; text-transform: uppercase; color: #57606a; font-weight: 60
 	<tr><td><b>After the plan</b></td>{{#each gradesAfter}}<td class="g{{#if zero}} zero{{/if}}">{{count}}</td>{{/each}}<td class="num"><b>{{avgAfter}}</b></td></tr>
 </table>
 <p class="muted">Findings: <span class="badge vtu-sev-critical">{{critical}} critical</span> <span class="badge vtu-sev-warning">{{warning}} warning</span> <span class="badge vtu-sev-info">{{info}} info</span>.
-	{{planCold}} VMs need one cold window{{#if planPrep}} ({{planPrep}} need steps in the guest first){{/if}}, {{planReboot}} a guest restart, {{planLive}} no downtime, {{planNone}} nothing. "After the plan" counts every Recommendation as done; Considerations stay.</p>
+	{{planCold}} VMs need one outage each (per VM: each is powered off once){{#if planPrep}} ({{planPrep}} need steps in the guest first){{/if}}, {{planReboot}} a guest restart, {{planLive}} no downtime, {{planNone}} nothing. "After the plan" counts every Recommendation as done; Considerations stay.</p>
 {{/with}}
 
 {{#if hostCpuStatus}}
-<h2>Host CPUs</h2>
+<h2>Live migration readiness</h2>
 <p>Cluster CPU model setting: <b>{{hostCpuSetting}}</b>{{#if hostCpuBest}} &middot; best model usable on every host: <b>{{hostCpuBest}}</b>{{/if}} &middot; <span class="badge {{hostCpuStatusClass}}">{{hostCpuStatus}}</span> <span class="muted">(checked {{hostCpuAgo}})</span></p>
 {{#each hostCpuFindings}}<p><span class="badge {{statusClass}}">{{status}}</span> <b>{{title}}</b>. {{text}}{{#if recommendation}} <i>What to do:</i> {{recommendation}}{{/if}}</p>{{/each}}
 {{/if}}
 
-<h2>All VMs, worst first</h2>
+<h2>VMs ordered by tune-up benefit</h2>
 <table>
 	<tr><th>VM</th><th>Origin</th><th>Now</th><th>After</th><th>Plan</th><th class="num">Crit.</th><th class="num">Warn.</th><th class="num">Info</th><th>Top findings</th></tr>
 	{{#each vmRows}}<tr><td><b>{{name}}</b><br><span class="muted small">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span></td><td>{{originLabel}}</td><td><span class="grade {{gradeClass}}">{{grade}}</span> {{score}}</td><td><span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}}</td><td>{{planLabel}}</td><td class="num">{{critical}}</td><td class="num">{{warning}}</td><td class="num">{{info}}</td><td class="small">{{topFindings}}</td></tr>{{/each}}
@@ -79,10 +79,10 @@ th { font-size: 11px; text-transform: uppercase; color: #57606a; font-weight: 60
 {{#each vmPlans}}
 <div class="vm">
 	<b>{{name}}</b> <span class="muted">{{os}}{{#if host}} &middot; {{host}}{{/if}}</span> &middot; <span class="grade {{gradeClass}}">{{grade}}</span> {{score}} &rarr; <span class="grade {{gradeAfterClass}}">{{gradeAfter}}</span> {{scoreAfter}} &middot; {{planWindow}}
-	{{#if hasPlanPrepare}}<p class="stage">Before the window, in this order:</p><ol>{{#each planPrepare}}<li>{{this}}</li>{{/each}}</ol>{{/if}}
+	{{#if hasPlanPrepare}}<p class="stage">Before the outage, in this order:</p><ol>{{#each planPrepare}}<li>{{this}}</li>{{/each}}</ol>{{/if}}
 	{{#if hasPlanLive}}<p class="stage">Any time, no downtime:</p><ol>{{#each planLive}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
 	{{#if hasPlanReboot}}<p class="stage">With one guest restart:</p><ol>{{#each planReboot}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
-	{{#if hasPlanCold}}<p class="stage">In one cold window, in this order:</p><ol>{{#each planCold}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
+	{{#if hasPlanCold}}<p class="stage">During one outage of this VM, in this order:</p><ol>{{#each planCold}}<li>{{title}}: <span class="muted">{{howInVme}}</span></li>{{/each}}</ol>{{/if}}
 	{{#if planConsiderations}}<p class="muted">Also {{planConsiderations}} Consideration(s): see the VM's VM Tune-Up tab.</p>{{/if}}
 </div>
 {{/each}}

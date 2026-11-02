@@ -69,10 +69,10 @@ class Views {
 		return [id: shortId(r.checkId), title: r.check.title, howInVme: r.check.howInVme ?: '', stepPrereqs: pre, hasStepPrereqs: !pre.isEmpty()]
 	}
 
-	/** Short plan label for tables: "Cold window (2 fixes)", "Guest restart", "No downtime", "Nothing to do". */
+	/** Short plan label for tables: "Outage (2 fixes)", "Guest restart", "No downtime", "Nothing to do". */
 	static String shortWindow(TuneUpPlan p) {
 		switch (p.window) {
-			case TuneUpPlan.Window.COLD: return "Cold window (${p.cold.size()} fix${p.cold.size() == 1 ? '' : 'es'})".toString()
+			case TuneUpPlan.Window.COLD: return "Outage (${p.cold.size()} fix${p.cold.size() == 1 ? '' : 'es'})".toString()
 			case TuneUpPlan.Window.GUEST_REBOOT: return 'Guest restart'
 			case TuneUpPlan.Window.LIVE: return 'No downtime'
 			default: return 'Nothing to do'
@@ -126,25 +126,29 @@ class Views {
 
 	static String originLabel(String origin) {
 		switch (origin) {
-			case VmReport.ORIGIN_MIGRATED: return 'Migrated from VMware'
-			case VmReport.ORIGIN_NOT_MIGRATED: return 'No VMware signal'
-			default: return 'Unknown origin'
+			case VmReport.ORIGIN_MIGRATED: return 'Migrated'
+			case VmReport.ORIGIN_NOT_MIGRATED: return 'Not migrated'
+			default: return 'Origin unknown'
 		}
 	}
 
-	/** Why the VM got its origin, in a few words (shown as a tooltip and under the label). */
+	private static final Map<String, String> SIGNAL_WORDS = ['T1-VMWARE-MAC': 'VMware MAC address',
+		'T1-OS-TYPE-MISMATCH': 'OS fields left incomplete by a VMware migration', 'T2-VMWARE-TOOLS': 'VMware Tools in the guest']
+
+	/** Why the VM got its origin, in a few words (shown as a tooltip). */
 	static String originWhy(VmReport r) {
 		List<String> sig = r.originSignals
-		if (sig) return sig.collect { it == 'T1-VMWARE-MAC' ? 'VMware MAC address' : 'OS type fields incomplete after migration' }.join(', ')
-		return r.facts.managed ? 'managed VM, no VMware signal' : 'discovered VM, no VMware signal'
+		if (sig) return sig.collect { SIGNAL_WORDS[it] ?: it }.join(', ')
+		String looked = r.guest != null ? 'no VMware MAC, OS fields complete, no VMware Tools' : 'no VMware MAC, OS fields complete, guest checks not run'
+		return r.facts.managed ? "managed VM: ${looked}".toString() : "discovered VM: ${looked}".toString()
 	}
 
-	static final String ORIGIN_NOTE = 'A VM counts as Migrated from VMware when it still has a VMware MAC address ' +
-		'(prefix 00:50:56, 00:0C:29, 00:05:69 or 00:1C:14), or when its OS type fields are incomplete the way a native VMware migration ' +
-		'leaves them. No VMware signal: a managed VM with neither signal; most are native HVM VMs, but a VM migrated through an image ' +
-		'upload or another tool, with a new MAC address and corrected OS type, also lands here (the in-guest checks of a later version ' +
-		'will spot VMware Tools and other leftovers). Unknown origin: a discovered (unmanaged) VM with neither signal; it may have been ' +
-		'created outside Morpheus or moved by another tool.'
+	static final String ORIGIN_NOTE = 'Migrated: the VM still shows a sign of a VMware migration: a VMware MAC address ' +
+		'(prefix 00:50:56, 00:0C:29, 00:05:69 or 00:1C:14), OS fields left incomplete the way a Morpheus migration from VMware leaves ' +
+		'them, or (after the guest checks) VMware Tools inside a Windows guest. Not migrated: a managed VM with none of these signs. ' +
+		'Most are VMs built on HVM, but a VM moved by an image upload or another tool, with a new MAC address and its OS fields ' +
+		'corrected, also lands here until the guest checks find VMware Tools. Origin unknown: a discovered (unmanaged) VM with none ' +
+		'of these signs; it may have been created outside Morpheus or moved by another tool. Hover over a VM\'s origin to see why.'
 
 	/** Per origin group (and all VMs): VM count, grade counts and findings by severity. */
 	static List<Map> originGroups(List<VmReport> reports) {
@@ -163,9 +167,29 @@ class Views {
 		        info: rs.sum(0) { it.count(Severity.INFO) }]
 	}
 
-	/** Rows of the cluster view's VM table, worst first, each with its origin; the browser filters them. */
+	/**
+	 * How long a cluster scan takes, from the field: about 2 to 4 seconds per VM (owner's 9.0.1 cluster). Shown under
+	 * the CSV buttons so nobody refreshes the page mid-scan.
+	 */
+	static String scanEstimate(Integer vms) {
+		int n = vms ?: 0
+		String per = 'A scan takes about 2 to 4 seconds per VM'
+		if (n <= 0) return "${per}.".toString()
+		int lo = (int) Math.ceil(2d * n / 60d), hi = (int) Math.ceil(4d * n / 60d)
+		String span = hi <= 1 ? 'about a minute' : lo == hi ? "about ${hi} minutes".toString() : "about ${lo} to ${hi} minutes".toString()
+		return "${per}: ${span} for this cluster's ${n} VM${n == 1 ? '' : 's'}.".toString()
+	}
+
+	/** VMs that gain most from their tune-up plan first, then the lowest score, then by name. */
+	static List<VmReport> byBenefit(List<VmReport> reports) {
+		return (reports ?: []).sort(false) { VmReport a, VmReport b ->
+			TuneUpPlan.of(b).gain <=> TuneUpPlan.of(a).gain ?: a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '')
+		}
+	}
+
+	/** Rows of the cluster view's VM table, biggest tune-up benefit first, each with its origin; the browser filters them. */
 	static List<Map> vmRows(List<VmReport> reports, int max = 500) {
-		List<VmReport> sorted = (reports ?: []).sort(false) { VmReport a, VmReport b -> a.score.value <=> b.score.value ?: (a.facts.name ?: '') <=> (b.facts.name ?: '') }
+		List<VmReport> sorted = byBenefit(reports)
 		return sorted.take(max).collect { VmReport r ->
 			reportRow(r) + [gradeClass: gradeClass(r.score.grade), serverId: r.facts.id, originLabel: originLabel(r.origin), originWhy: originWhy(r),
 			                gradeAfterClass: gradeClass(TuneUpPlan.of(r).after.grade), planLabel: shortWindow(TuneUpPlan.of(r))] + link(r.facts)

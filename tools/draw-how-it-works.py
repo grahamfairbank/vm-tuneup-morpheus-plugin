@@ -122,8 +122,8 @@ COL3_X, COL3_W = 1070, 306
 
 col1 = [
     ("Cluster page › VM Tune-Up", [
-        "Fleet view: grades now and after the plan, origin groups, worst VMs, findings per check",
-        "Tune-up plan summary · Host CPUs · Guest checks",
+        "Fleet view: grades now and after the plan, origin groups, VMs by tune-up benefit, findings per check",
+        "Tune-up plan summary · Live migration readiness · Guest checks",
         "Rescan · Download CSV · Print report",
         ("Works on every edition, including Morpheus VM Essentials", "note"),
     ], BLUE),
@@ -159,7 +159,7 @@ col2_right = [
     ], TEAL),
     ("Checks and tune-up plan", [
         "16 Tier 1 checks from Morpheus data; 6 Tier 2 checks after a guest scan",
-        "Plan per VM: one cold window, a guest restart, or no downtime; grade after the plan",
+        "Plan per VM: one outage of the VM, a guest restart, or no downtime; grade after the plan",
         "Host CPU result per cluster (not part of VM grades)",
         "Unknown is listed, never a pass",
     ], TEAL),
@@ -226,7 +226,7 @@ yy = para(COL2_X + 28, dy + 34, COL2_W - 56,
           "Secure Boot, TPM · vCPUs and cores per socket · nested virtualization · placement · guest agent and Morpheus "
           "agent state · snapshots · CD-ROM drives · server type and OS · the cluster CPU model · your tenant and permissions", 13)
 para(COL2_X + 28, yy + 6, COL2_W - 56,
-     "Its one write (opt-in): fill in a VM's EMPTY guest OS fields, after you confirm, with Update VM records.", 13,
+     "Its one write (opt-in): copy the OS the guest reported into the EMPTY OS fields of the VM's Morpheus record, after you confirm, with Update VM records.", 13,
      AMBER[1], weight="bold")
 
 para(COL1_X + 14, TOP + ZONE_H - 62, COL1_W - 28,
@@ -263,7 +263,7 @@ flows = [
     ]),
     ("B.  Scanning a cluster", TEAL, [
         ("Opening the cluster tab starts a background scan, or joins the one already running.", "1"),
-        ("One worker scans each HVM VM in turn, pausing 250 ms after each.", "2"),
+        ("One worker scans each HVM VM in turn (about 2 to 4 s each), pausing 250 ms after each. Stay on the page; don't refresh.", "2"),
         ("The tab shows progress and refreshes every 5 s until the scan is done.", "3"),
         ("Fleet view and plan summary. Non-master users see only their tenant's VMs.", "4"),
         ("At most 2 scans run and 8 wait; 3 running per user.", "note"),
@@ -271,7 +271,7 @@ flows = [
     ("C.  CSV and printable report", BLUE, [
         ("Download CSV waits for the scan with progress, then the browser builds the file (formulas neutralized).", "1"),
         ("The CSV adds gradeAfter, scoreAfter, planWindow and planSteps.", "2"),
-        ("Print report opens a page for your browser's Save as PDF: summary, all VMs, plan per VM, host CPUs.", "3"),
+        ("Print report opens a page for your browser's Save as PDF: summary, VMs by tune-up benefit, plan per VM, live migration readiness.", "3"),
         ("Both use results already scanned; neither runs a guest or host command.", "note"),
     ]),
     ("D.  Guest checks (and Check guest agent)", AMBER, [
@@ -287,14 +287,14 @@ flows = [
         ("Gates: POST checks as in D; Run guest and host checks (Full); master tenant only.", "✓"),
         ("On each HVM host, through Morpheus: virsh capabilities and virsh domcapabilities --virttype kvm (as root, or sudo -n).", "1"),
         ("Each host's CPU, microcode and usable named CPU models are compared with the cluster's CPU model setting.", "2"),
-        ("The result names the best model every host can run, and what to change in Morpheus.", "3"),
+        ("Live migration readiness names the best model every host can run, and what to change in Morpheus.", "3"),
         ("Cached 1 hour; one run per cluster at a time.", "note"),
     ]),
     ("F.  Fill in OS fields: the one write", AMBER, [
-        ("Shown when Morpheus has empty OS fields and a guest scan identified the OS.", "1"),
+        ("Shown when the VM's Morpheus record has empty OS fields and the guest checks read the OS inside the guest.", "1"),
         ("Needs Update VM records (Full), plus the POST checks and the tenant check.", "✓"),
         ("You confirm in a dialog first.", "✓"),
-        ("Fills only EMPTY fields (OS type, family, platform, version); never changes a value Morpheus has.", "2"),
+        ("Copies that OS into only the EMPTY fields (OS type, family, platform, version); never changes a value Morpheus has.", "2"),
         ("Each write is logged with your user id, the VM and the OS.", "3"),
     ]),
 ]

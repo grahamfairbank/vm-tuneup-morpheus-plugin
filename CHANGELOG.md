@@ -4,7 +4,7 @@
 
 The first public release brings together 0.6.0 and 0.7.0 below. In short:
 
-- **A tune-up plan for every VM:** fixes grouped into one cold window, one guest restart or no downtime, prerequisites once and in order, and the grade **after the plan**; a plan summary for the cluster; plan columns in the CSV.
+- **A tune-up plan for every VM:** fixes grouped into one outage of the VM, one guest restart or no downtime, prerequisites once and in order, and the grade **after the plan**; a plan summary for the cluster; plan columns in the CSV.
 - **Three new Tier 1 checks:** HA and mobility, nested virtualization, and CPU topology (critical for Windows 10 or 11 spread over more than 2 sockets). The VMware source VM check (`SOURCE-TWIN`) is gone.
 - **Host CPU check** on the cluster tab: reconciles the cluster's CPU model setting with every HVM host's CPU and microcode, and recommends the best named model all hosts can run.
 - **Tier 2 guest checks:** one fixed, read-only script per OS, through Morpheus's guest execution, with six new checks.
@@ -13,6 +13,18 @@ The first public release brings together 0.6.0 and 0.7.0 below. In short:
 - **No credentials anywhere:** every command goes through channels Morpheus already has.
 
 Upgrading from 0.5.0: give the new **VM Tune-Up: Update VM records** permission only to people who may edit VM records; it starts at **None**.
+
+## 0.7.1 (2026-11-02)
+
+**Clearer wording and layout, from the owner's review of 0.7.0.**
+
+- **"Host CPUs" is now "Live migration readiness"**, with a **Check the hosts** button. When the hosts are identical, the result says host passthrough is fine, and that the CPU Model setting will need to change to a named model (it names the best one) before a host with a different CPU or microcode joins.
+- **"Cold window" is now "outage", per VM:** "One outage of this VM (powered off once)", "Outage (2 fixes)", "Before the outage", and "Outages are per VM: the rest of the cluster keeps running." The CSV code stays `cold`.
+- **VMs ordered by tune-up benefit** (the score the plan gains, biggest first) replace "Worst VMs" on the cluster tab and "All VMs, worst first" in the printable report. The CSV keeps lowest score first.
+- **Origin labels: Migrated, Not migrated, Origin unknown** (were Migrated from VMware, No VMware signal, Unknown origin). The filter is a **Migrated VMs only** checkbox. VMware Tools found inside a Windows guest by the guest checks now also marks a VM Migrated (not on Linux: many Linux images ship open-vm-tools). Hover over a VM's origin to see why.
+- **Scan time and "don't refresh":** under the CSV buttons, a line gives the expected scan time (about 2 to 4 seconds per VM, measured on a 9.0.1 cluster) and asks you to stay on the page while the scan runs.
+- **Fill in explained:** the cluster and VM tabs say that Fill in copies the OS the guest checks read from inside the VM, through its agent, into the empty OS fields of the Morpheus record. The cluster button is **Fill in all N in Morpheus**.
+- **VM tab layout:** the action buttons are the same width, on the left, with their status to the right and the detail underneath; **Fill in OS fields** follows the same layout.
 
 ## 0.7.0 (2026-11-02)
 

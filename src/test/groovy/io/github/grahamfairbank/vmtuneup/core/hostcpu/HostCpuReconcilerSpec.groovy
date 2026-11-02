@@ -26,8 +26,10 @@ class HostCpuReconcilerSpec extends Specification {
 		with(r.finding('HOSTS-IDENTICAL')) {
 			text.contains('All 3 hosts report the same CPU')
 			text.contains('host-model (Broadwell-noTSX-IBRS)')
-			recommendation.contains('add only hosts with the same CPU and microcode')
-			recommendation.contains('Broadwell-noTSX-IBRS is the newest one every host can run')
+			title == 'Identical hosts: host passthrough is fine'
+			text.contains('Because the hosts are identical, that is fine')
+			recommendation.contains('The CPU Model setting will need to change before you add a host with a different CPU or microcode')
+			recommendation.contains('today that is Broadwell-noTSX-IBRS')
 			evidence.keySet() as List == ['hvm-host-01', 'hvm-host-02', 'hvm-host-03']
 			evidence['hvm-host-02'].contains('microcode 0x700001c')
 		}

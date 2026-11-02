@@ -6,7 +6,7 @@ import static io.github.grahamfairbank.vmtuneup.core.Fixtures.*
 
 class TuneUpPlanSpec extends Specification {
 
-	def "an IDE import gets one cold window with the disk bus and NIC fixes, in fix order"() {
+	def "an IDE import gets one outage with the disk bus and NIC fixes, in fix order"() {
 		when:
 		TuneUpPlan p = TuneUpPlan.of(VmReport.scan(vm('vm-ide-import'), ctx()))
 
@@ -15,7 +15,7 @@ class TuneUpPlanSpec extends Specification {
 		p.cold*.checkId == ['T1-DISK-BUS', 'T1-NIC-MODEL']
 		p.steps.every { it.check.category == Category.RECOMMENDATION }
 		p.considerations*.checkId.every { !(it in p.steps*.checkId) }
-		p.windowLabel.startsWith('One cold window')
+		p.windowLabel.startsWith('One outage of this VM')
 		p.windowCode == 'cold'
 	}
 
