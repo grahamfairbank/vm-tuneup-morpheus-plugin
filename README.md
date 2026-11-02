@@ -273,7 +273,7 @@ Ideas and pull requests are welcome; see [Contributing](#contributing).
 
 ## Sources, attribution and trademarks
 
-This plugin was written from scratch, using HPE's public documentation ([docs.morpheusdata.com](https://docs.morpheusdata.com/en/9.1/)) and the Morpheus plugin API as references, and follows the architecture of its sibling project [com-morpheus-plugin](https://github.com/grahamfairbank/com-morpheus-plugin). It is an independent community project, not an HPE product, and isn't supported by HPE. **[NOTICE.md](NOTICE.md)** lists every source, its license and exactly how it was used, how the test data and screenshots were made, and the full trademark notices.
+This plugin was written from scratch, using HPE's public documentation ([docs.morpheusdata.com](https://docs.morpheusdata.com/en/9.1/) and its source on GitHub, [HewlettPackard/morpheus-docs](https://github.com/HewlettPackard/morpheus-docs)) and the Morpheus plugin API as references, and follows the architecture of its sibling project [com-morpheus-plugin](https://github.com/grahamfairbank/com-morpheus-plugin). It is an independent community project, not an HPE product, and isn't supported by HPE. **[NOTICE.md](NOTICE.md)** lists every source, its license and exactly how it was used, how the test data and screenshots were made, and the full trademark notices.
 
 ## License
 

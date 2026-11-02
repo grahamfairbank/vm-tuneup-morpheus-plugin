@@ -38,7 +38,7 @@ This builds and tests one jar into `dist/`. It's compiled against Plugin API 1.4
 - **Read-only.** The plugin reports and explains; it never changes a VM. Fixes are planned by people and done in Morpheus or inside the guest. Anything that would write to Morpheus or a VM needs a design discussion in an issue first.
 - **Every check describes its impact.** A check needs "If you leave it" and "If you fix it" (downtime, risk, whether it can be undone, prerequisites in order). The `Check` model refuses a definition without them.
 - **Recommendation or Consideration.** A Recommendation must be doable in the VME UI or inside the guest OS. Anything that needs host-level work (editing libvirt or host files, for example) is a Consideration and is never recommended.
-- **Cite HPE documentation first** ([docs.morpheusdata.com](https://docs.morpheusdata.com/en/9.1/)), paraphrased, never copied. Say what isn't verified yet.
+- **Cite HPE documentation first** ([docs.morpheusdata.com](https://docs.morpheusdata.com/en/9.1/), or its source on GitHub, [HewlettPackard/morpheus-docs](https://github.com/HewlettPackard/morpheus-docs), which is easier to search), paraphrased, never copied. Say what isn't verified yet.
 - **Unknown is not a pass.** If the data isn't there, the check is unknown, with the reason.
 - **Tabs never block a page load.** No service calls in a tab's `show()` or `renderTemplate()`; `NonBlockingSpec` checks this.
 - **Guest commands** come from a fixed, built-in list. Never run user-supplied text in a guest.
